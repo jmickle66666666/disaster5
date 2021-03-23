@@ -25,14 +25,6 @@ namespace Disaster
         }
     }
 
-    public struct Color33
-    {
-        public byte r;
-        public byte g;
-        public byte b;
-        public byte a;
-    }
-
     public struct Vector2Int {
         public int x;
         public int y;

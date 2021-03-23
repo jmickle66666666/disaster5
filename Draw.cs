@@ -44,7 +44,7 @@ namespace Disaster {
 
             fontBuffer = new bool[fontWidth, fontHeight];
             unsafe {
-                Color33* colors = (Color33*) fontSurface.pixels;
+                Color32* colors = (Color32*) fontSurface.pixels;
                 
                 for (int i = 0; i < fontWidth; i++) {
                     for (int j = 0; j < fontHeight; j++) {
