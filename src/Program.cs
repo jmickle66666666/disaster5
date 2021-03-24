@@ -51,6 +51,9 @@ namespace Disaster
             Draw.InitTexture(renderer, 320, 240);
             Draw.LoadFont(renderer, "./res/font1b.png");
 
+            // scripting engine initialisation
+            var js = new JS();
+
             // var test = new Test();
             var test = new OGLTest(window);
             while (running)
@@ -65,6 +68,7 @@ namespace Disaster
                     }
                 }
 
+                js.Update();
                 test.Update();
 
                 // Draw.ApplyColorBuffer(renderer);

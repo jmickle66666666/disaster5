@@ -39,16 +39,16 @@ namespace Disaster {
             renderers.Add(radio);
             renderers.Add(laptop);
 
-            test = new Test();
+            // test = new Test();
         }
 
-        Test test;
+        // Test test;
         public void Update() {
 
-            Draw.FillRect(0, 0, 320, 240, new Color32(100, 100, 100, 0));
+            // Draw.FillRect(0, 0, 320, 240, new Color32(100, 100, 100, 0));
 
             // software render test drawing
-            test.Update();
+            // test.Update();
 
             // render software texture to opengl
             Draw.CreateOGLTexture();
