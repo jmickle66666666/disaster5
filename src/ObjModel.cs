@@ -25,7 +25,7 @@ namespace Disaster {
         public ObjVertex C;
     }
 
-    public struct ObjFile {
+    public struct ObjModel {
         public string name;
         public VBO<Vector3> vertices;
         public VBO<Vector2> uvs;
@@ -40,7 +40,7 @@ namespace Disaster {
             triangles.Dispose();
         }
 
-        public static ObjFile Parse(string path)
+        public static ObjModel Parse(string path)
         {
             string objName = "unnamed";
             List<Vector3> vertices = new List<Vector3>();
@@ -237,7 +237,7 @@ namespace Disaster {
             }
 
             // convert to VBOs for opengl to play with
-            return new ObjFile () {
+            return new ObjModel () {
                 vertices = new VBO<Vector3>(vertices.ToArray()),
                 triangles = new VBO<uint>(indices.ToArray(), BufferTarget.ElementArrayBuffer),
                 normals = new VBO<Vector3>(normals.ToArray()),

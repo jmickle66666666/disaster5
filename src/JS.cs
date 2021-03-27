@@ -6,26 +6,36 @@ namespace Disaster {
 
     public class JS
     {
+        public static JS instance;
         public string basedir;
         public ScriptEngine engine;
         public Dictionary<string, Jurassic.Library.GlobalObject> cachedScripts;
         public List<string> currentlyLoadingScripts;
         Jurassic.Library.FunctionInstance updateFunction;
+        
         public JS()
+        {
+            instance = this;
+            LoadConfig();
+            LoadScripts();
+        }
+
+        public void Reset()
         {
             LoadConfig();
             LoadScripts();
         }
 
-        public void Update()
+        public void Update(double deltaTime)
         {
+            engine.Execute($"System.deltaTime = {deltaTime}");
             updateFunction.Call(null);
         }
 
         public static void LoadStandardFunctions(ScriptEngine engine)
         {
             engine.SetGlobalFunction("load", new System.Func<string, object>((string path) => {
-                return Assets.LoadScript(path);
+                return Assets.Script(path);
             }));
 
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));

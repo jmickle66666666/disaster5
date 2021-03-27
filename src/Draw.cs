@@ -19,6 +19,7 @@ namespace Disaster {
         public static Color32[] colorBuffer;
         public static int fontWidth;
         public static int fontHeight;
+        public static IntPtr renderer;
 
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
 
@@ -27,13 +28,14 @@ namespace Disaster {
             textureWidth = width;
             textureHeight = height;
             drawTexture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int) SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
+            Draw.renderer = renderer;
 
             colorBuffer = new Color32[textureHeight * textureWidth];
             Clear();
         }
 
         static bool[,] fontBuffer;
-        public static void LoadFont(IntPtr renderer, string fontPath)
+        public static void LoadFont(string fontPath)
         {
             // var surf = SDL_image.IMG_Load(fontPath);
             var fontTexture = SDL_image.IMG_LoadTexture(renderer, fontPath);
@@ -371,7 +373,7 @@ namespace Disaster {
             }
         }
 
-        public static void DrawPixel(int x, int y, Color32 color)
+        public static void Pixel(int x, int y, Color32 color)
         {
             colorBuffer[PointToBufferIndex(x, y)] = color;
         }

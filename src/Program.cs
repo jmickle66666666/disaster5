@@ -5,7 +5,7 @@ using SDL2;
 
 namespace Disaster
 {
-
+    
     class Program
     {
         static void Main(string[] args)
@@ -45,19 +45,25 @@ namespace Disaster
             SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
             var running = true;
-            var frameStart = DateTime.Now.Ticks;
+            var frameStart = DateTime.UtcNow.Ticks;
 
             // software renderer initialisation
             Draw.InitTexture(renderer, 320, 240);
-            Draw.LoadFont(renderer, "./res/font1b.png");
+            Draw.LoadFont("./res/fontsmall.png");
 
             // scripting engine initialisation
             var js = new JS();
+            double ms = 0;
 
-            // var test = new Test();
-            var test = new OGLTest(window);
+            var test = new ScreenController(window);
             while (running)
             {
+                long t = DateTime.UtcNow.Ticks - frameStart;
+                ms = t / 10000.0;
+                uint delayTime = (uint) (16 - ms);
+                double fps = 1000.0 / ms;
+                frameStart = DateTime.UtcNow.Ticks;
+
                 while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
                 {
                     switch (e.type)
@@ -68,25 +74,18 @@ namespace Disaster
                     }
                 }
 
-                js.Update();
+                js.Update(ms);
                 test.Update();
 
-                // Draw.ApplyColorBuffer(renderer);
-                // SDL.SDL_RenderPresent(renderer);
-
-                long t = DateTime.Now.Ticks - frameStart;
-                double ms = t / 10000.0;
-                uint delayTime = (uint) (16 - ms);
-                double fps = 1000.0 / ms;
                 SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {ms} -- FPS: {fps} -- delay: {delayTime}");
-                // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
+                if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
 
-                frameStart = DateTime.Now.Ticks;
             }
 
             test.Done();
 
             // Clean up the resources that were created.
+            Assets.Dispose();
             SDL.SDL_DestroyRenderer(renderer);
             SDL.SDL_DestroyTexture(Draw.drawTexture);
             SDL.SDL_DestroyWindow(window);

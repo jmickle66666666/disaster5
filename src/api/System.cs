@@ -10,7 +10,9 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "unlockMouse")] public void UnlockMouse() {}
-        [JSFunction(Name = "reset")] public void Reset() {}
+        [JSFunction(Name = "reset")] public void Reset() {
+            Disaster.JS.instance.Reset();
+        }
         [JSFunction(Name = "fogColor")] public void FogColor(double r, double g, double b) {}
     }
 }
