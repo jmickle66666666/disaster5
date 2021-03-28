@@ -22,7 +22,7 @@ namespace Disaster
         public static Vector3 Vector3(ObjectInstance input)
         {
             float X = 0, Y = 0, Z = 0;
-            
+
             if (input.TryGetPropertyValue("x", out object x)) { X = GetFloat(x); }
             if (input.TryGetPropertyValue("y", out object y)) { Y = GetFloat(y); }
             if (input.TryGetPropertyValue("z", out object z)) { Z = GetFloat(z); }

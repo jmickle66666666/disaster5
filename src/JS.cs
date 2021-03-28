@@ -12,6 +12,7 @@ namespace Disaster {
         public Dictionary<string, Jurassic.Library.GlobalObject> cachedScripts;
         public List<string> currentlyLoadingScripts;
         Jurassic.Library.FunctionInstance updateFunction;
+        Jurassic.Library.ObjectInstance system;
         
         public JS()
         {
@@ -28,7 +29,8 @@ namespace Disaster {
 
         public void Update(double deltaTime)
         {
-            engine.Execute($"System.deltaTime = {deltaTime}");
+            system.SetPropertyValue("deltaTime", deltaTime, false);
+            
             updateFunction.Call(null);
         }
 
@@ -51,11 +53,14 @@ namespace Disaster {
             engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
             
             LoadStandardFunctions(engine);
+        
+            engine.Execute("var System = {}");
             engine.Execute(
                 File.ReadAllText(Path.Combine(basedir, "main.js"))
             );
 
             updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
+            system = engine.GetGlobalValue<Jurassic.Library.ObjectInstance>("System");
         }
 
         void LoadConfig()

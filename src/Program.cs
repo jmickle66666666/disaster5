@@ -48,20 +48,24 @@ namespace Disaster
             var frameStart = DateTime.UtcNow.Ticks;
 
             // software renderer initialisation
+
             Draw.InitTexture(renderer, 320, 240);
-            Draw.LoadFont("./res/fontsmall.png");
+            var path = System.IO.Path.Combine("base/fontsmall.png");
+            Draw.LoadFont(System.IO.Path.GetFullPath(path));
 
             // scripting engine initialisation
             var js = new JS();
             double ms = 0;
+            int frame = 0;
 
             var test = new ScreenController(window);
             while (running)
             {
+                frame += 1;
                 long t = DateTime.UtcNow.Ticks - frameStart;
                 ms = t / 10000.0;
-                uint delayTime = (uint) (16 - ms);
-                double fps = 1000.0 / ms;
+                //uint delayTime = (uint) (16 - ms);
+                //double fps = 1000.0 / ms;
                 frameStart = DateTime.UtcNow.Ticks;
 
                 while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
@@ -77,9 +81,14 @@ namespace Disaster
                 js.Update(ms);
                 test.Update();
 
-                SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {ms} -- FPS: {fps} -- delay: {delayTime}");
-                if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
+                SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");// -- FPS: {fps} -- delay: {delayTime}");
+                // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
 
+                if (frame % 60 == 0)
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                }
             }
 
             test.Done();

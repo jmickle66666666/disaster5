@@ -20,6 +20,7 @@ namespace Disaster {
         public static int fontWidth;
         public static int fontHeight;
         public static IntPtr renderer;
+        public static IntPtr pixels;
 
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
 
@@ -29,6 +30,7 @@ namespace Disaster {
             textureHeight = height;
             drawTexture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int) SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
             Draw.renderer = renderer;
+            pixels = Marshal.AllocHGlobal(textureWidth * textureHeight * 4);
 
             colorBuffer = new Color32[textureHeight * textureWidth];
             Clear();
@@ -37,10 +39,9 @@ namespace Disaster {
         static bool[,] fontBuffer;
         public static void LoadFont(string fontPath)
         {
-            // var surf = SDL_image.IMG_Load(fontPath);
-            var fontTexture = SDL_image.IMG_LoadTexture(renderer, fontPath);
+            var surf = SDL_image.IMG_Load(fontPath);
 
-            var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(SDL_image.IMG_Load(fontPath));
+            var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
             fontWidth = fontSurface.w;
             fontHeight = fontSurface.h;
 
@@ -413,24 +414,24 @@ namespace Disaster {
 
         public static Texture CreateOGLTexture()
         {
-            if (texture != null) {
-                texture.Dispose();
-            }
-
             if (drawTexture == null) {
                 return null;
             }
 
-            SDL.SDL_LockTexture(drawTexture, IntPtr.Zero, out IntPtr pixels, out int pitch);
-
-            unsafe {
-                colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth*textureHeight*4));
+            unsafe
+            {
+                colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
             }
             
-            SDL.SDL_UpdateTexture(drawTexture, IntPtr.Zero, pixels, pitch);
-            SDL.SDL_UnlockTexture(drawTexture);
-
-            texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+            if (texture == null)
+            {
+                texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+                
+            } 
+            else
+            {
+                Gl.TexSubImage2D(texture.TextureTarget, 1, 0, 0, textureWidth, textureHeight, PixelFormat.Rgba, PixelType.Byte, pixels);
+            }
 
             return texture;
         }

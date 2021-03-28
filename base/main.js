@@ -1,6 +1,8 @@
-var color = {r:255, g: 127, b:20, a:255};
+var test = load("test.js");
 
-Draw.loadFont("res/font1b.png");
+var color = { r: 255, g: 127, b: 20, a: 255 };
+
+Draw.loadFont("base/font1b.png");
 
 var t = 0;
 function update()
