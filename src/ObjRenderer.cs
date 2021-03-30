@@ -5,6 +5,7 @@ using System;
 using SDL2;
 using System.Runtime.InteropServices;
 using System.Numerics;
+using System.Collections.Generic;
 
 namespace Disaster {
     public class ObjRenderer : Renderer {
@@ -12,6 +13,9 @@ namespace Disaster {
         public ShaderProgram shader;
         public Texture texture;
         public Matrix4 transform;
+
+        //static Dictionary<int, ShaderProgram> shaderCache;
+        static int currentShader = -1;
 
         public ObjRenderer(ObjModel model, ShaderProgram shader, Texture texture) {
             this.model = model;
@@ -37,6 +41,7 @@ namespace Disaster {
 
         public static void EnqueueRender(ObjModel objFile, ShaderProgram shader, Texture texture, Matrix4 transform)
         {
+            
             if (renderQueue == null) {
                 renderQueue = new (ObjModel objFile, ShaderProgram shader, Texture texture, Matrix4 transform)[16];
             }
@@ -59,14 +64,19 @@ namespace Disaster {
                 );
             }
             renderQueueLength = 0;
+            currentShader = -1;
         }
 
         public static void Render(ObjModel objFile, ShaderProgram shader, Texture texture, Matrix4 transform)
         {
-            
             Gl.Enable(EnableCap.DepthTest);
+            int shaderHash = shader.GetHashCode();
+            if (currentShader != shaderHash)
+            {
+                Gl.UseProgram(shader);
+                currentShader = shaderHash;
+            }
             shader["projection_matrix"].SetValue(Matrix4.CreatePerspectiveFieldOfView(1f, (float)320 / 240, 0.1f, 1000f));
-            Gl.UseProgram(shader);
             shader["modelview_matrix"].SetValue(transform);
             Gl.BindBufferToShaderAttribute(objFile.vertices, shader, "pos");
             Gl.BindBufferToShaderAttribute(objFile.uvs, shader, "uv");

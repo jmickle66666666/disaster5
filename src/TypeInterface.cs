@@ -12,10 +12,10 @@ namespace Disaster
         {
             byte R = 0, G = 0, B = 0;
             byte A = 255;
-            if (input.TryGetPropertyValue("r", out object r)) { R = Convert.ToByte(Math.Clamp((int) r, 0, 255)); }
-            if (input.TryGetPropertyValue("g", out object g)) { G = Convert.ToByte(Math.Clamp((int) g, 0, 255)); }
-            if (input.TryGetPropertyValue("b", out object b)) { B = Convert.ToByte(Math.Clamp((int) b, 0, 255)); }
-            if (input.TryGetPropertyValue("a", out object a)) { A = Convert.ToByte(Math.Clamp((int) a, 0, 255)); }
+            if (input.TryGetPropertyValue("r", out object r)) { R = GetByteSafe(r); }
+            if (input.TryGetPropertyValue("g", out object g)) { G = GetByteSafe(g); }
+            if (input.TryGetPropertyValue("b", out object b)) { B = GetByteSafe(b); }
+            if (input.TryGetPropertyValue("a", out object a)) { A = GetByteSafe(a); }
             return new Disaster.Color32(R, G, B, A);
         }
 
@@ -28,6 +28,24 @@ namespace Disaster
             if (input.TryGetPropertyValue("z", out object z)) { Z = GetFloat(z); }
             
             return new System.Numerics.Vector3(X, Y ,Z);
+        }
+
+        static byte GetByte(object value) {
+            IConvertible val = (IConvertible) value;
+            byte cast = val.ToByte(null);
+            return cast;
+        }
+
+        static byte GetByteSafe(object value) {
+            int val = GetInt(value);
+            val = Math.Clamp(val, 0, 255);
+            return (byte) val;
+        }
+
+        static int GetInt(object value) {
+            IConvertible val = (IConvertible) value;
+            int cast = val.ToInt32(null);
+            return cast;
         }
 
         static float GetFloat(object value) {

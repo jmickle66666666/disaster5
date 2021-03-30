@@ -95,9 +95,12 @@ namespace Disaster
 
         public static void Dispose()
         {
-            foreach (var t in textures.Values)
+            if (textures != null)
             {
-                t.Dispose();
+                foreach (var t in textures.Values)
+                {
+                    t.Dispose();
+                }
             }
         }
     }

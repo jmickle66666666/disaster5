@@ -11,7 +11,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "loadFont")] public void LoadFont(string fontPath) {
-            Disaster.Draw.LoadFont(fontPath);
+            Disaster.Draw.LoadFont(Disaster.Assets.LoadPath(fontPath));
         }
 
         [JSFunction(Name = "clear")] public void Clear() {

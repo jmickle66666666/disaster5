@@ -2,6 +2,7 @@ using System.IO;
 using System;
 using Jurassic;
 using System.Collections.Generic;
+
 namespace Disaster {
 
     public class JS
@@ -17,21 +18,23 @@ namespace Disaster {
         public JS()
         {
             instance = this;
-            LoadConfig();
             LoadScripts();
+
+
         }
 
         public void Reset()
         {
-            LoadConfig();
             LoadScripts();
         }
 
         public void Update(double deltaTime)
         {
             system.SetPropertyValue("deltaTime", deltaTime, false);
+
+            //updateFunction.Call(null);
+            engine.CallGlobalFunction("update");
             
-            updateFunction.Call(null);
         }
 
         public static void LoadStandardFunctions(ScriptEngine engine)
@@ -56,34 +59,14 @@ namespace Disaster {
         
             engine.Execute("var System = {}");
             engine.Execute(
-                File.ReadAllText(Path.Combine(basedir, "main.js"))
+                File.ReadAllText(Path.Combine(Assets.basePath, "main.js"))
             );
 
             updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
+
             system = engine.GetGlobalValue<Jurassic.Library.ObjectInstance>("System");
         }
 
-        void LoadConfig()
-        {
-            string[] lines = File.ReadAllLines("disaster.cfg");
-
-            foreach (var line in lines)
-            {
-                string[] tokens = line.Split(' ');
-                switch (tokens[0])
-                {
-                    case "basedir":
-                        if (tokens.Length != 2) {
-                            Console.WriteLine($"Unexpected number of tokens: {line}");
-                            break;
-                        }
-                        basedir = tokens[1];
-                        break;
-                }
-            }
-
-            Assets.basePath = basedir;
-        }
     }
 
 }

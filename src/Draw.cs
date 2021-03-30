@@ -39,9 +39,10 @@ namespace Disaster {
         static bool[,] fontBuffer;
         public static void LoadFont(string fontPath)
         {
+            Console.WriteLine($"Loading font: {fontPath}");
             var surf = SDL_image.IMG_Load(fontPath);
-
             var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
+
             fontWidth = fontSurface.w;
             fontHeight = fontSurface.h;
 
@@ -422,16 +423,26 @@ namespace Disaster {
             {
                 colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
             }
-            
-            if (texture == null)
+
+            if (texture != null)
             {
-                texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-                
-            } 
-            else
-            {
-                Gl.TexSubImage2D(texture.TextureTarget, 1, 0, 0, textureWidth, textureHeight, PixelFormat.Rgba, PixelType.Byte, pixels);
+                texture.Dispose();
             }
+                texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+            
+            // if (texture == null)
+            // {
+            //     texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+                
+            // } 
+            // else
+            // {
+            //     // Gl.Enable(OpenGL.EnableCap.Texture2D);
+            //     Gl.TexSubImage2D(texture.TextureTarget, 1, 0, 0, textureWidth, textureHeight, PixelFormat.Rgba, PixelType.Byte, pixels);
+                
+            // }
+
+            
 
             return texture;
         }
