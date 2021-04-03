@@ -44,7 +44,7 @@ public class Testy
         color2.g = (byte)(int)MathF.Floor(128 + MathF.Sin(ct + 4) * 128);
         Draw.Text(75, 124, "SPINNING LAPTOP ZOME", color2);
         randIndex = 0;
-        for (int i = 0; i < 10000; i++)
+        for (int i = 0; i < 10; i++)
         {
             rotation.Y = t / 1000f;
             position.X = -5 + Random() * 10f;

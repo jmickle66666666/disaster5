@@ -4,6 +4,7 @@ using Jurassic.Library;
 using System.IO;
 using System;
 using OpenGL;
+using SDL2;
 
 namespace Disaster 
 {
@@ -14,6 +15,7 @@ namespace Disaster
         public static List<string> currentlyLoadingScripts;
         public static Dictionary<string, Texture> textures;
         public static Dictionary<string, ObjModel> objModels;
+        public static Dictionary<string, IntPtr> audio;
 
         static ShaderProgram _defaultShader;
         public static ShaderProgram defaultShader {
@@ -91,6 +93,18 @@ namespace Disaster
             }
 
             return scripts[path];
+        }
+
+        public static IntPtr Audio(string path)
+        {
+            if (audio == null) audio = new Dictionary<string, IntPtr>();
+            if (!audio.ContainsKey(path))
+            {
+                var audioPath = LoadPath(path);
+                var newAudio = SDL_mixer.Mix_LoadMUS(Assets.LoadPath("wove.ogg"));
+                audio.Add(path, newAudio);
+            }
+            return audio[path];
         }
 
         public static void Dispose()

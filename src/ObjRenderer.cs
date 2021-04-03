@@ -8,7 +8,7 @@ using System.Numerics;
 using System.Collections.Generic;
 
 namespace Disaster {
-    public class ObjRenderer : Renderer {
+    public struct ObjRenderer : Renderer {
         public ObjModel model;
         public ShaderProgram shader;
         public Texture texture;
@@ -54,14 +54,40 @@ namespace Disaster {
 
         public static void RenderQueue()
         {
+            //Array.Sort(renderQueue, (a, b) =>
+            //{
+            //    int shaderHash1 = a.shader.GetHashCode();
+            //    int shaderHash2 = b.shader.GetHashCode();
+            //    if (shaderHash1 == shaderHash2)
+            //    {
+            //        return a.objFile.hash - b.objFile.hash;
+            //    }
+            //    return shaderHash1 - shaderHash2;
+            //});
+            int currentModelHash = -1;
             for (int i = 0; i < renderQueueLength; i++)
             {
-                Render(
-                    renderQueue[i].objFile,
-                    renderQueue[i].shader,
-                    renderQueue[i].texture,
-                    renderQueue[i].transform
-                );
+                int shaderHash = renderQueue[i].shader.GetHashCode();
+                if (currentShader != shaderHash)
+                {
+                    Gl.UseProgram(renderQueue[i].shader);
+                    currentShader = shaderHash;
+                    renderQueue[i].shader["projection_matrix"].SetValue(Matrix4.CreatePerspectiveFieldOfView(1f, (float)320 / 240, 0.1f, 1000f));
+                }
+
+                int modelHash = renderQueue[i].objFile.hash;
+                if (currentModelHash != modelHash)
+                {
+                    currentModelHash = modelHash;
+                    Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.vertices, renderQueue[i].shader, "pos");
+                    Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.uvs, renderQueue[i].shader, "uv");
+                    Gl.BindBuffer(renderQueue[i].objFile.triangles);
+                }
+
+                renderQueue[i].shader["modelview_matrix"].SetValue(renderQueue[i].transform);
+                Gl.BindTexture(renderQueue[i].texture);
+
+                Gl.DrawElements(BeginMode.Triangles, renderQueue[i].objFile.triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
             }
             renderQueueLength = 0;
             currentShader = -1;

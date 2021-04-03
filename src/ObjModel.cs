@@ -31,6 +31,7 @@ namespace Disaster {
         public VBO<Vector2> uvs;
         public VBO<Vector3> normals;
         public VBO<uint> triangles;
+        public int hash;
 
         public void Dispose()
         {
@@ -237,13 +238,15 @@ namespace Disaster {
             }
 
             // convert to VBOs for opengl to play with
-            return new ObjModel () {
+            var output = new ObjModel () {
                 vertices = new VBO<Vector3>(vertices.ToArray()),
                 triangles = new VBO<uint>(indices.ToArray(), BufferTarget.ElementArrayBuffer),
                 normals = new VBO<Vector3>(normals.ToArray()),
                 uvs = new VBO<Vector2>(uvs.ToArray()),
                 name = objName
             };
+            output.hash = output.GetHashCode();
+            return output;
         }
     }
 

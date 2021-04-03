@@ -37,7 +37,6 @@ namespace Disaster
         }
         static void Main(string[] args)
         {
-
             if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_AUDIO) < 0) {
                 Console.WriteLine("Error initializing SDL");
                 SDL.SDL_Quit();
@@ -93,16 +92,16 @@ namespace Disaster
             double ms = 0;
             int frame = 0;
 
-
-
+            DisasterEngine.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
+            
 
             SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
 
 
-            var wav = SDL_mixer.Mix_LoadMUS(Assets.LoadPath("wove.ogg"));
+            //var wav = SDL_mixer.Mix_LoadMUS(Assets.LoadPath("wove.ogg"));
             // Console.WriteLine(System.IO.File.Exists("base/wove.mp3"));
-            if (wav == IntPtr.Zero) Console.WriteLine($"problam {SDL.SDL_GetError()}");
-            SDL_mixer.Mix_PlayMusic(wav, 1);
+            //if (wav == IntPtr.Zero) Console.WriteLine($"problam {SDL.SDL_GetError()}");
+            //SDL_mixer.Mix_PlayMusic(wav, 1);
 
             var test = new ScreenController(window);
             while (running)
@@ -121,6 +120,14 @@ namespace Disaster
                         case SDL.SDL_EventType.SDL_QUIT:
                             running = false;
                             break;
+                        case SDL.SDL_EventType.SDL_KEYDOWN:
+                            int keyDown = (int) e.key.keysym.sym;
+                            DisasterEngine.Input.keyState[e.key.keysym.sym] = (true, true, DisasterEngine.Input.GetKeyUp(e.key.keysym.sym));
+                            break;
+                        case SDL.SDL_EventType.SDL_KEYUP:
+                            int keyUp = (int)e.key.keysym.sym;
+                            DisasterEngine.Input.keyState[e.key.keysym.sym] = (DisasterEngine.Input.GetKeyDown(e.key.keysym.sym), false, true);
+                            break;
                     }
                 }
 
@@ -133,6 +140,8 @@ namespace Disaster
 
 #endif
                 test.Update();
+
+                DisasterEngine.Input.Clear();
 
                 SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");// -- FPS: {fps} -- delay: {delayTime}");
                 // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);

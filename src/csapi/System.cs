@@ -7,6 +7,10 @@ namespace DisasterEngine
         public void Reset() {
             Disaster.JS.instance.Reset();
         }
+        public void Quit()
+        {
+
+        }
         public void FogColor(double r, double g, double b) {}
     }
 }
