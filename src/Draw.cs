@@ -24,6 +24,23 @@ namespace Disaster {
 
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
 
+        public static int MaxTextLength()
+        {
+            return (textureWidth / fontWidth);
+        }
+
+        public static string[] SplitLineToFitScreen(string message)
+        {
+            int necessaryLines = 1 + (message.Length / MaxTextLength());
+            string[] output = new string[necessaryLines];
+            for (int i = 0; i < necessaryLines; i++)
+            {
+                int end = (int) MathF.Min(message.Length - (i * MaxTextLength()), MaxTextLength());
+                output[i] = message.Substring(i * MaxTextLength(), end);
+            }
+            return output;
+        }
+
         public static void InitTexture(IntPtr renderer, int width, int height)
         {
             textureWidth = width;
@@ -39,7 +56,6 @@ namespace Disaster {
         static bool[,] fontBuffer;
         public static void LoadFont(string fontPath)
         {
-            Console.WriteLine($"Loading font: {fontPath}");
             var surf = SDL_image.IMG_Load(fontPath);
             var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
 

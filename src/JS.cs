@@ -13,14 +13,11 @@ namespace Disaster {
         public Dictionary<string, Jurassic.Library.GlobalObject> cachedScripts;
         public List<string> currentlyLoadingScripts;
         Jurassic.Library.FunctionInstance updateFunction;
-        Jurassic.Library.ObjectInstance system;
         
         public JS()
         {
             instance = this;
             LoadScripts();
-
-
         }
 
         public void Reset()
@@ -28,12 +25,22 @@ namespace Disaster {
             LoadScripts();
         }
 
+        bool stopped = false;
+
         public void Update(double deltaTime)
         {
-            system.SetPropertyValue("deltaTime", deltaTime, false);
+            if (stopped) return;
 
-            //updateFunction.Call(null);
-            engine.CallGlobalFunction("update");
+            try
+            {
+                updateFunction.Call(null, deltaTime);
+            }
+            catch (JavaScriptException e)
+            {
+                string message = $"path: {e.SourcePath}:{e.LineNumber} message: {e.Message}";
+                Program.LoadingMessage(message, new Color32(255, 50, 0));
+                stopped = true;
+            }
             
         }
 
@@ -44,6 +51,8 @@ namespace Disaster {
             }));
 
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));
+            engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
+            engine.SetGlobalValue("Input", new DisasterAPI.Input(engine));
         }
 
         void LoadScripts()
@@ -51,20 +60,20 @@ namespace Disaster {
             cachedScripts = new Dictionary<string, Jurassic.Library.GlobalObject>();
             currentlyLoadingScripts = new List<string>();
             engine = new ScriptEngine();
-            
-            engine.SetGlobalValue("System", new DisasterAPI.System(engine));
-            engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
-            
+
             LoadStandardFunctions(engine);
         
-            engine.Execute("var System = {}");
-            engine.Execute(
-                File.ReadAllText(Path.Combine(Assets.basePath, "main.js"))
-            );
+            try
+            {
+                engine.Execute(
+                    File.ReadAllText(Path.Combine(Assets.basePath, "main.js"))
+                );
+            } catch (Exception e)
+            {
+                Program.LoadingMessage(e.Message);
+            }
 
             updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
-
-            system = engine.GetGlobalValue<Jurassic.Library.ObjectInstance>("System");
         }
 
     }

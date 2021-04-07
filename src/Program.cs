@@ -1,8 +1,5 @@
 ﻿// entry point
 
-//#define JS
-//#define localcs
-
 using System;
 using SDL2;
 using System.IO;
@@ -34,6 +31,27 @@ namespace Disaster
             }
 
             Assets.basePath = basedir;
+        }
+
+        static ScreenController screen;
+        static int loadingScreenPosition = 0;
+
+        public static void LoadingMessage(string message)
+        {
+            LoadingMessage(message, new Color32(255, 140, 0));
+        }
+
+        public static void LoadingMessage(string message, Color32 color)
+        {
+            string[] lines = Draw.SplitLineToFitScreen(message);
+            Console.WriteLine(message);
+            foreach (var l in lines)
+            {
+                if (l == "") continue;
+                Draw.Text(0, loadingScreenPosition, color, l);
+                loadingScreenPosition += Draw.fontHeight;
+            }
+            screen.Update();
         }
         static void Main(string[] args)
         {
@@ -74,27 +92,23 @@ namespace Disaster
             var frameStart = DateTime.UtcNow.Ticks;
 
             // software renderer initialisation
-
             Draw.InitTexture(renderer, 320, 240);
-            //var path = System.IO.Path.Combine("base/fontsmall.png");
             LoadConfig();
             Draw.LoadFont(Assets.LoadPath("fontsmall.png"));
-            // scripting engine initialisation
 
-#if JS
+            screen = new ScreenController(window);
+            LoadingMessage("disaster engine 5.0");
+            LoadingMessage("(c) jazz mickle ultramegacorp 2021");
+            LoadingMessage("initialised screen");
             var js = new JS();
-#elif localcs
-            var testy = new Testy();
-            testy.Init();
-#else
-            var sr = new ScriptRunner();
-#endif
+            
             double ms = 0;
             int frame = 0;
 
-            DisasterEngine.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
-            
+            LoadingMessage("building input collection");
+            DisasterAPI.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
 
+            LoadingMessage("opening audio");
             SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
 
 
@@ -102,8 +116,8 @@ namespace Disaster
             // Console.WriteLine(System.IO.File.Exists("base/wove.mp3"));
             //if (wav == IntPtr.Zero) Console.WriteLine($"problam {SDL.SDL_GetError()}");
             //SDL_mixer.Mix_PlayMusic(wav, 1);
+            LoadingMessage("complete");
 
-            var test = new ScreenController(window);
             while (running)
             {
                 frame += 1;
@@ -122,38 +136,32 @@ namespace Disaster
                             break;
                         case SDL.SDL_EventType.SDL_KEYDOWN:
                             int keyDown = (int) e.key.keysym.sym;
-                            DisasterEngine.Input.keyState[e.key.keysym.sym] = (true, true, DisasterEngine.Input.GetKeyUp(e.key.keysym.sym));
+                            DisasterAPI.Input.keyState[e.key.keysym.sym] = (true, true, DisasterAPI.Input.GetKeyUp(e.key.keysym.sym));
                             break;
                         case SDL.SDL_EventType.SDL_KEYUP:
                             int keyUp = (int)e.key.keysym.sym;
-                            DisasterEngine.Input.keyState[e.key.keysym.sym] = (DisasterEngine.Input.GetKeyDown(e.key.keysym.sym), false, true);
+                            DisasterAPI.Input.keyState[e.key.keysym.sym] = (DisasterAPI.Input.GetKeyDown(e.key.keysym.sym), false, true);
                             break;
                     }
                 }
 
-#if JS
                 js.Update(ms);
-#elif localcs
-                testy.Update((float) ms);
-#else
-                sr.Update((float)ms);
+                screen.Update();
 
-#endif
-                test.Update();
-
-                DisasterEngine.Input.Clear();
+                DisasterAPI.Input.Clear();
 
                 SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");// -- FPS: {fps} -- delay: {delayTime}");
-                // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
+                                                                                             // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
 
-                if (frame % 60 == 0)
+                //if (frame % 30 == 0)
+                if (GC.GetTotalMemory(false) > 10000000)
                 {
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }
             }
 
-            test.Done();
+            screen.Done();
 
             // Clean up the resources that were created.
             Assets.Dispose();
