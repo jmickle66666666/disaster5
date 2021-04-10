@@ -19,6 +19,12 @@ namespace Disaster {
         uint texture;
         ShaderProgram shader;
 
+        public static int screenWidth = 320;
+        public static int screenHeight = 240;
+
+        public static int windowWidth = 640;
+        public static int windowHeight = 480;
+
         public ScreenController(IntPtr window) {
             this.window = window;
 
@@ -33,14 +39,14 @@ namespace Disaster {
 
             texture = Gl.GenTexture();
             Gl.BindTexture(TextureTarget.Texture2D, texture);
-            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, 320, 240, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
+            Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, screenWidth, screenHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, TextureParameter.Nearest);
 
             var renderBuffer = Gl.GenRenderbuffer();
             Gl.BindRenderbuffer(RenderbufferTarget.Renderbuffer, renderBuffer);
 
-            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent16, 320, 240);
+            Gl.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent16, screenWidth, screenHeight);
             Gl.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, renderBuffer);
 
             Gl.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texture, 0);
@@ -95,14 +101,14 @@ namespace Disaster {
             // render software texture to opengl
             Draw.CreateOGLTexture();
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
-            Gl.Viewport(0, 0, 320, 240);
+            Gl.Viewport(0, 0, screenWidth, screenHeight);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();
             drawScreen.Render();
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            Gl.Viewport(0, 0, 640, 480);
+            Gl.Viewport(0, 0, windowWidth, windowHeight);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //Gl.Disable(EnableCap.DepthTest);
             Gl.UseProgram(shader);

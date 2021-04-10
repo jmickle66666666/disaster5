@@ -176,10 +176,10 @@ namespace Disaster {
 
         public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
         {
-            Line(x1, y1, x1 + width, y1, color);
-            Line(x1 + width, y1, x1 + width, y1 + height, color);
-            Line(x1 + width, y1 + height, x1, y1 + height, color);
-            Line(x1, y1 + height, x1, y1, color);
+            Line(x1, y1, x1 + width-1, y1, color);
+            Line(x1 + width-1, y1, x1 + width-1, y1 + height-1, color);
+            Line(x1 + width-1, y1 + height-1, x1, y1 + height-1, color);
+            Line(x1, y1 + height-1, x1, y1, color);
         }
 
         // public static void DrawLine(Vector3 p1, Vector3 p2, Color32 color, int steps = 2)

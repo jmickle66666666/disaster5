@@ -16,6 +16,7 @@ namespace Disaster
         public static Dictionary<string, Texture> textures;
         public static Dictionary<string, ObjModel> objModels;
         public static Dictionary<string, IntPtr> audio;
+        public static Dictionary<string, IntPtr> music;
 
         static ShaderProgram _defaultShader;
         public static ShaderProgram defaultShader {
@@ -95,13 +96,25 @@ namespace Disaster
             return scripts[path];
         }
 
+        public static IntPtr Music(string path)
+        {
+            if (music == null) music = new Dictionary<string, IntPtr>();
+            if (!music.ContainsKey(path))
+            {
+                var audioPath = LoadPath(path);
+                var newAudio = SDL_mixer.Mix_LoadMUS(Assets.LoadPath(audioPath));
+                music.Add(path, newAudio);
+            }
+            return music[path];
+        }
+
         public static IntPtr Audio(string path)
         {
             if (audio == null) audio = new Dictionary<string, IntPtr>();
             if (!audio.ContainsKey(path))
             {
                 var audioPath = LoadPath(path);
-                var newAudio = SDL_mixer.Mix_LoadMUS(Assets.LoadPath("wove.ogg"));
+                var newAudio = SDL_mixer.Mix_LoadWAV(Assets.LoadPath(audioPath));
                 audio.Add(path, newAudio);
             }
             return audio[path];

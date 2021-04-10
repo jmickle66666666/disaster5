@@ -2,6 +2,7 @@ using System.IO;
 using System;
 using Jurassic;
 using System.Collections.Generic;
+using SDL2;
 
 namespace Disaster {
 
@@ -33,6 +34,8 @@ namespace Disaster {
 
             try
             {
+                DisasterAPI.Input.UpdateMouse();
+                
                 updateFunction.Call(null, deltaTime);
             }
             catch (JavaScriptException e)
@@ -53,6 +56,7 @@ namespace Disaster {
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));
             engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
             engine.SetGlobalValue("Input", new DisasterAPI.Input(engine));
+            engine.SetGlobalValue("Audio", new DisasterAPI.Audio(engine));
         }
 
         void LoadScripts()

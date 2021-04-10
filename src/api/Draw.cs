@@ -21,14 +21,22 @@ namespace DisasterAPI
             Disaster.Draw.Clear();
         }
 
-        //public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color) {
+        [JSProperty(Name = "fontHeight")] public static int fontHeight { get { return Disaster.Draw.fontHeight; } }
+        [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.Draw.fontWidth; } }
+        [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
+        [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
 
-        //    Disaster.Draw.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-        //}
+        [JSFunction(Name = "strokeRect")]
+        public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color)
+        {
+            Disaster.Draw.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+        }
 
-        //public static void FillRect(int x, int y, int width, int height, Color32 color) {
-        //    Disaster.Draw.FillRect(x, y, width, height, color);
-        //}
+        [JSFunction(Name = "fillRect")]
+        public static void FillRect(int x, int y, int width, int height, ObjectInstance color)
+        {
+            Disaster.Draw.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+        }
 
         [JSFunction(Name ="line")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color)

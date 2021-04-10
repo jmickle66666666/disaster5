@@ -2,6 +2,7 @@ using SDL2;
 using Jurassic;
 using Jurassic.Library;
 using System.Collections.Generic;
+using System.Numerics;
 namespace DisasterAPI
 {
     public class Input : ObjectInstance
@@ -22,6 +23,66 @@ namespace DisasterAPI
             }
             keyState = nextState;
         }
+
+        [JSProperty(Name = "mouseX")]
+        public static int mouseX
+        {
+            get { return (int) mousePosition.X; }
+        }
+
+        [JSProperty(Name = "mouseY")]
+        public static int mouseY
+        {
+            get { return (int)mousePosition.Y; }
+        }
+
+        [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return _mouseLeft; } }
+        [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return _mouseLeftDown; } }
+        [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return _mouseLeftUp; } }
+
+        static bool _mouseLeft;
+        static bool _mouseLeftDown;
+        static bool _mouseLeftUp;
+        
+        [JSProperty(Name = "mouseRight")] public static bool mouseRight { get { return _mouseRight; } }
+        [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return _mouseRightDown; } }
+        [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return _mouseRightUp; } }
+
+        static bool _mouseRight;
+        static bool _mouseRightDown;
+        static bool _mouseRightUp;
+
+        public static void UpdateMouse()
+        {
+            uint mouseState = SDL.SDL_GetMouseState(out int x, out int y);
+
+            float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
+            float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
+
+            x = (int)(x * ratioW);
+            y = (int)(y * ratioH);
+
+            _mouseLeftDown = false;
+            _mouseLeftUp = false;
+            _mouseRightDown = false;
+            _mouseRightUp = false;
+            
+            mousePosition.X = x;
+            mousePosition.Y = y;
+
+            bool currentLeft = (mouseState & SDL.SDL_BUTTON_LEFT) != 0;
+            bool currentRight = (mouseState & SDL.SDL_BUTTON_RIGHT) != 0;
+
+            if (_mouseLeft && !currentLeft) { _mouseLeftUp = true; }
+            if (!_mouseLeft && currentLeft) { _mouseLeftDown = true; }
+            _mouseLeft = currentLeft;
+
+            if (_mouseRight && !currentRight) { _mouseRightDown = true; }
+            if (!_mouseRight && currentRight) { _mouseRightUp = true; }
+            _mouseRight = currentRight;
+        }
+
+        public static Vector2 mousePosition = new Vector2();
 
         [JSFunction(Name = "getKey")]
         public static bool GetKey(int key) { return GetKey(keyCodes[key]); }
