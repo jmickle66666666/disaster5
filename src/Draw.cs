@@ -89,11 +89,31 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
-        // public static void DrawTexture(Texture2D texture, int x, int y, int width, int height)
-        // {
-        //     Color32[] texColors = texture.GetPixels32();
-        //     DrawTexture(texture, texColors, x, y);
-        // }
+        public static void PixelBuffer(PixelBuffer texture, int x, int y)
+        {
+            PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height);
+        }
+
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh)
+        {
+            int twidth = texture.width;
+            x -= sx;
+            y -= sy;
+            for (int i = sx; i < sx + sw; i++)
+            {
+                for (int j = sy; j < sy + sh; j++)
+                {
+                    if (i + x < 0 || i + x >= textureWidth) continue;
+                    if (j + y < 0 || j + y >= textureHeight) continue;
+                    int tx = i;
+                    int ty = j;
+                    int index = ((j + y) * textureWidth) + (i + x);
+                    Color32 tcol = texture.pixels[(ty * twidth) + tx];
+                    if (tcol.a == 0) continue;
+                    colorBuffer[index] = tcol;
+                }
+            }
+        }
 
         // public static void DrawTexture(Texture2D texture, Color32[] texColors, int x, int y)
         // {

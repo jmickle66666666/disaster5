@@ -66,6 +66,20 @@ namespace DisasterAPI
             Disaster.ObjRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, texture, matrix);
         }
 
+        [JSFunction(Name = "texture")]
+        public static void Texture(int x, int y, string texturePath)
+        {
+            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y);
+        }
+
+        [JSFunction(Name = "texturePart")]
+        public static void TexturePart(int x, int y, int sx, int sy, int sw, int sh, string texturePath)
+        {
+            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, sx, sy, sw, sh);
+        }
+
         //public void TexturePart() {}
         // [JSFunction(Name = "reset")] public void Reset() {}
         // [JSFunction(Name = "fogColor")] public void FogColor(double r, double g, double b) {}

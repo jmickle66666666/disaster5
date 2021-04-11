@@ -8,12 +8,26 @@ using SDL2;
 
 namespace Disaster 
 {
+    public struct PixelBuffer
+    {
+        public int width;
+        public int height;
+        public Color32[] pixels;
+        public PixelBuffer(Color32[] pixels, int width)
+        {
+            this.width = width;
+            this.height = pixels.Length / width;
+            this.pixels = pixels;
+        }
+    }
+
     public class Assets {
         public static string basePath;
 
         public static Dictionary<string, ObjectInstance> scripts;
         public static List<string> currentlyLoadingScripts;
         public static Dictionary<string, Texture> textures;
+        public static Dictionary<string, PixelBuffer> pixelBuffers;
         public static Dictionary<string, ObjModel> objModels;
         public static Dictionary<string, IntPtr> audio;
         public static Dictionary<string, IntPtr> music;
@@ -50,6 +64,36 @@ namespace Disaster
                 textures.Add(path, texture);
             }
             return textures[path];
+        }
+
+        public static PixelBuffer PixelBuffer(string path)
+        {
+            if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
+            if (!pixelBuffers.ContainsKey(path))
+            {
+                var pixelBufferPath = LoadPath(path);
+
+                var surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL.SDL_Surface>(
+                    SDL_image.IMG_Load(pixelBufferPath)
+                );
+
+                Color32[] pixels = new Color32[surface.w * surface.h];
+                unsafe
+                {
+                    var colors = ((Color32*)surface.pixels);
+                    for (int i = 0; i < pixels.Length; i++)
+                    {
+                        pixels[i] = colors[i];
+                    }
+                }
+
+                var pixelBuffer = new PixelBuffer(
+                    pixels,
+                    surface.w
+                );
+                pixelBuffers.Add(path, pixelBuffer);
+            }
+            return pixelBuffers[path];
         }
 
         public static ObjModel ObjModel(string path)
