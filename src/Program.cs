@@ -37,6 +37,8 @@ namespace Disaster
         static ScreenController screen;
         static int loadingScreenPosition = 0;
 
+        public static bool running = true;
+
         public static void LoadingMessage(string message)
         {
             LoadingMessage(message, new Color32(255, 140, 0));
@@ -44,8 +46,8 @@ namespace Disaster
 
         public static void LoadingMessage(string message, Color32 color)
         {
-            string[] lines = Draw.SplitLineToFitScreen(message);
             Console.WriteLine(message);
+            string[] lines = Draw.SplitLineToFitScreen(message);
             foreach (var l in lines)
             {
                 if (l == "") continue;
@@ -89,7 +91,8 @@ namespace Disaster
 
             SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
-            var running = true;
+            Console.WriteLine($"Welcome to disaster engine");
+
             var frameStart = DateTime.UtcNow.Ticks;
 
             // software renderer initialisation
@@ -164,7 +167,7 @@ namespace Disaster
                                                                                              
                 if (ms > 20)
                 {
-                    Console.WriteLine("HElo");
+                    //Console.WriteLine("HElo");
                     System.Diagnostics.Debugger.Log(0, "hitch", $"took {ms} this frame\n");
                 }
                 //if (frame % 30 == 0)

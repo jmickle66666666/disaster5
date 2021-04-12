@@ -57,6 +57,12 @@ namespace Disaster {
         public static void LoadFont(string fontPath)
         {
             var surf = SDL_image.IMG_Load(fontPath);
+            if (surf == IntPtr.Zero)
+            {
+                Console.WriteLine("Font loading failed, things about to break");
+                Console.WriteLine(SDL_image.IMG_GetError());
+                return;
+            }
             var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
 
             fontWidth = fontSurface.w;
