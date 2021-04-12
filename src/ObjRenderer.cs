@@ -75,18 +75,13 @@ namespace Disaster {
                     renderQueue[i].shader["projection_matrix"].SetValue(Matrix4.CreatePerspectiveFieldOfView(1f, (float)320 / 240, 0.1f, 1000f));
                 }
 
-                int modelHash = renderQueue[i].objFile.hash;
-                if (currentModelHash != modelHash)
-                {
-                    currentModelHash = modelHash;
-                    Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.vertices, renderQueue[i].shader, "pos");
-                    Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.uvs, renderQueue[i].shader, "uv");
-                    Gl.BindBuffer(renderQueue[i].objFile.triangles);
-                }
+                Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.vertices, renderQueue[i].shader, "pos");
+                Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.uvs, renderQueue[i].shader, "uv");
 
                 renderQueue[i].shader["modelview_matrix"].SetValue(renderQueue[i].transform);
                 Gl.BindTexture(renderQueue[i].texture);
 
+                Gl.BindBuffer(renderQueue[i].objFile.triangles);
                 Gl.DrawElements(BeginMode.Triangles, renderQueue[i].objFile.triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
             }
             renderQueueLength = 0;

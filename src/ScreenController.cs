@@ -10,7 +10,7 @@ namespace Disaster {
     public class ScreenController {
         IntPtr window;
 
-        Renderer drawScreen;
+        DrawRenderer drawScreen;
         uint framebuffer;
 
         VBO<Vector3> vertices;
@@ -30,6 +30,8 @@ namespace Disaster {
 
             var glcontext = SDL.SDL_GL_CreateContext(window);
 
+            SDL.SDL_GL_SetSwapInterval(1);
+
             shader = new ShaderProgram(
                     File.ReadAllText(Assets.LoadPath("outputvert.glsl")),
                     File.ReadAllText(Assets.LoadPath("outputfrag.glsl"))
@@ -38,6 +40,7 @@ namespace Disaster {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
 
             texture = Gl.GenTexture();
+            Gl.UseProgram(shader);
             Gl.BindTexture(TextureTarget.Texture2D, texture);
             Gl.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, screenWidth, screenHeight, 0, PixelFormat.Rgb, PixelType.UnsignedByte, IntPtr.Zero);
             Gl.TexParameteri(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, TextureParameter.Nearest);
@@ -86,8 +89,6 @@ namespace Disaster {
                 }, BufferTarget.ElementArrayBuffer
             );
 
-            
-
             drawScreen = new DrawRenderer(
                 new ShaderProgram(
                     File.ReadAllText(Assets.LoadPath("screenvert.glsl")),
@@ -98,28 +99,31 @@ namespace Disaster {
         }
 
         public void Update() {
-            // render software texture to opengl
-            Draw.CreateOGLTexture();
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             Gl.Viewport(0, 0, screenWidth, screenHeight);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();
+            Debug.Label("obj render");
             drawScreen.Render();
+            Debug.Label("soft render");
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             Gl.Viewport(0, 0, windowWidth, windowHeight);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //Gl.Disable(EnableCap.DepthTest);
+            Debug.Label("framebuffer swap");
             Gl.UseProgram(shader);
+
             Gl.BindBufferToShaderAttribute(vertices, shader, "pos");
             Gl.BindBufferToShaderAttribute(uvs, shader, "uv");
             Gl.BindBuffer(triangles);
-            
             Gl.BindTexture(TextureTarget.Texture2D, texture);
+
             Gl.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Debug.Label("framebuffer render");
 
             SDL.SDL_GL_SwapWindow(window);
+            Debug.Label("swap window");
         }
 
         public void Done() {

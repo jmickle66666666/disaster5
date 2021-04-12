@@ -36,8 +36,8 @@ namespace Disaster
         public static ShaderProgram defaultShader {
             get {
                 if (_defaultShader == null) {
-                    var vertShader = File.ReadAllText("res/vert.glsl");
-                    var fragShader = File.ReadAllText("res/frag.glsl");
+                    var vertShader = File.ReadAllText(LoadPath("vert.glsl"));
+                    var fragShader = File.ReadAllText(LoadPath("frag.glsl"));
                     _defaultShader = new ShaderProgram(vertShader, fragShader);
                 }
                 return _defaultShader;

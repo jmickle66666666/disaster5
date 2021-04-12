@@ -42,12 +42,14 @@ namespace Disaster{
         public void Render()
         {
             Gl.Enable(EnableCap.DepthTest);
-            var texture = Draw.CreateOGLTexture();
             Gl.UseProgram(shader);
             Gl.BindBufferToShaderAttribute(vertices, shader, "pos");
             Gl.BindBufferToShaderAttribute(uvs, shader, "uv");
+
+            Debug.Label("soft render setup");
+            Draw.CreateOGLTexture();
+            Debug.Label("create ogl texture");
             Gl.BindBuffer(triangles);
-            Gl.BindTexture(texture);
             Gl.DrawElements(BeginMode.Triangles, triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }
 

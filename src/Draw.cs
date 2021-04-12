@@ -459,26 +459,24 @@ namespace Disaster {
             {
                 colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
             }
+            Debug.Label("unsafe memory");
 
-            if (texture != null)
+            //if (texture != null)
+            //{
+            //    texture.Dispose();
+            //}
+            //Debug.Label("dispose texture");
+            //texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+            //Debug.Label("create texture");
+
+            if (texture == null)
             {
-                texture.Dispose();
-            }
                 texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-            
-            // if (texture == null)
-            // {
-            //     texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-                
-            // } 
-            // else
-            // {
-            //     // Gl.Enable(OpenGL.EnableCap.Texture2D);
-            //     Gl.TexSubImage2D(texture.TextureTarget, 1, 0, 0, textureWidth, textureHeight, PixelFormat.Rgba, PixelType.Byte, pixels);
-                
-            // }
+            }
+            Gl.BindTexture(texture);
+            Gl.TexImage2D(texture.TextureTarget, 0, PixelInternalFormat.Rgba, textureWidth, textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+            Debug.Label("texsubimage2d");
 
-            
 
             return texture;
         }

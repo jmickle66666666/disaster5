@@ -3,6 +3,7 @@
 using System;
 using SDL2;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Disaster
 {
@@ -111,21 +112,25 @@ namespace Disaster
             LoadingMessage("opening audio");
             SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
 
-
-            //var wav = SDL_mixer.Mix_LoadMUS(Assets.LoadPath("wove.ogg"));
-            // Console.WriteLine(System.IO.File.Exists("base/wove.mp3"));
-            //if (wav == IntPtr.Zero) Console.WriteLine($"problam {SDL.SDL_GetError()}");
-            //SDL_mixer.Mix_PlayMusic(wav, 1);
             LoadingMessage("complete");
+
+            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
+
+            long ticks;
+            long t;
+            
+            Debug.enabled = false;
 
             while (running)
             {
                 frame += 1;
-                long t = DateTime.UtcNow.Ticks - frameStart;
+
+                Debug.FrameStart();
+
+                ticks = DateTime.UtcNow.Ticks;
+                t = ticks - frameStart;
                 ms = t / 10000.0;
-                //uint delayTime = (uint) (16 - ms);
-                //double fps = 1000.0 / ms;
-                frameStart = DateTime.UtcNow.Ticks;
+                frameStart = ticks;
 
                 while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
                 {
@@ -135,30 +140,45 @@ namespace Disaster
                             running = false;
                             break;
                         case SDL.SDL_EventType.SDL_KEYDOWN:
-                            int keyDown = (int) e.key.keysym.sym;
                             DisasterAPI.Input.keyState[e.key.keysym.sym] = (true, true, DisasterAPI.Input.GetKeyUp(e.key.keysym.sym));
                             break;
                         case SDL.SDL_EventType.SDL_KEYUP:
-                            int keyUp = (int)e.key.keysym.sym;
                             DisasterAPI.Input.keyState[e.key.keysym.sym] = (DisasterAPI.Input.GetKeyDown(e.key.keysym.sym), false, true);
                             break;
                     }
                 }
 
+                Debug.Label("sdl events");
+
                 js.Update(ms);
+
+                Debug.Label("js update");
+                Debug.DrawGraph();
                 screen.Update();
+
+                Debug.Label("render update");
 
                 DisasterAPI.Input.Clear();
 
-                SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");// -- FPS: {fps} -- delay: {delayTime}");
-                                                                                             // if (delayTime > 0 && delayTime < 16) SDL.SDL_Delay((uint) delayTime);
-
+                SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");
+                                                                                             
+                if (ms > 20)
+                {
+                    Console.WriteLine("HElo");
+                    System.Diagnostics.Debugger.Log(0, "hitch", $"took {ms} this frame\n");
+                }
                 //if (frame % 30 == 0)
+
                 if (GC.GetTotalMemory(false) > 10000000)
                 {
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 }
+
+                Debug.Label("gc");
+
+                Debug.FrameEnd();
+                Debug.GetFrameMSData();
             }
 
             screen.Done();
