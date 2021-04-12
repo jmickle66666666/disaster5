@@ -57,6 +57,7 @@ namespace Disaster {
             engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
             engine.SetGlobalValue("Input", new DisasterAPI.Input(engine));
             engine.SetGlobalValue("Audio", new DisasterAPI.Audio(engine));
+            engine.SetGlobalValue("Debug", new DisasterAPI.Debug(engine));
         }
 
         void LoadScripts()

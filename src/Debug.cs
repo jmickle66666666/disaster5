@@ -44,6 +44,8 @@ namespace Disaster
         public static Dictionary<string, double> GetFrameMSData()
         {
             if (!enabled) return null;
+            if (labels == null) return null;
+
             if (names == null)
             {
                 names = new List<string>();
