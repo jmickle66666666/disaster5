@@ -59,6 +59,7 @@ namespace Disaster {
             engine.SetGlobalValue("Audio", new DisasterAPI.Audio(engine));
             engine.SetGlobalValue("Debug", new DisasterAPI.Debug(engine));
             engine.SetGlobalValue("Engine", new DisasterAPI.Engine(engine));
+            engine.SetGlobalValue("ShaderSystem", new DisasterAPI.ShaderSystem(engine));
         }
 
         void LoadScripts()
@@ -78,7 +79,7 @@ namespace Disaster {
             {
                 Program.LoadingMessage(e.Message);
             }
-
+            
             updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
         }
 
