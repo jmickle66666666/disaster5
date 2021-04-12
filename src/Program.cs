@@ -38,6 +38,7 @@ namespace Disaster
         static int loadingScreenPosition = 0;
 
         public static bool running = true;
+        public static double timescale = 1;
 
         public static void LoadingMessage(string message)
         {
@@ -153,7 +154,7 @@ namespace Disaster
 
                 Debug.Label("sdl events");
 
-                double delta = ms * .001 * DisasterAPI.Engine.timescale;
+                double delta = ms * .001 * timescale;
                 js.Update(delta);
 
                 Debug.Label("js update");

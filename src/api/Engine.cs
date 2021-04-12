@@ -11,17 +11,16 @@ namespace DisasterAPI
         }
 
 
-        static double _timescale = 1;
         [JSProperty(Name = "timescale")]
         public static double timescale
         {
             get
             {
-                return _timescale;
+                return Disaster.Program.timescale;
             }
             set
             {
-                _timescale = value < 0 ? 0 : value;
+                Disaster.Program.timescale = value < 0 ? 0 : value;
             }
         }
 
