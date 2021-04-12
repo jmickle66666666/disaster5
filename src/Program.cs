@@ -153,7 +153,8 @@ namespace Disaster
 
                 Debug.Label("sdl events");
 
-                js.Update(ms);
+                double delta = ms * .001 * DisasterAPI.Engine.timescale;
+                js.Update(delta);
 
                 Debug.Label("js update");
                 Debug.DrawGraph();

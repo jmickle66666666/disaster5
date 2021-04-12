@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Jurassic.Library;
+﻿using Jurassic.Library;
 using Jurassic;
 
 namespace DisasterAPI
@@ -12,6 +9,22 @@ namespace DisasterAPI
         {
             this.PopulateFunctions();
         }
+
+
+        static double _timescale = 1;
+        [JSProperty(Name = "timescale")]
+        public static double timescale
+        {
+            get
+            {
+                return _timescale;
+            }
+            set
+            {
+                _timescale = value < 0 ? 0 : value;
+            }
+        }
+
 
         [JSFunction(Name = "reset")]
         public void Reset()
