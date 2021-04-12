@@ -53,6 +53,16 @@ namespace Disaster
             return output;
         }
 
+        public static void UnloadAll()
+        {
+            if (scripts != null) scripts.Clear();
+            if (textures != null) textures.Clear();
+            if (pixelBuffers != null) pixelBuffers.Clear();
+            if (objModels != null) objModels.Clear();
+            if (audio != null) audio.Clear();
+            if (music != null) music.Clear();
+        }
+
         public static Texture Texture(string path)
         {
             if (textures == null) textures = new Dictionary<string, Texture>();
@@ -73,10 +83,20 @@ namespace Disaster
             {
                 var pixelBufferPath = LoadPath(path);
 
+                var surfPointer = SDL_image.IMG_Load(pixelBufferPath);
+
                 var surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL.SDL_Surface>(
-                    SDL_image.IMG_Load(pixelBufferPath)
+                    surfPointer
                 );
 
+                if (System.Runtime.InteropServices.Marshal.PtrToStructure<SDL.SDL_PixelFormat>(surface.format).format != SDL.SDL_PIXELFORMAT_RGBA8888)
+                {
+                    surfPointer = SDL.SDL_ConvertSurfaceFormat(surfPointer, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
+                    surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL.SDL_Surface>(
+                        surfPointer
+                    );
+                }
+                
                 Color32[] pixels = new Color32[surface.w * surface.h];
                 unsafe
                 {

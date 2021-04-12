@@ -18,5 +18,11 @@ namespace DisasterAPI
         {
             Disaster.Debug.enabled = !Disaster.Debug.enabled;
         }
+
+        [JSFunction(Name = "log")]
+        public void Log(string message)
+        {
+            Console.WriteLine(message);
+        }
     }
 }
