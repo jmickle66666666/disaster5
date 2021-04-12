@@ -22,6 +22,9 @@ namespace Disaster {
         public static IntPtr renderer;
         public static IntPtr pixels;
 
+        public static int offsetX;
+        public static int offsetY;
+
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
 
         public static int MaxTextLength()
@@ -103,6 +106,10 @@ namespace Disaster {
         public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh)
         {
             int twidth = texture.width;
+
+            x += offsetX;
+            y += offsetY;
+
             x -= sx;
             y -= sy;
             for (int i = sx; i < sx + sw; i++)
@@ -202,6 +209,9 @@ namespace Disaster {
 
         public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
         {
+            x1 += offsetX;
+            y1 += offsetY;
+
             Line(x1, y1, x1 + width-1, y1, color);
             Line(x1 + width-1, y1, x1 + width-1, y1 + height-1, color);
             Line(x1 + width-1, y1 + height-1, x1, y1 + height-1, color);
@@ -248,6 +258,11 @@ namespace Disaster {
 
         public static void Line(int x0, int y0, int x1, int y1, Color32 color)
         {
+            x0 += offsetX;
+            y0 += offsetY;
+            x0 += offsetX;
+            y0 += offsetY;
+
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
             if (dx > 1000 || dy > 1000) return;
@@ -268,6 +283,9 @@ namespace Disaster {
         {
             if (x >= textureWidth) return;
             if (y >= textureHeight) return;
+
+            x += offsetX;
+            y += offsetY;
             
             int x2 = x + width;
             int y2 = y + height;
@@ -403,6 +421,9 @@ namespace Disaster {
 
         static void Character(int x, int y, int character, Color32 color)
         {
+            x += offsetX;
+            y += offsetY;
+
             int charX = (character % 16) * fontWidth;
             int charY = (int) (MathF.Floor(character / 16));
             charY = 8 - charY - 1;
@@ -419,6 +440,9 @@ namespace Disaster {
 
         public static void Pixel(int x, int y, Color32 color)
         {
+            x += offsetX;
+            y += offsetY;
+
             colorBuffer[PointToBufferIndex(x, y)] = color;
         }
 

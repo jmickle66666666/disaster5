@@ -26,6 +26,15 @@ namespace DisasterAPI
         [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
 
+
+        [JSFunction(Name = "offset")]
+        public static void Offset(int x, int y)
+        {
+            Disaster.Draw.offsetX = x;
+            Disaster.Draw.offsetY = y;
+        }
+
+
         [JSFunction(Name = "strokeRect")]
         public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color)
         {
