@@ -10,6 +10,7 @@ namespace Disaster
     
     class Program
     {
+
         static void LoadConfig()
         {
             string basedir = "";

@@ -98,31 +98,58 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, int angle, int ox, int oy)
         {
-            PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height);
+            PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height, angle, ox, oy);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh, int angle, int ox, int oy)
         {
             int twidth = texture.width;
+            double radians = angle * 0.0174532925199;
 
             x += offsetX;
             y += offsetY;
 
             x -= sx;
             y -= sy;
+
+            //x += ox;
+            //y += oy;
+
             for (int i = sx; i < sx + sw; i++)
             {
                 for (int j = sy; j < sy + sh; j++)
                 {
-                    if (i + x < 0 || i + x >= textureWidth) continue;
-                    if (j + y < 0 || j + y >= textureHeight) continue;
+                    // Figure out the target x and y position
+                    int dx = i;
+                    int dy = j;
+
+                    // Don't bother with the math if we aren't rotating
+                    if (angle != 0)
+                    {
+                        double c = Math.Cos(radians);
+                        double s = Math.Sin(radians);
+
+                        // Determine offset
+                        int ii = i - ox;
+                        int jj = j - oy;
+
+                        dx = (int)(ii * c - jj * s);
+                        dy = (int)(jj * c + ii * s);
+                    }
+
+                    if (dx + x < 0 || dx + x >= textureWidth) continue;
+                    if (dy + y < 0 || dy + y >= textureHeight) continue;
+
+                    // Determine the pixel from the source texture to be used
                     int tx = i;
                     int ty = j;
-                    int index = ((j + y) * textureWidth) + (i + x);
                     Color32 tcol = texture.pixels[(ty * twidth) + tx];
                     if (tcol.a == 0) continue;
+
+                    // Draw to screen
+                    int index = ((dy + y) * textureWidth) + (dx + x);
                     colorBuffer[index] = tcol;
                 }
             }

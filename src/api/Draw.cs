@@ -78,15 +78,27 @@ namespace DisasterAPI
         [JSFunction(Name = "texture")]
         public static void Texture(int x, int y, string texturePath)
         {
+            TextureRotated(x, y, texturePath, 0, 0, 0);
+        }
+
+        [JSFunction(Name = "textureRotated")]
+        public static void TextureRotated(int x, int y, string texturePath, int degrees, int ox, int oy)
+        {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, degrees, ox, oy);
         }
 
         [JSFunction(Name = "texturePart")]
         public static void TexturePart(int x, int y, int sx, int sy, int sw, int sh, string texturePath)
         {
+            TexturePartRotated(x, y, sx, sy, sw, sh, texturePath, 0, 0, 0);
+        }
+
+        [JSFunction(Name = "texturePartRotated")]
+        public static void TexturePartRotated(int x, int y, int sx, int sy, int sw, int sh, string texturePath, int degrees, int ox, int oy)
+        {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, sx, sy, sw, sh);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, sx, sy, sw, sh, degrees, ox, oy);
         }
 
         //public void TexturePart() {}
