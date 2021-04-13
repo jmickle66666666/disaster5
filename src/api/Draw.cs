@@ -100,7 +100,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texturePartTransformed")]
-        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangl, ObjectInstance transformation, string texturePath)
+        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, ObjectInstance transformation, string texturePath)
         {
             var rect = Disaster.TypeInterface.Rect(rectangle);
             var trans = Disaster.TypeInterface.Transform2d(transformation);
