@@ -22,6 +22,9 @@ namespace Disaster {
         public static IntPtr renderer;
         public static IntPtr pixels;
 
+        public static int offsetX;
+        public static int offsetY;
+
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
 
         public static int MaxTextLength()
@@ -95,27 +98,61 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
         {
-            PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height);
+            PixelBuffer(texture, x, y, new Rect(0,0,texture.width,texture.height),transform);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
         {
             int twidth = texture.width;
+            double radians = transform.rotation * 0.0174532925199;
+
+            x += offsetX;
+            y += offsetY;
+
+            int sx = (int)rect.x;
+            int sy = (int)rect.y;
+            int sw = (int)rect.width;
+            int sh = (int)rect.height;
+
             x -= sx;
             y -= sy;
+
+
+            double c = Math.Cos(radians);
+            double s = Math.Sin(radians);
+
             for (int i = sx; i < sx + sw; i++)
             {
                 for (int j = sy; j < sy + sh; j++)
                 {
-                    if (i + x < 0 || i + x >= textureWidth) continue;
-                    if (j + y < 0 || j + y >= textureHeight) continue;
+                    // Figure out the target x and y position
+                    int dx = i;
+                    int dy = j;
+
+                    // Don't bother with the math if we aren't rotating
+                    if (transform.rotation != 0)
+                    {
+                        // Determine offset
+                        int ii = i - (int)transform.origin.X;
+                        int jj = j - (int)transform.origin.Y;
+
+                        dx = (int)(ii * c - jj * s);
+                        dy = (int)(jj * c + ii * s);
+                    }
+
+                    if (dx + x < 0 || dx + x >= textureWidth) continue;
+                    if (dy + y < 0 || dy + y >= textureHeight) continue;
+
+                    // Determine the pixel from the source texture to be used
                     int tx = i;
                     int ty = j;
-                    int index = ((j + y) * textureWidth) + (i + x);
                     Color32 tcol = texture.pixels[(ty * twidth) + tx];
                     if (tcol.a == 0) continue;
+
+                    // Draw to screen
+                    int index = ((dy + y) * textureWidth) + (dx + x);
                     colorBuffer[index] = tcol;
                 }
             }
@@ -202,6 +239,9 @@ namespace Disaster {
 
         public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
         {
+            x1 += offsetX;
+            y1 += offsetY;
+
             Line(x1, y1, x1 + width-1, y1, color);
             Line(x1 + width-1, y1, x1 + width-1, y1 + height-1, color);
             Line(x1 + width-1, y1 + height-1, x1, y1 + height-1, color);
@@ -248,6 +288,11 @@ namespace Disaster {
 
         public static void Line(int x0, int y0, int x1, int y1, Color32 color)
         {
+            x0 += offsetX;
+            y0 += offsetY;
+            x1 += offsetX;
+            y1 += offsetY;
+
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
             if (dx > 1000 || dy > 1000) return;
@@ -268,6 +313,9 @@ namespace Disaster {
         {
             if (x >= textureWidth) return;
             if (y >= textureHeight) return;
+
+            x += offsetX;
+            y += offsetY;
             
             int x2 = x + width;
             int y2 = y + height;
@@ -403,6 +451,9 @@ namespace Disaster {
 
         static void Character(int x, int y, int character, Color32 color)
         {
+            x += offsetX;
+            y += offsetY;
+
             int charX = (character % 16) * fontWidth;
             int charY = (int) (MathF.Floor(character / 16));
             charY = 8 - charY - 1;
@@ -419,6 +470,9 @@ namespace Disaster {
 
         public static void Pixel(int x, int y, Color32 color)
         {
+            x += offsetX;
+            y += offsetY;
+
             colorBuffer[PointToBufferIndex(x, y)] = color;
         }
 
