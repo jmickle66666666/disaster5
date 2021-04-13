@@ -28,6 +28,10 @@ namespace DisasterAPI
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
         
         [JSFunction(Name = "setFog")]
+        [Disaster.FunctionDescription("Sets fog properties.")]
+        [Disaster.ArgumentDescription("color", "The fog color", "Color32")]
+        [Disaster.ArgumentDescription("fogStart", "The distance at which the fog starts")]
+        [Disaster.ArgumentDescription("fogDistance", "The distance after fog start when the fog will be 100% dense")]
         public static void SetFog(ObjectInstance color, double fogStart, double fogDistance)
         {
             var clr = Disaster.TypeInterface.Color32(color);
