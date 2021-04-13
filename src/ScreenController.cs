@@ -101,6 +101,8 @@ namespace Disaster {
         public void Update() {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             Gl.Viewport(0, 0, screenWidth, screenHeight);
+            Color32 clrColor = Draw.sceneClear;
+            Gl.ClearColor(clrColor.r / 255.0f, clrColor.g / 255.0f, clrColor.b / 255.0f, 255.0f);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();

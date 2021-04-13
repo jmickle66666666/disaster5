@@ -26,10 +26,18 @@ namespace Disaster {
         public static int offsetY;
 
         public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
+        public static Color32 sceneClear = new Color32() { r=0, g=0, b=0, a=0 };
 
         public static int MaxTextLength()
         {
             return (textureWidth / fontWidth);
+        }
+
+        public static void SetClearColor(Color32 clr)
+        {
+            sceneClear = clr;
+            // LUNA: Override here just in case. Alpha of 1 will override 
+            sceneClear.a = 0;
         }
 
         public static string[] SplitLineToFitScreen(string message)

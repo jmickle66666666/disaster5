@@ -2,6 +2,8 @@ using OpenGL;
 using Jurassic;
 using Jurassic.Library;
 using System.Numerics;
+using Disaster;
+
 namespace DisasterAPI
 {
     
@@ -25,7 +27,20 @@ namespace DisasterAPI
         [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.Draw.fontWidth; } }
         [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
-
+        
+        [JSFunction(Name = "setFog")]
+        public static void SetFogJS(ObjectInstance color, double fogStart, double fogDistance)
+        {
+            var clr = Disaster.TypeInterface.Color32(color);
+            Disaster.ObjRenderer.SetFogProperties(clr, (float)fogStart, (float)fogDistance);    
+        }
+        
+        [JSFunction(Name = "setClearColor")]
+        public static void SetClearColorJS(ObjectInstance color, double fogStart, double fogDistance)
+        {
+            var clr = Disaster.TypeInterface.Color32(color);
+            Disaster.Draw.SetClearColor(clr);
+        }
 
         [JSFunction(Name = "offset")]
         public static void Offset(int x, int y)
