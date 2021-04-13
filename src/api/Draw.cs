@@ -78,27 +78,35 @@ namespace DisasterAPI
         [JSFunction(Name = "texture")]
         public static void Texture(int x, int y, string texturePath)
         {
-            TextureRotated(x, y, texturePath, 0, 0, 0);
+            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, 0, 0, pixelBuffer.width, pixelBuffer.height, 0, 0, 0);
         }
 
-        [JSFunction(Name = "textureRotated")]
-        public static void TextureRotated(int x, int y, string texturePath, int degrees, int ox, int oy)
+        [JSFunction(Name = "textureTransformed")]
+        public static void TextureTransformed(int x, int y, string texturePath, ObjectInstance transformation)
         {
+            var trans = Disaster.TypeInterface.Transform2d(transformation);
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, degrees, ox, oy);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, trans.rotation, (int)trans.origin.X, (int)trans.origin.Y);
         }
 
         [JSFunction(Name = "texturePart")]
-        public static void TexturePart(int x, int y, int sx, int sy, int sw, int sh, string texturePath)
+        public static void TexturePart(int x, int y, ObjectInstance rectangle, string texturePath)
         {
-            TexturePartRotated(x, y, sx, sy, sw, sh, texturePath, 0, 0, 0);
+            var rect = Disaster.TypeInterface.Rect(rectangle);
+
+            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height, 0, 0, 0);
         }
 
-        [JSFunction(Name = "texturePartRotated")]
-        public static void TexturePartRotated(int x, int y, int sx, int sy, int sw, int sh, string texturePath, int degrees, int ox, int oy)
+        [JSFunction(Name = "texturePartTransformed")]
+        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, string texturePath, ObjectInstance transformation)
         {
+            var rect = Disaster.TypeInterface.Rect(rectangle);
+            var trans = Disaster.TypeInterface.Transform2d(transformation);
+
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, sx, sy, sw, sh, degrees, ox, oy);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height, trans.rotation, (int)trans.origin.X, (int)trans.origin.Y);
         }
 
         //public void TexturePart() {}

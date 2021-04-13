@@ -98,12 +98,12 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, int angle, int ox, int oy)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, float angle, int ox, int oy)
         {
             PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height, angle, ox, oy);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh, int angle, int ox, int oy)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh, float angle, int ox, int oy)
         {
             int twidth = texture.width;
             double radians = angle * 0.0174532925199;
@@ -117,6 +117,9 @@ namespace Disaster {
             //x += ox;
             //y += oy;
 
+            double c = Math.Cos(radians);
+            double s = Math.Sin(radians);
+
             for (int i = sx; i < sx + sw; i++)
             {
                 for (int j = sy; j < sy + sh; j++)
@@ -128,9 +131,6 @@ namespace Disaster {
                     // Don't bother with the math if we aren't rotating
                     if (angle != 0)
                     {
-                        double c = Math.Cos(radians);
-                        double s = Math.Sin(radians);
-
                         // Determine offset
                         int ii = i - ox;
                         int jj = j - oy;
