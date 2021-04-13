@@ -164,6 +164,7 @@ namespace Disaster {
                     case "mtllib":
                     case "usemtl":
                     case "s":
+                    case "g":
                     case "#":
                     case "l":
                     case "":
