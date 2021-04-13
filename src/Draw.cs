@@ -135,11 +135,11 @@ namespace Disaster {
                     if (transform.rotation != 0)
                     {
                         // Determine offset
-                        int ii = i - (int)transform.origin.X;
-                        int jj = j - (int)transform.origin.Y;
+                        int ii = i - (int)transform.origin.X - sx;
+                        int jj = j - (int)transform.origin.Y - sy;
 
-                        dx = (int)(ii * c - jj * s);
-                        dy = (int)(jj * c + ii * s);
+                        dx = (int)(ii * c - jj * s) + sx;
+                        dy = (int)(jj * c + ii * s) + sy;
                     }
 
                     if (dx + x < 0 || dx + x >= textureWidth) continue;
