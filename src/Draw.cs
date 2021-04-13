@@ -98,24 +98,27 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, float angle, int ox, int oy)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
         {
-            PixelBuffer(texture, x, y, 0, 0, texture.width, texture.height, angle, ox, oy);
+            PixelBuffer(texture, x, y, new Rect(0,0,texture.width,texture.height),transform);
         }
 
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, int sx, int sy, int sw, int sh, float angle, int ox, int oy)
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
         {
             int twidth = texture.width;
-            double radians = angle * 0.0174532925199;
+            double radians = transform.rotation * 0.0174532925199;
 
             x += offsetX;
             y += offsetY;
 
+            int sx = (int)rect.x;
+            int sy = (int)rect.y;
+            int sw = (int)rect.width;
+            int sh = (int)rect.height;
+
             x -= sx;
             y -= sy;
 
-            //x += ox;
-            //y += oy;
 
             double c = Math.Cos(radians);
             double s = Math.Sin(radians);
@@ -129,11 +132,11 @@ namespace Disaster {
                     int dy = j;
 
                     // Don't bother with the math if we aren't rotating
-                    if (angle != 0)
+                    if (transform.rotation != 0)
                     {
                         // Determine offset
-                        int ii = i - ox;
-                        int jj = j - oy;
+                        int ii = i - (int)transform.origin.X;
+                        int jj = j - (int)transform.origin.Y;
 
                         dx = (int)(ii * c - jj * s);
                         dy = (int)(jj * c + ii * s);

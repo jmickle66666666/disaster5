@@ -79,7 +79,7 @@ namespace DisasterAPI
         public static void Texture(int x, int y, string texturePath)
         {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, 0, 0, pixelBuffer.width, pixelBuffer.height, 0, 0, 0);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
         }
 
         [JSFunction(Name = "textureTransformed")]
@@ -87,7 +87,7 @@ namespace DisasterAPI
         {
             var trans = Disaster.TypeInterface.Transform2d(transformation);
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, trans.rotation, (int)trans.origin.X, (int)trans.origin.Y);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, trans);
         }
 
         [JSFunction(Name = "texturePart")]
@@ -96,7 +96,7 @@ namespace DisasterAPI
             var rect = Disaster.TypeInterface.Rect(rectangle);
 
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height, 0, 0, 0);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, rect, Disaster.Transform2D.identity);
         }
 
         [JSFunction(Name = "texturePartTransformed")]
@@ -106,7 +106,7 @@ namespace DisasterAPI
             var trans = Disaster.TypeInterface.Transform2d(transformation);
 
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height, trans.rotation, (int)trans.origin.X, (int)trans.origin.Y);
+            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, rect, trans);
         }
 
         //public void TexturePart() {}
