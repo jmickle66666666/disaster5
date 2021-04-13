@@ -30,6 +30,33 @@ namespace Disaster
             return new System.Numerics.Vector3(X, Y ,Z);
         }
 
+        public static Rect Rect(ObjectInstance input)
+        {
+            float X = 0, Y = 0, W = 0, H = 0;
+
+            if (input.TryGetPropertyValue("x", out object x)) { X = GetFloat(x); };
+            if (input.TryGetPropertyValue("y", out object y)) { Y = GetFloat(y); };
+            if (input.TryGetPropertyValue("w", out object w)) { W = GetFloat(w); };
+            if (input.TryGetPropertyValue("h", out object h)) { H = GetFloat(h); };
+
+            return new Rect(X, Y, W, H);
+        }
+
+        public static Transform2D Transform2d(ObjectInstance input)
+        {
+            Vector2 origin = new Vector2(0, 0);
+            Vector2 scale = new Vector2(1, 1);
+            float rotation = 0f;
+
+            if (input.TryGetPropertyValue("originX", out object ox)) { origin.X = GetFloat(ox); };
+            if (input.TryGetPropertyValue("originY", out object oy)) { origin.Y = GetFloat(oy); };
+            if (input.TryGetPropertyValue("scaleX", out object sx)) { scale.X = GetFloat(sx); };
+            if (input.TryGetPropertyValue("scaleY", out object sy)) { scale.Y = GetFloat(sy); };
+            if (input.TryGetPropertyValue("rotation", out object rot)) { rotation = GetFloat(rot); };
+
+            return new Transform2D(origin, scale, rotation);
+        }
+
         static byte GetByte(object value) {
             IConvertible val = (IConvertible) value;
             byte cast = val.ToByte(null);

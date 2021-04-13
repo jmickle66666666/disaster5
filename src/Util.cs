@@ -1,4 +1,5 @@
 // extra stuff
+using System.Numerics;
 
 namespace Disaster
 {
@@ -22,6 +23,72 @@ namespace Disaster
             this.r = r;
             this.g = g;
             this.b = b;
+        }
+    }
+
+    public struct Rect
+    {
+        public float x;
+        public float y;
+        public float width;
+        public float height;
+        public float x2
+        {
+            get
+            {
+                return x + width;
+            }
+        }
+        public float y2
+        {
+            get
+            {
+                return y + height;
+            }
+        }
+
+        public Rect(float x, float y, float width, float height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public Rect(int x, int y, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        
+        public Vector2 center
+        {
+            get
+            {
+                return new Vector2(x + width / 2, y + height / 2);
+            }
+        }
+    }
+
+    public struct Transform2D
+    {
+        public Vector2 origin;
+        public Vector2 scale;
+        public float rotation;
+        public Transform2D(Vector2 origin, Vector2 scale, float rotation)
+        {
+            this.origin = origin;
+            this.scale = scale;
+            this.rotation = rotation;
+        }
+
+        public Transform2D(float originX, float originY, float scaleX, float scaleY, float rotation)
+        {
+            this.origin = new Vector2(originX, originY);
+            this.scale = new Vector2(scaleX, scaleY);
+            this.rotation = rotation;
         }
     }
 
