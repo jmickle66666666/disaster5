@@ -25,6 +25,52 @@ namespace Disaster
         }
     }
 
+    public struct Rect
+    {
+        public float x;
+        public float y;
+        public float width;
+        public float height;
+        public float x2
+        {
+            get
+            {
+                return x + width;
+            }
+        }
+        public float y2
+        {
+            get
+            {
+                return y + height;
+            }
+        }
+
+        public Rect(float x, float y, float width, float height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+
+        public Rect(int x, int y, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+        
+        public System.Numerics.Vector2 center
+        {
+            get
+            {
+                return new System.Numerics.Vector2(x + width / 2, y + height / 2);
+            }
+        }
+    }
+
     public struct Vector2Int {
         public int x;
         public int y;

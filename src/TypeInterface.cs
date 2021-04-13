@@ -30,6 +30,18 @@ namespace Disaster
             return new System.Numerics.Vector3(X, Y ,Z);
         }
 
+        public static Rect Rect(ObjectInstance input)
+        {
+            float X = 0, Y = 0, W = 0, H = 0;
+
+            if (input.TryGetPropertyValue("x", out object x)) { X = GetFloat(x); };
+            if (input.TryGetPropertyValue("y", out object y)) { Y = GetFloat(y); };
+            if (input.TryGetPropertyValue("w", out object w)) { W = GetFloat(w); };
+            if (input.TryGetPropertyValue("h", out object h)) { H = GetFloat(h); };
+
+            return new Rect(X, Y, W, H);
+        }
+
         static byte GetByte(object value) {
             IConvertible val = (IConvertible) value;
             byte cast = val.ToByte(null);
