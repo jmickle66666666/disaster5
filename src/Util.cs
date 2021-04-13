@@ -1,4 +1,5 @@
 // extra stuff
+using System.Numerics;
 
 namespace Disaster
 {
@@ -62,12 +63,32 @@ namespace Disaster
             this.height = height;
         }
         
-        public System.Numerics.Vector2 center
+        public Vector2 center
         {
             get
             {
-                return new System.Numerics.Vector2(x + width / 2, y + height / 2);
+                return new Vector2(x + width / 2, y + height / 2);
             }
+        }
+    }
+
+    public struct Transform2D
+    {
+        public Vector2 origin;
+        public Vector2 scale;
+        public float rotation;
+        public Transform2D(Vector2 origin, Vector2 scale, float rotation)
+        {
+            this.origin = origin;
+            this.scale = scale;
+            this.rotation = rotation;
+        }
+
+        public Transform2D(float originX, float originY, float scaleX, float scaleY, float rotation)
+        {
+            this.origin = new Vector2(originX, originY);
+            this.scale = new Vector2(scaleX, scaleY);
+            this.rotation = rotation;
         }
     }
 
