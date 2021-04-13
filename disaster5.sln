@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "disaster5", "disaster5\disaster5.csproj", "{78999FCC-167C-4C21-B3D2-66E59BA47B37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisasterTests", "tests\DisasterTests\DisasterTests.csproj", "{55D15651-9AC5-4E39-9811-C45CA8871F27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78999FCC-167C-4C21-B3D2-66E59BA47B37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78999FCC-167C-4C21-B3D2-66E59BA47B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78999FCC-167C-4C21-B3D2-66E59BA47B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78999FCC-167C-4C21-B3D2-66E59BA47B37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0055A7FF-8B66-4EBE-93EE-46118D0271C9}
+	EndGlobalSection
+EndGlobal
