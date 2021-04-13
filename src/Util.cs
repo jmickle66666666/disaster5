@@ -90,6 +90,14 @@ namespace Disaster
             this.scale = new Vector2(scaleX, scaleY);
             this.rotation = rotation;
         }
+
+        public static Transform2D identity
+        {
+            get
+            {
+                return new Transform2D(0, 0, 1, 1, 0);
+            }
+        }
     }
 
     public struct Vector2Int {
