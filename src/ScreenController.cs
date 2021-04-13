@@ -101,6 +101,8 @@ namespace Disaster {
         public void Update() {
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
             Gl.Viewport(0, 0, screenWidth, screenHeight);
+            Color32 clrColor = sceneClear;
+            Gl.ClearColor(clrColor.r / 255.0f, clrColor.g / 255.0f, clrColor.b / 255.0f, 255.0f);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();
@@ -129,6 +131,15 @@ namespace Disaster {
         public void Done() {
             drawScreen.Dispose();
             
+        }
+
+        public static Color32 sceneClear = new Color32() { r=0, g=0, b=0, a=0 };
+
+        public static void SetClearColor(Color32 clr)
+        {
+            sceneClear = clr;
+            // LUNA: Override here just in case. Alpha of 1 will override 
+            sceneClear.a = 0;
         }
     }
 }

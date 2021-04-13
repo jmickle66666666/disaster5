@@ -75,7 +75,7 @@ namespace Disaster
                 "Disaster Engine Again",
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 SDL.SDL_WINDOWPOS_UNDEFINED,
-                640, 480,
+                ScreenController.windowWidth, ScreenController.windowHeight,
                 SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL
             );
 
