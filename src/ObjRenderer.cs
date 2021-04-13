@@ -93,9 +93,9 @@ namespace Disaster {
                     System.Numerics.Vector3 fogColorV3 =
                         new Vector3(fogColor.r / 255.0f, fogColor.g / 255.0f, fogColor.b / 255.0f);
                 
-                    renderQueue[i].shader["Fog_Color"].SetValue(fogColorV3);
-                    renderQueue[i].shader["Fog_Start"].SetValue(fogStart);
-                    renderQueue[i].shader["Fog_Distance"].SetValue(fogDistance);
+                    renderQueue[i].shader["Fog_Color"]?.SetValue(fogColorV3);
+                    renderQueue[i].shader["Fog_Start"]?.SetValue(fogStart);
+                    renderQueue[i].shader["Fog_Distance"]?.SetValue(fogDistance);
                 }
 
                 Gl.BindBufferToShaderAttribute(renderQueue[i].objFile.vertices, renderQueue[i].shader, "pos");
