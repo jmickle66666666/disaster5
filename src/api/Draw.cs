@@ -83,7 +83,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "textureTransformed")]
-        public static void TextureTransformed(int x, int y, string texturePath, ObjectInstance transformation)
+        public static void TextureTransformed(int x, int y, ObjectInstance transformation, string texturePath)
         {
             var trans = Disaster.TypeInterface.Transform2d(transformation);
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
@@ -100,7 +100,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texturePartTransformed")]
-        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, string texturePath, ObjectInstance transformation)
+        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangl, ObjectInstance transformation, string texturePath)
         {
             var rect = Disaster.TypeInterface.Rect(rectangle);
             var trans = Disaster.TypeInterface.Transform2d(transformation);

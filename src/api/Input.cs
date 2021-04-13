@@ -109,7 +109,6 @@ namespace DisasterAPI
             return keyState[key].up;
         }
 
-        
         public static SDL.SDL_Keycode[] keyCodes = new SDL.SDL_Keycode[]
         {
             SDL.SDL_Keycode.SDLK_UP,

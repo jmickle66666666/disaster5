@@ -290,8 +290,8 @@ namespace Disaster {
         {
             x0 += offsetX;
             y0 += offsetY;
-            x0 += offsetX;
-            y0 += offsetY;
+            x1 += offsetX;
+            y1 += offsetY;
 
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
