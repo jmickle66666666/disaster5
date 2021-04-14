@@ -1,4 +1,4 @@
-﻿#define GET_JURASSIC_FUNCS
+﻿//#define GET_JURASSIC_FUNCS
 
 using System;
 using System.Collections.Generic;
@@ -54,6 +54,7 @@ namespace ScriptingDocGenerator
                 NullValueHandling = NullValueHandling.Ignore
             });
 
+            HTMLOutput.OutputHTML(Functions);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
                 
 
