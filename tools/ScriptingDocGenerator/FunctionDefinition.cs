@@ -27,9 +27,9 @@ namespace ScriptingDocGenerator
             ReturnType = Method.ReturnType.Name;
             Class = BaseClass.Name;
             Name = Method.GetCustomAttribute<Jurassic.Library.JSFunctionAttribute>().Name;
-            Description = Method.GetCustomAttribute<Disaster.FunctionDescriptionAttribute>()?.Description;
+            Description = Method.GetCustomAttribute<DisasterAPI.FunctionDescriptionAttribute>()?.Description;
 
-            var argAttr = Method.GetCustomAttributes<Disaster.ArgumentDescriptionAttribute>();
+            var argAttr = Method.GetCustomAttributes<DisasterAPI.ArgumentDescriptionAttribute>();
 
             foreach (var param in Method.GetParameters())
             {
