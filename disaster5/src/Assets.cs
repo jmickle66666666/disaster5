@@ -68,8 +68,13 @@ namespace Disaster
             if (textures == null) textures = new Dictionary<string, Texture>();
             if (!textures.ContainsKey(path)) {
                 var texturePath = LoadPath(path);
+
+                var imgPtr = SDL2.SDL_image.IMG_Load(texturePath);
                 
-                SDL2.SDL.SDL_Surface surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL2.SDL.SDL_Surface>(SDL2.SDL_image.IMG_Load(texturePath));
+                if (imgPtr == IntPtr.Zero)
+                    throw new NotImplementedException("TODO: We need to be able to recover from a non-existent texture");
+                
+                SDL2.SDL.SDL_Surface surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL2.SDL.SDL_Surface>(imgPtr);
                 var texture = new Texture(surface.pixels, surface.w, surface.h);
                 textures.Add(path, texture);
             }
