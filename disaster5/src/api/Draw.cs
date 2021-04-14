@@ -13,11 +13,14 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "loadFont")]
+        [FunctionDescription("Load a font for the software renderer. All future Draw.text calls will use the specified font.")]
+        [ArgumentDescription("fontPath", "Path to the font texture. Fonts are 2-color images where pixels with a red value above zero are considered filled.")]
         public static void LoadFont(string fontPath) {
             Disaster.SoftwareCanvas.LoadFont(Disaster.Assets.LoadPath(fontPath));
         }
 
         [JSFunction(Name = "clear")]
+        [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
             Disaster.SoftwareCanvas.Clear();
         }
@@ -28,10 +31,10 @@ namespace DisasterAPI
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
         
         [JSFunction(Name = "setFog")]
-        [Disaster.FunctionDescription("Sets fog properties.")]
-        [Disaster.ArgumentDescription("color", "The fog color", "Color32")]
-        [Disaster.ArgumentDescription("fogStart", "The distance at which the fog starts")]
-        [Disaster.ArgumentDescription("fogDistance", "The distance after fog start when the fog will be 100% dense")]
+        [FunctionDescription("Sets fog properties.")]
+        [ArgumentDescription("color", "Fog color", "Color32 { r, g, b, a }")]
+        [ArgumentDescription("fogStart", "Distance at which the fog starts")]
+        [ArgumentDescription("fogDistance", "Distance after fog start when the fog will be 100% dense")]
         public static void SetFog(ObjectInstance color, double fogStart, double fogDistance)
         {
             var clr = Disaster.TypeInterface.Color32(color);
@@ -39,12 +42,14 @@ namespace DisasterAPI
         }
         
         [JSFunction(Name = "enableFog")]
+        [FunctionDescription("Enable 3D fog. See also: setFog, disableFog")]
         public static void EnableFog()
         {
             Disaster.ObjRenderer.SetFogEnabled(true);
         }
         
         [JSFunction(Name = "disableFog")]
+        [FunctionDescription("Disable 3D fog. See also: setFog, enableFog")]
         public static void DisableFog()
         {
             Disaster.ObjRenderer.SetFogEnabled(false);
@@ -58,6 +63,9 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "offset")]
+        [FunctionDescription("Set a global offset for 2D rendering.")]
+        [ArgumentDescription("x", "Pixels in the x axis to offset by")]
+        [ArgumentDescription("y", "Pixels in the y axis to offset by")]
         public static void Offset(int x, int y)
         {
             Disaster.SoftwareCanvas.offsetX = x;
@@ -66,18 +74,36 @@ namespace DisasterAPI
 
 
         [JSFunction(Name = "strokeRect")]
+        [FunctionDescription("Draw a rectangle outline. See also: fillRect")]
+        [ArgumentDescription("x", "x position of the rectangle")]
+        [ArgumentDescription("y", "y position of the rectangle")]
+        [ArgumentDescription("width", "width of the rectangle")]
+        [ArgumentDescription("height", "height of the rectangle")]
+        [ArgumentDescription("color", "Rectangle color", "Color32 { r, g, b, a }")]
         public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
         }
 
         [JSFunction(Name = "fillRect")]
+        [FunctionDescription("Draw a filled rectangle. See also: strokeRect")]
+        [ArgumentDescription("x", "x position of the rectangle")]
+        [ArgumentDescription("y", "y position of the rectangle")]
+        [ArgumentDescription("width", "width of the rectangle")]
+        [ArgumentDescription("height", "height of the rectangle")]
+        [ArgumentDescription("color", "Rectangle color", "Color32 { r, g, b, a }")]
         public static void FillRect(int x, int y, int width, int height, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
         }
 
         [JSFunction(Name ="line")]
+        [FunctionDescription("Draw a 2d line.")]
+        [ArgumentDescription("x1", "starting x position")]
+        [ArgumentDescription("y1", "starting y position")]
+        [ArgumentDescription("x2", "ending x position")]
+        [ArgumentDescription("y2", "ending y position")]
+        [ArgumentDescription("color", "line color", "Color32 { r, g, b, a }")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
@@ -88,6 +114,11 @@ namespace DisasterAPI
         //}
 
         [JSFunction(Name = "text")]
+        [FunctionDescription("Draw a line of text.")]
+        [ArgumentDescription("x", "x position of the text")]
+        [ArgumentDescription("y", "x position of the text")]
+        [ArgumentDescription("text", "the text content to draw")]
+        [ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
         public static void Text(int x, int y, string text, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);

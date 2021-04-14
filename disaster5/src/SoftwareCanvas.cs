@@ -131,8 +131,6 @@ namespace Disaster {
                     int targetX = i - (int)(transform.origin.X * transform.scale.X);
                     int targetY = j - (int)(transform.origin.Y * transform.scale.Y);
 
-                    
-
                     // Don't bother with the math if we aren't rotating
                     if (transform.rotation != 0)
                     {
@@ -160,60 +158,6 @@ namespace Disaster {
                 }
             }
         }
-
-        // public static void DrawTexture(Texture2D texture, Color32[] texColors, int x, int y)
-        // {
-        //     int twidth = texture.width;
-        //     int theight = texture.height;
-        //     for (int i = 0; i < twidth; i++) {
-        //         for (int j = 0; j < theight; j++) {
-        //             if (i+x < 0 || i+x >= textureWidth) continue;
-        //             if (j+y < 0 || j+y >= textureHeight) continue;
-        //             int tx = i;
-        //             int ty = j;
-        //             int index = ((j+y) * textureWidth) + (i+x);
-        //             Color32 tcol = texColors[(ty * twidth) + tx];
-        //             if (tcol.a == 0) continue;
-        //             colorBuffer[index] = tcol;
-        //         }
-        //     }
-        // }
-
-        // public static void DrawTexturePart(Texture2D texture, Color32[] texColors, int x, int y, int xStart, int yStart, int width, int height)
-        // {
-        //     int twidth = texture.width;
-        //     // int theight = height;
-        //     for (int i = 0; i < width; i++) {
-        //         for (int j = 0; j < height; j++) {
-        //             if (i+x < 0 || i+x >= textureWidth) continue;
-        //             if (j+y < 0 || j+y >= textureHeight) continue;
-        //             int tx = i + xStart;
-        //             int ty = j + yStart;
-        //             int index = ((j+y) * textureWidth) + (i+x);
-        //             Color32 tcol = texColors[(ty * twidth) + tx];
-        //             if (tcol.a == 0) continue;
-        //             colorBuffer[index] = tcol;
-        //         }
-        //     }
-        // }
-
-        // public static void DrawTextureScaled(Texture2D texture, Color32[] texColors, int x, int y, int width, int height)
-        // {
-        //     int twidth = texture.width;
-        //     int theight = texture.height;
-        //     for (int i = 0; i < width; i++) {
-        //         for (int j = 0; j < height; j++) {
-        //             if (i+x < 0 || i+x >= textureWidth) continue;
-        //             if (j+y < 0 || j+y >= textureHeight) continue;
-        //             int tx = (i * twidth) / width;
-        //             int ty = (j * theight) / height;
-        //             int index = ((j+y) * textureWidth) + (i+x);
-        //             Color32 tcol = texColors[(ty * twidth) + tx];
-        //             if (tcol.a == 0) continue;
-        //             colorBuffer[index] = tcol;
-        //         }
-        //     }
-        // }
 
         // public static void DrawTextureTiled(Texture2D texture, int x, int y, int width, int height)
         // {

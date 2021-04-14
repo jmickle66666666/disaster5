@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Disaster
+namespace DisasterAPI
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class FunctionDescriptionAttribute : Attribute
