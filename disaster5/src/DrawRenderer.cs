@@ -47,7 +47,7 @@ namespace Disaster{
             Gl.BindBufferToShaderAttribute(uvs, shader, "uv");
 
             Debug.Label("soft render setup");
-            Draw.CreateOGLTexture();
+            SoftwareCanvas.CreateOGLTexture();
             Debug.Label("create ogl texture");
             Gl.BindBuffer(triangles);
             Gl.DrawElements(BeginMode.Triangles, triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);

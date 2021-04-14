@@ -14,16 +14,16 @@ namespace DisasterAPI
 
         [JSFunction(Name = "loadFont")]
         public static void LoadFont(string fontPath) {
-            Disaster.Draw.LoadFont(Disaster.Assets.LoadPath(fontPath));
+            Disaster.SoftwareCanvas.LoadFont(Disaster.Assets.LoadPath(fontPath));
         }
 
         [JSFunction(Name = "clear")]
         public static void Clear() {
-            Disaster.Draw.Clear();
+            Disaster.SoftwareCanvas.Clear();
         }
 
-        [JSProperty(Name = "fontHeight")] public static int fontHeight { get { return Disaster.Draw.fontHeight; } }
-        [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.Draw.fontWidth; } }
+        [JSProperty(Name = "fontHeight")] public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
+        [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
         [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
         
@@ -56,27 +56,27 @@ namespace DisasterAPI
         [JSFunction(Name = "offset")]
         public static void Offset(int x, int y)
         {
-            Disaster.Draw.offsetX = x;
-            Disaster.Draw.offsetY = y;
+            Disaster.SoftwareCanvas.offsetX = x;
+            Disaster.SoftwareCanvas.offsetY = y;
         }
 
 
         [JSFunction(Name = "strokeRect")]
         public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color)
         {
-            Disaster.Draw.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
         }
 
         [JSFunction(Name = "fillRect")]
         public static void FillRect(int x, int y, int width, int height, ObjectInstance color)
         {
-            Disaster.Draw.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
         }
 
         [JSFunction(Name ="line")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color)
         {
-            Disaster.Draw.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
+            Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
         }
 
         //public static void Pixel(int x, int y, Color32 color) {
@@ -86,7 +86,7 @@ namespace DisasterAPI
         [JSFunction(Name = "text")]
         public static void Text(int x, int y, string text, ObjectInstance color)
         {
-            Disaster.Draw.Text(x, y, Disaster.TypeInterface.Color32(color), text);
+            Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
         [JSFunction(Name = "model")]
@@ -105,7 +105,7 @@ namespace DisasterAPI
         public static void Texture(int x, int y, string texturePath)
         {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
         }
 
         [JSFunction(Name = "textureTransformed")]
@@ -113,7 +113,7 @@ namespace DisasterAPI
         {
             var trans = Disaster.TypeInterface.Transform2d(transformation);
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, trans);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, trans);
         }
 
         [JSFunction(Name = "texturePart")]
@@ -122,7 +122,7 @@ namespace DisasterAPI
             var rect = Disaster.TypeInterface.Rect(rectangle);
 
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, rect, Disaster.Transform2D.identity);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect, Disaster.Transform2D.identity);
         }
 
         [JSFunction(Name = "texturePartTransformed")]
@@ -132,7 +132,7 @@ namespace DisasterAPI
             var trans = Disaster.TypeInterface.Transform2d(transformation);
 
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.Draw.PixelBuffer(pixelBuffer, x, y, rect, trans);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect, trans);
         }
 
         //public void TexturePart() {}

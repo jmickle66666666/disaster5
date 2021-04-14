@@ -85,8 +85,8 @@ namespace Disaster
             if (frameHistory == null) return;
             for (int i = 0; i < names.Count; i++)
             {
-                Draw.FillRect(0, Draw.fontHeight * i, Draw.fontWidth * names[i].Length, Draw.fontHeight, new Color32(0, 0, 0));
-                Draw.Text(0, Draw.fontHeight * i, colors[i % colors.Length], names[i]);
+                SoftwareCanvas.FillRect(0, SoftwareCanvas.fontHeight * i, SoftwareCanvas.fontWidth * names[i].Length, SoftwareCanvas.fontHeight, new Color32(0, 0, 0));
+                SoftwareCanvas.Text(0, SoftwareCanvas.fontHeight * i, colors[i % colors.Length], names[i]);
             }
 
             for (int i = 0; i < frameHistory.Count; i++)
@@ -104,7 +104,7 @@ namespace Disaster
 
                     if (Math.Abs(last - frameHistory[i][j]) < 2) continue;
 
-                    Draw.Line(new System.Numerics.Vector2(i, y - last), new System.Numerics.Vector2(i, y - frameHistory[i][j]), colors[j % colors.Length]);
+                    SoftwareCanvas.Line(new System.Numerics.Vector2(i, y - last), new System.Numerics.Vector2(i, y - frameHistory[i][j]), colors[j % colors.Length]);
                 }
             }
         }

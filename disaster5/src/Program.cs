@@ -49,12 +49,12 @@ namespace Disaster
         public static void LoadingMessage(string message, Color32 color)
         {
             Console.WriteLine(message);
-            string[] lines = Draw.SplitLineToFitScreen(message);
+            string[] lines = SoftwareCanvas.SplitLineToFitScreen(message);
             foreach (var l in lines)
             {
                 if (l == "") continue;
-                Draw.Text(0, loadingScreenPosition, color, l);
-                loadingScreenPosition += Draw.fontHeight;
+                SoftwareCanvas.Text(0, loadingScreenPosition, color, l);
+                loadingScreenPosition += SoftwareCanvas.fontHeight;
             }
             screen.Update();
         }
@@ -103,9 +103,9 @@ namespace Disaster
             var frameStart = DateTime.UtcNow.Ticks;
 
             // software renderer initialisation
-            Draw.InitTexture(renderer, 320, 240);
+            SoftwareCanvas.InitTexture(renderer, 320, 240);
             LoadConfig();
-            Draw.LoadFont(Assets.LoadPath("fontsmall.png"));
+            SoftwareCanvas.LoadFont(Assets.LoadPath("fontsmall.png"));
 
             screen = new ScreenController(window);
             LoadingMessage("disaster engine 5.0");
@@ -199,7 +199,7 @@ namespace Disaster
             
             SDL_mixer.Mix_CloseAudio();
             SDL.SDL_DestroyRenderer(renderer);
-            SDL.SDL_DestroyTexture(Draw.drawTexture);
+            SDL.SDL_DestroyTexture(SoftwareCanvas.drawTexture);
             SDL.SDL_DestroyWindow(window);
             SDL.SDL_Quit();
         }

@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using OpenGL;
 
 namespace Disaster {
-    public class Draw
+    public class SoftwareCanvas
     {
         public static IntPtr drawTexture;
         static int textureWidth;
@@ -49,7 +49,7 @@ namespace Disaster {
             textureWidth = width;
             textureHeight = height;
             drawTexture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int) SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
-            Draw.renderer = renderer;
+            SoftwareCanvas.renderer = renderer;
             pixels = Marshal.AllocHGlobal(textureWidth * textureHeight * 4);
 
             colorBuffer = new Color32[textureHeight * textureWidth];
@@ -123,36 +123,39 @@ namespace Disaster {
             double c = Math.Cos(radians);
             double s = Math.Sin(radians);
 
-            for (int i = sx; i < sx + sw; i++)
+            for (int i = sx; i < sx + sw * transform.scale.X; i++)
             {
-                for (int j = sy; j < sy + sh; j++)
+                for (int j = sy; j < sy + sh * transform.scale.Y; j++)
                 {
                     // Figure out the target x and y position
-                    int dx = i;
-                    int dy = j;
+                    int targetX = i - (int)(transform.origin.X * transform.scale.X);
+                    int targetY = j - (int)(transform.origin.Y * transform.scale.Y);
+
+                    
 
                     // Don't bother with the math if we aren't rotating
                     if (transform.rotation != 0)
                     {
                         // Determine offset
-                        int ii = i - (int)transform.origin.X - sx;
-                        int jj = j - (int)transform.origin.Y - sy;
+                        int ii = i - (int)(transform.origin.X * transform.scale.X) - sx;
+                        int jj = j - (int)(transform.origin.Y * transform.scale.Y) - sy;
 
-                        dx = (int)(ii * c - jj * s) + sx;
-                        dy = (int)(jj * c + ii * s) + sy;
+                        targetX = (int)(ii * c - jj * s) + sx;
+                        targetY = (int)(jj * c + ii * s) + sy;
                     }
 
-                    if (dx + x < 0 || dx + x >= textureWidth) continue;
-                    if (dy + y < 0 || dy + y >= textureHeight) continue;
+                    if (targetX + x < 0 || targetX + x >= textureWidth) continue;
+                    if (targetY + y < 0 || targetY + y >= textureHeight) continue;
 
                     // Determine the pixel from the source texture to be used
-                    int tx = i;
-                    int ty = j;
-                    Color32 tcol = texture.pixels[(ty * twidth) + tx];
+                    int sourceX = ((int)((i - sx) / transform.scale.X)) + sx;
+                    int sourceY = ((int)((j - sy) / transform.scale.Y)) + sy;
+
+                    Color32 tcol = texture.pixels[(sourceY * twidth) + sourceX];
                     if (tcol.a == 0) continue;
 
                     // Draw to screen
-                    int index = ((dy + y) * textureWidth) + (dx + x);
+                    int index = ((targetY + y) * textureWidth) + (targetX + x);
                     colorBuffer[index] = tcol;
                 }
             }
