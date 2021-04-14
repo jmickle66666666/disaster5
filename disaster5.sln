@@ -5,7 +5,15 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "disaster5", "disaster5\disaster5.csproj", "{78999FCC-167C-4C21-B3D2-66E59BA47B37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DisasterTests", "tests\DisasterTests\DisasterTests.csproj", "{55D15651-9AC5-4E39-9811-C45CA8871F27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DisasterTests", "tests\DisasterTests\DisasterTests.csproj", "{55D15651-9AC5-4E39-9811-C45CA8871F27}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Engine", "Engine", "{996FE205-0D2B-4397-852D-6358FBAD290D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D9D11261-6DCF-4A54-8D56-25660C40A60E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5953A80E-CA6D-47CE-ADAE-7659E8DFA0E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptingDocGenerator", "tools\ScriptingDocGenerator\ScriptingDocGenerator.csproj", "{00AF78DB-70A1-422E-8AFE-036133BFFDE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,9 +29,18 @@ Global
 		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55D15651-9AC5-4E39-9811-C45CA8871F27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00AF78DB-70A1-422E-8AFE-036133BFFDE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00AF78DB-70A1-422E-8AFE-036133BFFDE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00AF78DB-70A1-422E-8AFE-036133BFFDE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00AF78DB-70A1-422E-8AFE-036133BFFDE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{78999FCC-167C-4C21-B3D2-66E59BA47B37} = {996FE205-0D2B-4397-852D-6358FBAD290D}
+		{55D15651-9AC5-4E39-9811-C45CA8871F27} = {D9D11261-6DCF-4A54-8D56-25660C40A60E}
+		{00AF78DB-70A1-422E-8AFE-036133BFFDE2} = {5953A80E-CA6D-47CE-ADAE-7659E8DFA0E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0055A7FF-8B66-4EBE-93EE-46118D0271C9}
