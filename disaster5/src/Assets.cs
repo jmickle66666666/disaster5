@@ -26,6 +26,8 @@ namespace Disaster
     public class Assets {
         public static string basePath;
 
+        static List<string> missingAssetPaths;
+
         public static Dictionary<string, ObjectInstance> scripts;
         public static List<string> currentlyLoadingScripts;
         public static Dictionary<string, Texture> textures;
@@ -57,7 +59,12 @@ namespace Disaster
             var output = Path.Combine(basePath, path);
             assetPath = output;
             if (!File.Exists(output)) {
-                Console.WriteLine($"No File: {output}");
+                if (missingAssetPaths == null) missingAssetPaths = new List<string>();
+                if (!missingAssetPaths.Contains(output))
+                {
+                    missingAssetPaths.Add(output);
+                    Console.WriteLine($"Can't find asset: {output}");
+                }
                 return false;
             } else
             {

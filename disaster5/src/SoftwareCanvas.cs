@@ -108,6 +108,11 @@ namespace Disaster {
             int twidth = texture.width;
             double radians = transform.rotation * 0.0174532925199;
 
+            rect.x = Math.Clamp(rect.x, 0, texture.width);
+            rect.y = Math.Clamp(rect.y, 0, texture.height);
+            rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
+            rect.height = Math.Clamp(rect.height, 0, texture.height - rect.y);
+
             x += offsetX;
             y += offsetY;
 
