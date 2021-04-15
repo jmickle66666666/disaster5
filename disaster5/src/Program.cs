@@ -105,7 +105,11 @@ namespace Disaster
             // software renderer initialisation
             SoftwareCanvas.InitTexture(renderer, 320, 240);
             LoadConfig();
-            SoftwareCanvas.LoadFont(Assets.LoadPath("fontsmall.png"));
+            // TODO: bake in a default font! so you can't end up with no font at all
+            if (Assets.LoadPath("fontsmall.png", out string fontPath))
+            {
+                SoftwareCanvas.LoadFont(fontPath);
+            }
 
             screen = new ScreenController(window);
             LoadingMessage("disaster engine 5.0");

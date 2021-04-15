@@ -16,7 +16,11 @@ namespace DisasterAPI
         [FunctionDescription("Load a font for the software renderer. All future Draw.text calls will use the specified font.")]
         [ArgumentDescription("fontPath", "Path to the font texture. Fonts are 2-color images where pixels with a red value above zero are considered filled.")]
         public static void LoadFont(string fontPath) {
-            Disaster.SoftwareCanvas.LoadFont(Disaster.Assets.LoadPath(fontPath));
+            if (!Disaster.Assets.LoadPath(fontPath, out string fontAssetPath))
+            {
+                return;
+            }
+            Disaster.SoftwareCanvas.LoadFont(fontAssetPath);
         }
 
         [JSFunction(Name = "clear")]

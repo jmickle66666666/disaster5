@@ -32,10 +32,19 @@ namespace Disaster {
 
             SDL.SDL_GL_SetSwapInterval(1);
 
+            if (!Assets.LoadPath("outputvert.glsl", out string vertPath))
+            {
+                throw new Exception($"couldn't find screen shader: outputvert.glsl");
+            }
+            if (!Assets.LoadPath("outputfrag.glsl", out string fragPath))
+            {
+                throw new Exception($"couldn't find screen shader: outputfrag.glsl");
+            }
             shader = new ShaderProgram(
-                    File.ReadAllText(Assets.LoadPath("outputvert.glsl")),
-                    File.ReadAllText(Assets.LoadPath("outputfrag.glsl"))
-                );
+                File.ReadAllText(vertPath),
+                File.ReadAllText(fragPath)
+            );
+
             framebuffer = Gl.GenFramebuffer();
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, framebuffer);
 
@@ -89,10 +98,19 @@ namespace Disaster {
                 }, BufferTarget.ElementArrayBuffer
             );
 
+            if (!Assets.LoadPath("outputvert.glsl", out vertPath))
+            {
+                throw new Exception($"couldn't find software shader: screenvert.glsl");
+            }
+            if (!Assets.LoadPath("outputfrag.glsl", out fragPath))
+            {
+                throw new Exception($"couldn't find software shader: screenfrag.glsl");
+            }
+
             drawScreen = new DrawRenderer(
                 new ShaderProgram(
-                    File.ReadAllText(Assets.LoadPath("screenvert.glsl")),
-                    File.ReadAllText(Assets.LoadPath("screenfrag.glsl"))
+                    File.ReadAllText(vertPath),
+                    File.ReadAllText(fragPath)
                 )
             );
 

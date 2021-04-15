@@ -19,6 +19,8 @@ namespace Disaster
             this.height = pixels.Length / width;
             this.pixels = pixels;
         }
+
+        public static PixelBuffer missing = new PixelBuffer(new Color32[4] { new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255) }, 2);
     }
 
     public class Assets {
@@ -36,21 +38,31 @@ namespace Disaster
         public static ShaderProgram defaultShader {
             get {
                 if (_defaultShader == null) {
-                    var vertShader = File.ReadAllText(LoadPath("vert.glsl"));
-                    var fragShader = File.ReadAllText(LoadPath("frag.glsl"));
-                    _defaultShader = new ShaderProgram(vertShader, fragShader);
+                    if (LoadPath("vert.glsl", out string vertShaderPath))
+                    {
+                        if (LoadPath("frag.glsl", out string fragShaderPath))
+                        {
+                            var vertShader = File.ReadAllText(vertShaderPath);
+                            var fragShader = File.ReadAllText(fragShaderPath);
+                            _defaultShader = new ShaderProgram(vertShader, fragShader);
+                        }
+                    }
                 }
                 return _defaultShader;
             }
         }
 
-        public static string LoadPath(string path)
+        public static bool LoadPath(string path, out string assetPath)
         {
             var output = Path.Combine(basePath, path);
+            assetPath = output;
             if (!File.Exists(output)) {
                 Console.WriteLine($"No File: {output}");
+                return false;
+            } else
+            {
+                return true;
             }
-            return output;
         }
 
         public static void UnloadAll()
@@ -67,13 +79,13 @@ namespace Disaster
         {
             if (textures == null) textures = new Dictionary<string, Texture>();
             if (!textures.ContainsKey(path)) {
-                var texturePath = LoadPath(path);
+                if (!LoadPath(path, out string texturePath)) {
+                    // TODO: exception? return default "missing" texture?
+                    return null;
+                }
 
                 var imgPtr = SDL2.SDL_image.IMG_Load(texturePath);
-                
-                if (imgPtr == IntPtr.Zero)
-                    throw new NotImplementedException("TODO: We need to be able to recover from a non-existent texture");
-                
+                                
                 SDL2.SDL.SDL_Surface surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL2.SDL.SDL_Surface>(imgPtr);
                 var texture = new Texture(surface.pixels, surface.w, surface.h);
                 textures.Add(path, texture);
@@ -86,7 +98,10 @@ namespace Disaster
             if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
             if (!pixelBuffers.ContainsKey(path))
             {
-                var pixelBufferPath = LoadPath(path);
+                if (!LoadPath(path, out string pixelBufferPath))
+                {
+                    return Disaster.PixelBuffer.missing;
+                }
 
                 var surfPointer = SDL_image.IMG_Load(pixelBufferPath);
 
@@ -126,7 +141,10 @@ namespace Disaster
             if (objModels == null) objModels = new Dictionary<string, ObjModel>();
             if (!objModels.ContainsKey(path))
             {
-                var objModelPath = LoadPath(path);
+                if (!LoadPath(path, out string objModelPath))
+                {
+                    return new Disaster.ObjModel();
+                }
 
                 var objModel = Disaster.ObjModel.Parse(objModelPath);
                 objModels.Add(path, objModel);
@@ -138,7 +156,10 @@ namespace Disaster
         {
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (!scripts.ContainsKey(path)) {
-                var scriptPath = LoadPath(path);
+                if (!LoadPath(path, out string scriptPath))
+                {
+                    return null;
+                }
 
                 if (currentlyLoadingScripts == null) currentlyLoadingScripts = new List<string>();
 
@@ -170,8 +191,11 @@ namespace Disaster
             if (music == null) music = new Dictionary<string, IntPtr>();
             if (!music.ContainsKey(path))
             {
-                var audioPath = LoadPath(path);
-                var newAudio = SDL_mixer.Mix_LoadMUS(Assets.LoadPath(audioPath));
+                if (!LoadPath(path, out string audioPath))
+                {
+                    return IntPtr.Zero;
+                }
+                var newAudio = SDL_mixer.Mix_LoadMUS(audioPath);
                 music.Add(path, newAudio);
             }
             return music[path];
@@ -182,8 +206,11 @@ namespace Disaster
             if (audio == null) audio = new Dictionary<string, IntPtr>();
             if (!audio.ContainsKey(path))
             {
-                var audioPath = LoadPath(path);
-                var newAudio = SDL_mixer.Mix_LoadWAV(Assets.LoadPath(audioPath));
+                if (!LoadPath(path, out string audioPath))
+                {
+                    return IntPtr.Zero;
+                }
+                var newAudio = SDL_mixer.Mix_LoadWAV(audioPath);
                 audio.Add(path, newAudio);
             }
             return audio[path];

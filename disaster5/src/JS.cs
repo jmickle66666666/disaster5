@@ -48,7 +48,10 @@ namespace Disaster {
             }
             catch (JavaScriptException e)
             {
-                SoftwareCanvas.LoadFont(Assets.LoadPath("fontsmall.png"));
+                if (Assets.LoadPath("fontsmall.png", out string fontPath))
+                {
+                    SoftwareCanvas.LoadFont(fontPath);
+                }
                 string message = $"line:{e.LineNumber} {e.Message}";
                 Program.LoadingMessage(message, new Color32(255, 50, 0));
                 Program.LoadingMessage("press R to reload", new Color32(255, 50, 0));
