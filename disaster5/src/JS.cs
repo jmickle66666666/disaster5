@@ -30,7 +30,15 @@ namespace Disaster {
 
         public void Update(double deltaTime)
         {
-            if (stopped) return;
+            if (stopped)
+            {
+                if (DisasterAPI.Input.GetKeyDown(SDL.SDL_Keycode.SDLK_r)) {
+                    Assets.UnloadAll();
+                    Reset();
+                    stopped = false;
+                }
+                return;
+            }
 
             try
             {
@@ -40,8 +48,10 @@ namespace Disaster {
             }
             catch (JavaScriptException e)
             {
-                string message = $"path: {e.SourcePath}:{e.LineNumber} message: {e.Message}";
+                SoftwareCanvas.LoadFont(Assets.LoadPath("fontsmall.png"));
+                string message = $"line:{e.LineNumber} {e.Message}";
                 Program.LoadingMessage(message, new Color32(255, 50, 0));
+                Program.LoadingMessage("press R to reload", new Color32(255, 50, 0));
                 stopped = true;
             }
             

@@ -26,14 +26,14 @@ namespace DisasterAPI
 
 
         [JSFunction(Name = "reset")]
-        public void Reset()
+        public static void Reset()
         {
             Disaster.Assets.UnloadAll();
             Disaster.JS.instance.Reset();
         }
 
         [JSFunction(Name = "quit")]
-        public void Quit()
+        public static void Quit()
         {
             Disaster.Program.running = false;
         }
