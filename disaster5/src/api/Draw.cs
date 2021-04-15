@@ -161,7 +161,7 @@ namespace DisasterAPI
             var rect = Disaster.TypeInterface.Rect(rectangle);
 
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect, Disaster.Transform2D.identity);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect);
         }
 
         [JSFunction(Name = "texturePartTransformed")]

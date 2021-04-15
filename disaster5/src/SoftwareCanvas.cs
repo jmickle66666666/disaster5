@@ -98,6 +98,44 @@ namespace Disaster {
             new Span<Color32>(colorBuffer).Fill(clearColor);
         }
 
+        public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect)
+        {
+            int twidth = texture.width;
+
+            rect.x = Math.Clamp(rect.x, 0, texture.width);
+            rect.y = Math.Clamp(rect.y, 0, texture.height);
+            rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
+            rect.height = Math.Clamp(rect.height, 0, texture.height - rect.y);
+
+            x += offsetX;
+            y += offsetY;
+
+            int sx = (int)rect.x;
+            int sy = (int)rect.y;
+            int sw = (int)rect.width;
+            int sh = (int)rect.height;
+
+            x -= sx;
+            y -= sy;
+
+            for (int i = sx; i < sx + sw; i++)
+            {
+                for (int j = sy; j < sy + sh; j++)
+                {
+                    if (i + x < 0 || i + x >= textureWidth) continue;
+                    if (j + y < 0 || j + y >= textureHeight) continue;
+                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.width) continue;
+
+                    Color32 tcol = texture.pixels[(j * twidth) + i];
+                    if (tcol.a == 0) continue;
+
+                    // Draw to screen
+                    int index = ((j + y) * textureWidth) + (i + x);
+                    colorBuffer[index] = tcol;
+                }
+            }
+        }
+
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
         {
             PixelBuffer(texture, x, y, new Rect(0,0,texture.width,texture.height),transform);
