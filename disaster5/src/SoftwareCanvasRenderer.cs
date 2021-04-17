@@ -4,13 +4,13 @@ using OpenGL;
 using System.Numerics;
 using System;
 namespace Disaster{
-    public class DrawRenderer : Renderer 
+    public class SoftwareCanvasRenderer : Renderer 
     {
         VBO<Vector3> vertices;
         VBO<Vector2> uvs;
         VBO<uint> triangles;
         ShaderProgram shader;
-        public DrawRenderer(ShaderProgram shader)
+        public SoftwareCanvasRenderer(ShaderProgram shader)
         {
             this.shader = shader;
 
@@ -46,9 +46,9 @@ namespace Disaster{
             Gl.BindBufferToShaderAttribute(vertices, shader, "pos");
             Gl.BindBufferToShaderAttribute(uvs, shader, "uv");
 
-            Debug.Label("soft render setup");
+            //Debug.Label("soft render setup");
             SoftwareCanvas.CreateOGLTexture();
-            Debug.Label("create ogl texture");
+            //Debug.Label("create ogl texture");
             Gl.BindBuffer(triangles);
             Gl.DrawElements(BeginMode.Triangles, triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
         }

@@ -10,7 +10,7 @@ namespace Disaster {
     public class ScreenController {
         IntPtr window;
 
-        DrawRenderer drawScreen;
+        SoftwareCanvasRenderer drawScreen;
         uint framebuffer;
 
         VBO<Vector3> vertices;
@@ -107,7 +107,7 @@ namespace Disaster {
                 throw new Exception($"couldn't find software shader: screenfrag.glsl");
             }
 
-            drawScreen = new DrawRenderer(
+            drawScreen = new SoftwareCanvasRenderer(
                 new ShaderProgram(
                     File.ReadAllText(vertPath),
                     File.ReadAllText(fragPath)
@@ -124,14 +124,14 @@ namespace Disaster {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();
-            Debug.Label("obj render");
+            //Debug.Label("obj render");
             drawScreen.Render();
-            Debug.Label("soft render");
+            //Debug.Label("soft render");
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             Gl.Viewport(0, 0, windowWidth, windowHeight);
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            Debug.Label("framebuffer swap");
+            //Debug.Label("framebuffer swap");
             Gl.UseProgram(shader);
 
             Gl.BindBufferToShaderAttribute(vertices, shader, "pos");
@@ -140,7 +140,7 @@ namespace Disaster {
             Gl.BindTexture(TextureTarget.Texture2D, texture);
 
             Gl.DrawElements(BeginMode.Triangles, 6, DrawElementsType.UnsignedInt, IntPtr.Zero);
-            Debug.Label("framebuffer render");
+            //Debug.Label("framebuffer render");
 
             SDL.SDL_GL_SwapWindow(window);
             Debug.Label("swap window");

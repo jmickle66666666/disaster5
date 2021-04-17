@@ -162,7 +162,7 @@ namespace Disaster
                     }
                 }
 
-                Debug.Label("sdl events");
+                //Debug.Label("sdl events");
 
                 double delta = ms * .001 * timescale;
                 js.Update(delta);
@@ -171,7 +171,7 @@ namespace Disaster
                 Debug.DrawGraph();
                 screen.Update();
 
-                Debug.Label("render update");
+                //Debug.Label("render update");
 
                 DisasterAPI.Input.Clear();
 
@@ -184,13 +184,13 @@ namespace Disaster
                 }
                 //if (frame % 30 == 0)
 
-                if (GC.GetTotalMemory(false) > 10000000)
-                {
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                }
+                //if (GC.GetTotalMemory(false) > 10000000)
+                //{
+                //    GC.Collect();
+                //    GC.WaitForPendingFinalizers();
+                //}
 
-                Debug.Label("gc");
+                //Debug.Label("gc");
 
                 Debug.FrameEnd();
                 Debug.GetFrameMSData();

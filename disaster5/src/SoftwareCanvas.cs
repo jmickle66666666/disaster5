@@ -509,7 +509,7 @@ namespace Disaster {
             {
                 colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
             }
-            Debug.Label("unsafe memory");
+            //Debug.Label("unsafe memory");
 
             //if (texture != null)
             //{
@@ -525,7 +525,7 @@ namespace Disaster {
             }
             Gl.BindTexture(texture);
             Gl.TexImage2D(texture.TextureTarget, 0, PixelInternalFormat.Rgba, textureWidth, textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
-            Debug.Label("texsubimage2d");
+            //Debug.Label("texsubimage2d");
 
 
             return texture;
