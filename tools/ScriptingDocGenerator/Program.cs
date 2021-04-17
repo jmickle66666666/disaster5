@@ -55,6 +55,7 @@ namespace ScriptingDocGenerator
             });
 
             HTMLOutput.OutputHTML(Functions);
+            MarkdownOutput.OutputHTML(Functions);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
                 
 
