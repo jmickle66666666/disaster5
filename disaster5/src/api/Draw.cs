@@ -129,6 +129,11 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "model")]
+        [FunctionDescription("Draw a line of text.")]
+        [ArgumentDescription("x", "x position of the text")]
+        [ArgumentDescription("y", "x position of the text")]
+        [ArgumentDescription("text", "the text content to draw")]
+        [ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
         public static void Model(ObjectInstance position, ObjectInstance rotation, string modelPath, string texturePath)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
@@ -141,6 +146,10 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texture")]
+        [FunctionDescription("Draw an image to the software canvas.")]
+        [ArgumentDescription("x", "x position of the image")]
+        [ArgumentDescription("y", "x position of the image")]
+        [ArgumentDescription("texturePath", "path to the image asset")]
         public static void Texture(int x, int y, string texturePath)
         {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
@@ -148,6 +157,11 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "textureTransformed")]
+        [FunctionDescription("Draw an image to the software canvas, with scaling, rotation and origin offset.")]
+        [ArgumentDescription("x", "x position of the image")]
+        [ArgumentDescription("y", "x position of the image")]
+        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "Transform2D { originX, originY, rotation, scaleX, scaleY }")]
+        [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TextureTransformed(int x, int y, ObjectInstance transformation, string texturePath)
         {
             var trans = Disaster.TypeInterface.Transform2d(transformation);
@@ -156,6 +170,11 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texturePart")]
+        [FunctionDescription("Draw a part of an image to the software canvas")]
+        [ArgumentDescription("x", "x position of the image")]
+        [ArgumentDescription("y", "x position of the image")]
+        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "Rectangle { x, y, w, h }")]
+        [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TexturePart(int x, int y, ObjectInstance rectangle, string texturePath)
         {
             var rect = Disaster.TypeInterface.Rect(rectangle);
@@ -165,6 +184,12 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texturePartTransformed")]
+        [FunctionDescription("Draw a part of an image to the software canvas, with transformations")]
+        [ArgumentDescription("x", "x position of the image")]
+        [ArgumentDescription("y", "x position of the image")]
+        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "Rectangle { x, y, w, h }")]
+        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "Transform2D { originX, originY, rotation, scaleX, scaleY }")]
+        [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, ObjectInstance transformation, string texturePath)
         {
             var rect = Disaster.TypeInterface.Rect(rectangle);

@@ -26,6 +26,7 @@ namespace DisasterAPI
 
 
         [JSFunction(Name = "reset")]
+        [FunctionDescription("Unload all assets and reset the engine.")]
         public static void Reset()
         {
             Disaster.Assets.UnloadAll();
@@ -33,6 +34,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "quit")]
+        [FunctionDescription("Quit the game.")]
         public static void Quit()
         {
             Disaster.Program.running = false;

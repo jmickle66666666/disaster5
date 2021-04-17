@@ -85,10 +85,16 @@ namespace DisasterAPI
         public static Vector2 mousePosition = new Vector2();
 
         [JSFunction(Name = "getKey")]
+        [FunctionDescription("Check if a key is held")]
+        [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKey(int key) { return GetKey(keyCodes[key]); }
         [JSFunction(Name = "getKeyDown")]
+        [FunctionDescription("Check if a key has been pressed this frame")]
+        [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyDown(int key) { return GetKeyDown(keyCodes[key]); }
         [JSFunction(Name = "getKeyUp")]
+        [FunctionDescription("Check if a key has been released this frame")]
+        [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return GetKeyUp(keyCodes[key]); }
 
         public static bool GetKey(SDL.SDL_Keycode key)
