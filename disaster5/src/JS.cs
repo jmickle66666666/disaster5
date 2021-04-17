@@ -23,6 +23,8 @@ namespace Disaster {
 
         public void Reset()
         {
+            currentlyLoadingScripts.Clear();
+            cachedScripts.Clear();
             LoadScripts();
         }
 

@@ -125,7 +125,7 @@ namespace Disaster
 
             LoadingMessage("opening audio");
             SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
-
+            SDL_mixer.Mix_AllocateChannels(DisasterAPI.Audio.maxChannels);
             LoadingMessage("complete");
 
             System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
