@@ -70,15 +70,15 @@ namespace DisasterAPI
             mousePosition.X = x;
             mousePosition.Y = y;
 
-            bool currentLeft = (mouseState & SDL.SDL_BUTTON_LEFT) != 0;
-            bool currentRight = (mouseState & SDL.SDL_BUTTON_RIGHT) != 0;
+            bool currentLeft = (mouseState & SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT)) == SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT);
+            bool currentRight = (mouseState & SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT)) == SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT);
 
             if (_mouseLeft && !currentLeft) { _mouseLeftUp = true; }
             if (!_mouseLeft && currentLeft) { _mouseLeftDown = true; }
             _mouseLeft = currentLeft;
 
-            if (_mouseRight && !currentRight) { _mouseRightDown = true; }
-            if (!_mouseRight && currentRight) { _mouseRightUp = true; }
+            if (_mouseRight && !currentRight) { _mouseRightUp = true; }
+            if (!_mouseRight && currentRight) { _mouseRightDown = true; }
             _mouseRight = currentRight;
         }
 
