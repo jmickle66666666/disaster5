@@ -35,7 +35,7 @@ namespace Disaster
             Assets.basePath = basedir;
         }
 
-        static ScreenController screen;
+        public static ScreenController screen;
         static int loadingScreenPosition = 0;
 
         public static bool running = true;

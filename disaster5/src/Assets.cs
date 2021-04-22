@@ -74,12 +74,36 @@ namespace Disaster
 
         public static void UnloadAll()
         {
+            Dispose();
             if (scripts != null) scripts.Clear();
             if (textures != null) textures.Clear();
             if (pixelBuffers != null) pixelBuffers.Clear();
             if (objModels != null) objModels.Clear();
             if (audio != null) audio.Clear();
             if (music != null) music.Clear();
+            GC.Collect();
+        }
+
+        public static void Preload(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower();
+            switch(extension)
+            {
+                case ".png":
+                    Texture(path);
+                    PixelBuffer(path);
+                    break;
+                case ".wav":
+                    Audio(path);
+                    break;
+                case ".ogg":
+                case ".mp3":
+                    Music(path);
+                    break;
+                case ".obj":
+                    ObjModel(path);
+                    break;
+            }
         }
 
         public static Texture Texture(string path)

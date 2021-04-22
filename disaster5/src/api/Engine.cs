@@ -39,5 +39,20 @@ namespace DisasterAPI
         {
             Disaster.Program.running = false;
         }
+
+        [JSFunction(Name = "redraw")]
+        [FunctionDescription("Force a render mid-frame.")]
+        public static void Redraw()
+        {
+            Disaster.Program.screen.Update();
+        }
+
+        [JSFunction(Name = "preload")]
+        [FunctionDescription("Preload an asset.")]
+        [ArgumentDescription("path", "Path to the asset, asset type is determined by the extension")]
+        public static void Preload(string path)
+        {
+            Disaster.Assets.Preload(path);
+        }
     }
 }
