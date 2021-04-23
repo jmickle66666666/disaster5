@@ -46,6 +46,8 @@ namespace Disaster {
 
         public static void InitTexture(IntPtr renderer, int width, int height)
         {
+            fontCache = new Dictionary<string, (int width, int height, bool[,] data)>();
+
             textureWidth = width;
             textureHeight = height;
             drawTexture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int) SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
@@ -56,9 +58,19 @@ namespace Disaster {
             Clear();
         }
 
+        static Dictionary<string, (int width, int height, bool[,] data)> fontCache;
         static bool[,] fontBuffer;
         public static void LoadFont(string fontPath)
         {
+            if (fontCache.ContainsKey(fontPath))
+            {
+                var cachedFont = fontCache[fontPath];
+                fontWidth = cachedFont.width;
+                fontHeight = cachedFont.height;
+                fontBuffer = cachedFont.data;
+                return;
+            }
+
             var surf = SDL_image.IMG_Load(fontPath);
             if (surf == IntPtr.Zero)
             {
@@ -86,6 +98,8 @@ namespace Disaster {
 
             fontWidth = fontSurface.w / 16;
             fontHeight = fontSurface.h / 8;
+
+            fontCache.Add(fontPath, (fontWidth, fontHeight, fontBuffer));
         }
 
         public static void Clear()
