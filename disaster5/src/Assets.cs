@@ -35,6 +35,7 @@ namespace Disaster
         public static Dictionary<string, ObjModel> objModels;
         public static Dictionary<string, IntPtr> audio;
         public static Dictionary<string, IntPtr> music;
+        public static Dictionary<string, string> texts;
 
         static ShaderProgram _defaultShader;
         public static ShaderProgram defaultShader {
@@ -81,7 +82,38 @@ namespace Disaster
             if (objModels != null) objModels.Clear();
             if (audio != null) audio.Clear();
             if (music != null) music.Clear();
+            if (texts != null) texts.Clear();
             GC.Collect();
+        }
+
+        public static void Unload(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower();
+            switch (extension)
+            {
+                case ".txt":
+                    texts.Remove(path);
+                    break;
+                case ".png":
+                    if (textures.ContainsKey(path))
+                    {
+                        textures[path].Dispose();
+                        textures.Remove(path);
+                    }
+                    pixelBuffers.Remove(path);
+                    break;
+                case ".wav":
+                    audio.Remove(path);
+                    break;
+                case ".ogg":
+                case ".mp3":
+                    music.Remove(path);
+                    break;
+                case ".obj":
+                    objModels.Remove(path);
+                    break;
+            }
+
         }
 
         public static void Preload(string path)
@@ -89,6 +121,9 @@ namespace Disaster
             string extension = Path.GetExtension(path).ToLower();
             switch(extension)
             {
+                case ".txt":
+                    Text(path);
+                    break;
                 case ".png":
                     Texture(path);
                     PixelBuffer(path);
@@ -104,6 +139,33 @@ namespace Disaster
                     ObjModel(path);
                     break;
             }
+        }
+
+        public static string[] GetAllPaths()
+        {
+            string[] output = Directory.GetFiles(basePath, "*.*", SearchOption.AllDirectories);
+            int len = basePath.Length;
+            Array.ForEach(output, (p) =>
+            {
+                p = p.Substring(len);
+            });
+            return output;
+        }
+
+        public static string Text(string path)
+        {
+            if (texts == null) texts = new Dictionary<string, string>();
+            if (!texts.ContainsKey(path))
+            {
+                if (!LoadPath(path, out string textPath))
+                {
+                    return null;
+                }
+
+                string output = File.ReadAllText(textPath);
+                texts.Add(path, output);
+            }
+            return texts[path];
         }
 
         public static Texture Texture(string path)

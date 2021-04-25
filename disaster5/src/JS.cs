@@ -69,11 +69,13 @@ namespace Disaster {
             }));
 
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));
+
             engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
             engine.SetGlobalValue("Input", new DisasterAPI.Input(engine));
             engine.SetGlobalValue("Audio", new DisasterAPI.Audio(engine));
             engine.SetGlobalValue("Debug", new DisasterAPI.Debug(engine));
             engine.SetGlobalValue("Engine", new DisasterAPI.Engine(engine));
+            engine.SetGlobalValue("Assets", new DisasterAPI.Assets(engine));
         }
 
         void LoadScripts()
