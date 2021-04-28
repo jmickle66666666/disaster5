@@ -10,10 +10,10 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "list")]
-        [FunctionDescription("Returns a list of the paths to all assets.")]
-        public string[] List()
+        [FunctionDescription("Returns a list of the paths to all assets, delimited with a comma `,`")]
+        public string List()
         {
-            return Disaster.Assets.GetAllPaths();
+            return string.Join(',', Disaster.Assets.GetAllPaths());
         }
 
         [JSFunction(Name = "readText")]
@@ -22,6 +22,16 @@ namespace DisasterAPI
         public string ReadText(string path)
         {
             return Disaster.Assets.Text(path);
+        }
+
+        [JSFunction(Name = "writeText")]
+        [FunctionDescription("Creates or overwrites a file in the assets directory.")]
+        [ArgumentDescription("path", "Path of the asset to create or overwrite")]
+        [ArgumentDescription("data", "A string containing the data to write")]
+        public void WriteText(string path, string data)
+        {
+            Disaster.Assets.LoadPath(path, out string assetPath);
+            System.IO.File.WriteAllText(assetPath, data);
         }
     }
 }
