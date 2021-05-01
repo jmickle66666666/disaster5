@@ -153,7 +153,12 @@ namespace Disaster
                         case SDL.SDL_EventType.SDL_QUIT:
                             running = false;
                             break;
+                        case SDL.SDL_EventType.SDL_TEXTINPUT:
+                            //DisasterAPI.Input._lastChar = e.text.text;
+                            break;
                         case SDL.SDL_EventType.SDL_KEYDOWN:
+                            DisasterAPI.Input._anyKeyDown = true;
+                            //DisasterAPI.Input._lastChar = ((char)e.key.keysym.sym).ToString();
                             DisasterAPI.Input.keyState[e.key.keysym.sym] = (true, true, DisasterAPI.Input.GetKeyUp(e.key.keysym.sym));
                             break;
                         case SDL.SDL_EventType.SDL_KEYUP:

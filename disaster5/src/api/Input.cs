@@ -22,6 +22,7 @@ namespace DisasterAPI
                 nextState[kvp.Key] = (false, kvp.Value.held, false);
             }
             keyState = nextState;
+            _anyKeyDown = false;
         }
 
         [JSProperty(Name = "mouseX")]
@@ -96,6 +97,24 @@ namespace DisasterAPI
         [FunctionDescription("Check if a key has been released this frame")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return GetKeyUp(keyCodes[key]); }
+        
+        [JSProperty(Name = "lastChar")]
+        public static string LastChar
+        {
+            get { return _lastChar; }
+        }
+
+        public static string _lastChar;
+
+        public static bool _anyKeyDown = false;
+        [JSProperty(Name = "anyKeyDown")]
+        public static bool anyKeyDown
+        {
+            get
+            {
+                return _anyKeyDown;
+            }
+        }
 
         public static bool GetKey(SDL.SDL_Keycode key)
         {

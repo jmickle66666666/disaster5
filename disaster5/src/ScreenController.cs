@@ -98,11 +98,11 @@ namespace Disaster {
                 }, BufferTarget.ElementArrayBuffer
             );
 
-            if (!Assets.LoadPath("outputvert.glsl", out vertPath))
+            if (!Assets.LoadPath("screenvert.glsl", out vertPath))
             {
                 throw new Exception($"couldn't find software shader: screenvert.glsl");
             }
-            if (!Assets.LoadPath("outputfrag.glsl", out fragPath))
+            if (!Assets.LoadPath("screenfrag.glsl", out fragPath))
             {
                 throw new Exception($"couldn't find software shader: screenfrag.glsl");
             }
@@ -124,8 +124,8 @@ namespace Disaster {
             Gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             ObjRenderer.RenderQueue();
-            //Debug.Label("obj render");
             drawScreen.Render();
+            //Debug.Label("obj render");
             //Debug.Label("soft render");
 
             Gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
