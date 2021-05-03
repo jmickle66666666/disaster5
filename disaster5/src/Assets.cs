@@ -32,31 +32,33 @@ namespace Disaster
         public static List<string> currentlyLoadingScripts;
         //public static Dictionary<string, Texture> textures;
         public static Dictionary<string, PixelBuffer> pixelBuffers;
-        //public static Dictionary<string, ObjModel> objModels;
+        public static Dictionary<string, Model> models;
         public static Dictionary<string, Sound> audio;
         public static Dictionary<string, Music> music;
         public static Dictionary<string, string> texts;
 
-        //static ShaderProgram _defaultShader;
-        //public static ShaderProgram defaultShader
-        //{
-        //    get
-        //    {
-        //        if (_defaultShader == null)
-        //        {
-        //            if (LoadPath("vert.glsl", out string vertShaderPath))
-        //            {
-        //                if (LoadPath("frag.glsl", out string fragShaderPath))
-        //                {
-        //                    var vertShader = File.ReadAllText(vertShaderPath);
-        //                    var fragShader = File.ReadAllText(fragShaderPath);
-        //                    _defaultShader = new ShaderProgram(vertShader, fragShader);
-        //                }
-        //            }
-        //        }
-        //        return _defaultShader;
-        //    }
-        //}
+        static bool assignedDefaultShader = false;
+        static Shader _defaultShader;
+        public static Shader defaultShader
+        {
+            get
+            {
+                if (!assignedDefaultShader)
+                {
+                    if (LoadPath("vert.glsl", out string vertShaderPath))
+                    {
+                        if (LoadPath("frag.glsl", out string fragShaderPath))
+                        {
+                            var vertShader = File.ReadAllText(vertShaderPath);
+                            var fragShader = File.ReadAllText(fragShaderPath);
+                            _defaultShader = Raylib.LoadShaderCode(vertShader, fragShader);
+                            assignedDefaultShader = true;
+                        }
+                    }
+                }
+                return _defaultShader;
+            }
+        }
 
         public static bool LoadPath(string path, out string assetPath)
         {
@@ -224,21 +226,21 @@ namespace Disaster
             return pixelBuffers[path];
         }
 
-        //public static ObjModel ObjModel(string path)
-        //{
-        //    if (objModels == null) objModels = new Dictionary<string, ObjModel>();
-        //    if (!objModels.ContainsKey(path))
-        //    {
-        //        if (!LoadPath(path, out string objModelPath))
-        //        {
-        //            return new Disaster.ObjModel();
-        //        }
-
-        //        var objModel = Disaster.ObjModel.Parse(objModelPath);
-        //        objModels.Add(path, objModel);
-        //    }
-        //    return objModels[path];
-        //}
+        public static Model Model(string path)
+        {
+            if (models == null) models = new Dictionary<string, Model>();
+            if (!models.ContainsKey(path))
+            {
+                if (!LoadPath(path, out string modelPath))
+                {
+                    Program.LoadingMessage($"No model, bud. {modelPath}");
+                }
+                Console.WriteLine($"loading: {modelPath}");
+                var model = Raylib.LoadModel(modelPath);
+                models.Add(path, model);
+            }
+            return models[path];
+        }
 
         public static ObjectInstance Script(string path)
         {

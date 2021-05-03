@@ -28,8 +28,8 @@ namespace Disaster
             renderTexture = Raylib.LoadRenderTexture(640 / scale, 480 / scale);
             Raylib.SetTargetFPS(60);
             camera = new Camera3D(
-                new Vector3(0, 10f, 10f),
-                new Vector3(0, 0, 0),
+                new Vector3(0, 0f, 0f),
+                new Vector3(0, 0, -1),
                 new Vector3(0, 1, 0),
                 45f
             );
@@ -56,26 +56,25 @@ namespace Disaster
 
             Raylib.BeginMode3D(camera);
 
-            Raylib.DrawCube(new Vector3(-4, 0, 2), 2, 5, 2, Color.RED);
-            Raylib.DrawGrid(10, 1);
+            ModelRenderer.RenderQueue();
 
             Raylib.EndMode3D();
             Raylib.EndTextureMode();
 
             Raylib.ClearBackground(Color.BLACK);
 
+
+
+            Raylib.DrawTexturePro(
+                renderTexture.texture,
+                new Rectangle(0, 0, renderTexture.texture.width, -renderTexture.texture.height),
+                new Rectangle(0, 0, 640, 480),
+                Vector2.Zero,
+                0,
+                Color.RAYWHITE
+            );
+
             drawScreen.Render();
-
-
-            //Raylib.DrawTexturePro(
-            //    renderTexture.texture,
-            //    new Rectangle(0, 0, renderTexture.texture.width, -renderTexture.texture.height),
-            //    new Rectangle(0, 0, 640, 480),
-            //    Vector2.Zero,
-            //    0,
-            //    Color.RAYWHITE
-            //);
-
             Raylib.EndDrawing();
 
             Debug.Label("swap window");
