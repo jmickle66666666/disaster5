@@ -1,6 +1,6 @@
 using Jurassic;
 using Jurassic.Library;
-using SDL2;
+using Raylib_cs;
 using System;
 namespace DisasterAPI
 {
@@ -14,7 +14,7 @@ namespace DisasterAPI
         [ArgumentDescription("audioPath", "path to the audio asset to play")]
         public void PlayMusic(string audioPath)
         {
-            SDL_mixer.Mix_PlayMusic(Disaster.Assets.Music(audioPath), 1);
+            Raylib.PlayMusicStream(Disaster.Assets.Music(audioPath));
         }
 
         public static int maxChannels = 64;
@@ -24,11 +24,7 @@ namespace DisasterAPI
         [ArgumentDescription("audioPath", "path to the audio asset to play")]
         public void PlaySound(string audioPath)
         {
-            var channel = SDL_mixer.Mix_PlayChannel(-1, Disaster.Assets.Audio(audioPath), 0);
-            if (channel == -1)
-            {
-                Console.WriteLine(SDL.SDL_GetError());
-            }
+            Raylib.PlaySoundMulti(Disaster.Assets.Audio(audioPath));
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿// entry point
 
 using System;
-using SDL2;
 using System.IO;
 using System.Collections.Generic;
+using Raylib_cs;
+using System.Numerics;
 
 namespace Disaster
 {
@@ -60,50 +61,13 @@ namespace Disaster
         }
         static void Main(string[] args)
         {
-            if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_AUDIO) < 0) {
-                Console.WriteLine("Error initializing SDL");
-                SDL.SDL_Quit();
-                return;
-            }
-
-            // LUNA: Initialize with OpenGL 3.2, so we can debug graphics with RenderDoc
-            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 2);
-            SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, SDL.SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-
-            var window = SDL.SDL_CreateWindow(
-                "Disaster Engine Again",
-                SDL.SDL_WINDOWPOS_UNDEFINED,
-                SDL.SDL_WINDOWPOS_UNDEFINED,
-                ScreenController.windowWidth, ScreenController.windowHeight,
-                SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL
-            );
-
-            if (window == IntPtr.Zero)
-            {
-                Console.WriteLine($"There was an issue creating the window. {SDL.SDL_GetError()}");
-            }
-
-            var renderer = SDL.SDL_CreateRenderer(
-                window,
-                -1,
-                SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED |
-                SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC
-            );
-
-            if (renderer == IntPtr.Zero)
-            {
-                Console.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
-            }
-
-            SDL.SDL_SetHint(SDL.SDL_HINT_RENDER_SCALE_QUALITY, "0");
-
+            Raylib.SetTraceLogLevel(TraceLogType.LOG_WARNING);
+            Raylib.InitAudioDevice();
+            
             Console.WriteLine($"Welcome to disaster engine");
 
-            var frameStart = DateTime.UtcNow.Ticks;
-
             // software renderer initialisation
-            SoftwareCanvas.InitTexture(renderer, 320, 240);
+            SoftwareCanvas.InitTexture(320, 240);
             LoadConfig();
             // TODO: bake in a default font! so you can't end up with no font at all
             if (Assets.LoadPath("fontsmall.png", out string fontPath))
@@ -111,106 +75,120 @@ namespace Disaster
                 SoftwareCanvas.LoadFont(fontPath);
             }
 
-            screen = new ScreenController(window);
+            screen = new ScreenController();
             LoadingMessage("disaster engine 5.0");
             LoadingMessage("(c) jazz mickle ultramegacorp 2021");
             LoadingMessage("initialised screen");
+
             var js = new JS();
-            
-            double ms = 0;
-            int frame = 0;
 
-            LoadingMessage("building input collection");
-            DisasterAPI.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
-
-            LoadingMessage("opening audio");
-            SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
-            SDL_mixer.Mix_AllocateChannels(DisasterAPI.Audio.maxChannels);
-            LoadingMessage("complete");
-
-            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
-
-            long ticks;
-            long t;
-            
-            Debug.enabled = false;
-
-            while (running)
+            while (!Raylib.WindowShouldClose())
             {
-                frame += 1;
-
-                Debug.FrameStart();
-
-                ticks = DateTime.UtcNow.Ticks;
-                t = ticks - frameStart;
-                ms = t / 10000.0;
-                frameStart = ticks;
-
-                while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
-                {
-                    switch (e.type)
-                    {
-                        case SDL.SDL_EventType.SDL_QUIT:
-                            running = false;
-                            break;
-                        case SDL.SDL_EventType.SDL_TEXTINPUT:
-                            //DisasterAPI.Input._lastChar = e.text.text;
-                            break;
-                        case SDL.SDL_EventType.SDL_KEYDOWN:
-                            DisasterAPI.Input._anyKeyDown = true;
-                            //DisasterAPI.Input._lastChar = ((char)e.key.keysym.sym).ToString();
-                            DisasterAPI.Input.keyState[e.key.keysym.sym] = (true, true, DisasterAPI.Input.GetKeyUp(e.key.keysym.sym));
-                            break;
-                        case SDL.SDL_EventType.SDL_KEYUP:
-                            DisasterAPI.Input.keyState[e.key.keysym.sym] = (DisasterAPI.Input.GetKeyDown(e.key.keysym.sym), false, true);
-                            break;
-                    }
-                }
-
-                //Debug.Label("sdl events");
-
-                double delta = ms * .001 * timescale;
-                js.Update(delta);
-
-                Debug.Label("js update");
-                Debug.DrawGraph();
+                js.Update(Raylib.GetFrameTime());
                 screen.Update();
-
-                //Debug.Label("render update");
-
-                DisasterAPI.Input.Clear();
-
-                SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");
-                                                                                             
-                if (ms > 20)
-                {
-                    //Console.WriteLine("HElo");
-                    System.Diagnostics.Debugger.Log(0, "hitch", $"took {ms} this frame\n");
-                }
-                //if (frame % 30 == 0)
-
-                //if (GC.GetTotalMemory(false) > 10000000)
-                //{
-                //    GC.Collect();
-                //    GC.WaitForPendingFinalizers();
-                //}
-
-                //Debug.Label("gc");
-
-                Debug.FrameEnd();
-                Debug.GetFrameMSData();
             }
 
             screen.Done();
+            Raylib.CloseAudioDevice();
 
-            // Clean up the resources that were created.
-            Assets.Dispose();
-            
-            SDL_mixer.Mix_CloseAudio();
-            SDL.SDL_DestroyRenderer(renderer);
-            SDL.SDL_DestroyTexture(SoftwareCanvas.drawTexture);
-            SDL.SDL_DestroyWindow(window);
-            SDL.SDL_Quit();
+
+
+
+
+            //double ms = 0;
+            //int frame = 0;
+
+            //LoadingMessage("building input collection");
+            //DisasterAPI.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
+
+            //LoadingMessage("opening audio");
+            //SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
+            //SDL_mixer.Mix_AllocateChannels(DisasterAPI.Audio.maxChannels);
+            //LoadingMessage("complete");
+
+            //System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
+
+            //long ticks;
+            //long t;
+
+            //Debug.enabled = false;
+
+            //while (running)
+            //{
+            //    frame += 1;
+
+            //    Debug.FrameStart();
+
+            //    ticks = DateTime.UtcNow.Ticks;
+            //    t = ticks - frameStart;
+            //    ms = t / 10000.0;
+            //    frameStart = ticks;
+
+            //    while (SDL.SDL_PollEvent(out SDL.SDL_Event e) == 1)
+            //    {
+            //        switch (e.type)
+            //        {
+            //            case SDL.SDL_EventType.SDL_QUIT:
+            //                running = false;
+            //                break;
+            //            case SDL.SDL_EventType.SDL_TEXTINPUT:
+            //                //DisasterAPI.Input._lastChar = e.text.text;
+            //                break;
+            //            case SDL.SDL_EventType.SDL_KEYDOWN:
+            //                DisasterAPI.Input._anyKeyDown = true;
+            //                //DisasterAPI.Input._lastChar = ((char)e.key.keysym.sym).ToString();
+            //                DisasterAPI.Input.keyState[e.key.keysym.sym] = (true, true, DisasterAPI.Input.GetKeyUp(e.key.keysym.sym));
+            //                break;
+            //            case SDL.SDL_EventType.SDL_KEYUP:
+            //                DisasterAPI.Input.keyState[e.key.keysym.sym] = (DisasterAPI.Input.GetKeyDown(e.key.keysym.sym), false, true);
+            //                break;
+            //        }
+            //    }
+
+            //    //Debug.Label("sdl events");
+
+            //    double delta = ms * .001 * timescale;
+            //    js.Update(delta);
+
+            //    Debug.Label("js update");
+            //    Debug.DrawGraph();
+            //    screen.Update();
+
+            //    //Debug.Label("render update");
+
+            //    DisasterAPI.Input.Clear();
+
+            //    SDL.SDL_SetWindowTitle(window, $"DISASTER ENGINE 5 -- MS: {Math.Floor(ms)}");
+
+            //    if (ms > 20)
+            //    {
+            //        //Console.WriteLine("HElo");
+            //        System.Diagnostics.Debugger.Log(0, "hitch", $"took {ms} this frame\n");
+            //    }
+            //    //if (frame % 30 == 0)
+
+            //    //if (GC.GetTotalMemory(false) > 10000000)
+            //    //{
+            //    //    GC.Collect();
+            //    //    GC.WaitForPendingFinalizers();
+            //    //}
+
+            //    //Debug.Label("gc");
+
+            //    Debug.FrameEnd();
+            //    Debug.GetFrameMSData();
+            //}
+
+            //screen.Done();
+
+            //// Clean up the resources that were created.
+            //Assets.Dispose();
+
+            //SDL_mixer.Mix_CloseAudio();
+            //SDL.SDL_DestroyRenderer(renderer);
+            //SDL.SDL_DestroyTexture(SoftwareCanvas.drawTexture);
+            //SDL.SDL_DestroyWindow(window);
+            //SDL.SDL_Quit();
         }
     }
 }

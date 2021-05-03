@@ -1,4 +1,4 @@
-using OpenGL;
+//using OpenGL;
 using Jurassic;
 using Jurassic.Library;
 using System.Numerics;
@@ -31,8 +31,8 @@ namespace DisasterAPI
 
         [JSProperty(Name = "fontHeight")] public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
         [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
-        [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
-        [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
+        //[JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
+        //[JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
         
         [JSFunction(Name = "setFog")]
         [FunctionDescription("Sets fog properties.")]
@@ -42,29 +42,29 @@ namespace DisasterAPI
         public static void SetFog(ObjectInstance color, double fogStart, double fogDistance)
         {
             var clr = Disaster.TypeInterface.Color32(color);
-            Disaster.ObjRenderer.SetFogProperties(clr, (float)fogStart, (float)fogDistance);
+            //Disaster.ObjRenderer.SetFogProperties(clr, (float)fogStart, (float)fogDistance);
         }
         
-        [JSFunction(Name = "enableFog")]
-        [FunctionDescription("Enable 3D fog. See also: setFog, disableFog")]
-        public static void EnableFog()
-        {
-            Disaster.ObjRenderer.SetFogEnabled(true);
-        }
+        //[JSFunction(Name = "enableFog")]
+        //[FunctionDescription("Enable 3D fog. See also: setFog, disableFog")]
+        //public static void EnableFog()
+        //{
+        //    Disaster.ObjRenderer.SetFogEnabled(true);
+        //}
         
-        [JSFunction(Name = "disableFog")]
-        [FunctionDescription("Disable 3D fog. See also: setFog, enableFog")]
-        public static void DisableFog()
-        {
-            Disaster.ObjRenderer.SetFogEnabled(false);
-        }
+        //[JSFunction(Name = "disableFog")]
+        //[FunctionDescription("Disable 3D fog. See also: setFog, enableFog")]
+        //public static void DisableFog()
+        //{
+        //    Disaster.ObjRenderer.SetFogEnabled(false);
+        //}
         
-        [JSFunction(Name = "setClearColor")]
-        public static void SetClearColor(ObjectInstance color, double fogStart, double fogDistance)
-        {
-            var clr = Disaster.TypeInterface.Color32(color);
-            Disaster.ScreenController.SetClearColor(clr);
-        }
+        //[JSFunction(Name = "setClearColor")]
+        //public static void SetClearColor(ObjectInstance color, double fogStart, double fogDistance)
+        //{
+        //    var clr = Disaster.TypeInterface.Color32(color);
+        //    Disaster.ScreenController.SetClearColor(clr);
+        //}
 
         [JSFunction(Name = "offset")]
         [FunctionDescription("Set a global offset for 2D rendering.")]
@@ -128,22 +128,22 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
-        [JSFunction(Name = "model")]
-        [FunctionDescription("Draw a line of text.")]
-        [ArgumentDescription("x", "x position of the text")]
-        [ArgumentDescription("y", "x position of the text")]
-        [ArgumentDescription("text", "the text content to draw")]
-        [ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
-        public static void Model(ObjectInstance position, ObjectInstance rotation, string modelPath, string texturePath)
-        {
-            var rot = Disaster.TypeInterface.Vector3(rotation);
-            var pos = Disaster.TypeInterface.Vector3(position);
-            Matrix4x4 mat = Matrix4x4.CreateFromYawPitchRoll(rot.Y, rot.X, rot.Z) * Matrix4x4.CreateTranslation(pos);
-            Matrix4 matrix = new Matrix4(new float[] { mat.M11, mat.M12, mat.M13, mat.M14, mat.M21, mat.M22, mat.M23, mat.M24, mat.M31, mat.M32, mat.M33, mat.M34, mat.M41, mat.M42, mat.M43, mat.M44 });
-            var texture = Disaster.Assets.Texture(texturePath);
-            var model = Disaster.Assets.ObjModel(modelPath);
-            Disaster.ObjRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, texture, matrix);
-        }
+        //[JSFunction(Name = "model")]
+        //[FunctionDescription("Draw a line of text.")]
+        //[ArgumentDescription("x", "x position of the text")]
+        //[ArgumentDescription("y", "x position of the text")]
+        //[ArgumentDescription("text", "the text content to draw")]
+        //[ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
+        //public static void Model(ObjectInstance position, ObjectInstance rotation, string modelPath, string texturePath)
+        //{
+        //    var rot = Disaster.TypeInterface.Vector3(rotation);
+        //    var pos = Disaster.TypeInterface.Vector3(position);
+        //    Matrix4x4 mat = Matrix4x4.CreateFromYawPitchRoll(rot.Y, rot.X, rot.Z) * Matrix4x4.CreateTranslation(pos);
+        //    Matrix4 matrix = new Matrix4(new float[] { mat.M11, mat.M12, mat.M13, mat.M14, mat.M21, mat.M22, mat.M23, mat.M24, mat.M31, mat.M32, mat.M33, mat.M34, mat.M41, mat.M42, mat.M43, mat.M44 });
+        //    var texture = Disaster.Assets.Texture(texturePath);
+        //    var model = Disaster.Assets.ObjModel(modelPath);
+        //    Disaster.ObjRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, texture, matrix);
+        //}
 
         [JSFunction(Name = "texture")]
         [FunctionDescription("Draw an image to the software canvas.")]

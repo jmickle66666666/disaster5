@@ -2,30 +2,29 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices; 
+using System.Runtime.CompilerServices;
 using System;
 using System.Numerics;
 using System.IO;
-using SDL2;
 using System.Runtime.InteropServices;
-using OpenGL;
+using Raylib_cs;
 
-namespace Disaster {
+namespace Disaster
+{
     public class SoftwareCanvas
     {
         public static IntPtr drawTexture;
-        static int textureWidth;
-        static int textureHeight;
+        public static int textureWidth;
+        public static int textureHeight;
         public static Color32[] colorBuffer;
         public static int fontWidth;
         public static int fontHeight;
-        public static IntPtr renderer;
-        public static IntPtr pixels;
+        //public static IntPtr pixels;
 
         public static int offsetX;
         public static int offsetY;
 
-        public static Color32 clear = new Color32() { r=0, g=0, b=0, a=0 };
+        public static Color32 clear = new Color32() { r = 0, g = 0, b = 0, a = 0 };
 
         public static int MaxTextLength()
         {
@@ -38,21 +37,20 @@ namespace Disaster {
             string[] output = new string[necessaryLines];
             for (int i = 0; i < necessaryLines; i++)
             {
-                int end = (int) MathF.Min(message.Length - (i * MaxTextLength()), MaxTextLength());
+                int end = (int)MathF.Min(message.Length - (i * MaxTextLength()), MaxTextLength());
                 output[i] = message.Substring(i * MaxTextLength(), end);
             }
             return output;
         }
 
-        public static void InitTexture(IntPtr renderer, int width, int height)
+        public static void InitTexture(int width, int height)
         {
             fontCache = new Dictionary<string, (int width, int height, bool[,] data)>();
 
             textureWidth = width;
             textureHeight = height;
-            drawTexture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int) SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STREAMING, textureWidth, textureHeight);
-            SoftwareCanvas.renderer = renderer;
-            pixels = Marshal.AllocHGlobal(textureWidth * textureHeight * 4);
+            
+            //pixels = Marshal.AllocHGlobal(textureWidth * textureHeight * 4);
 
             colorBuffer = new Color32[textureHeight * textureWidth];
             Clear();
@@ -71,33 +69,29 @@ namespace Disaster {
                 return;
             }
 
-            var surf = SDL_image.IMG_Load(fontPath);
-            if (surf == IntPtr.Zero)
-            {
-                Console.WriteLine("Font loading failed, things about to break");
-                Console.WriteLine(SDL_image.IMG_GetError());
-                return;
-            }
-            var fontSurface = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
+            var image = Raylib.LoadImage(fontPath);
 
-            fontWidth = fontSurface.w;
-            fontHeight = fontSurface.h;
+            fontWidth = image.width;
+            fontHeight = image.height;
 
             fontBuffer = new bool[fontWidth, fontHeight];
-            unsafe {
-                Color32* colors = (Color32*) fontSurface.pixels;
-                
-                for (int i = 0; i < fontWidth; i++) {
-                    for (int j = 0; j < fontHeight; j++) {
+            unsafe
+            {
+                Color32* colors = (Color32*)image.data;
+
+                for (int i = 0; i < fontWidth; i++)
+                {
+                    for (int j = 0; j < fontHeight; j++)
+                    {
                         int fontColorBufferIndex = (j * fontWidth) + i;
                         fontBuffer[i, fontHeight - j - 1] = colors[fontColorBufferIndex].r > 0;
-                        
+
                     }
                 }
             }
 
-            fontWidth = fontSurface.w / 16;
-            fontHeight = fontSurface.h / 8;
+            fontWidth = image.width/ 16;
+            fontHeight = image.height / 8;
 
             fontCache.Add(fontPath, (fontWidth, fontHeight, fontBuffer));
         }
@@ -152,7 +146,7 @@ namespace Disaster {
 
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
         {
-            PixelBuffer(texture, x, y, new Rect(0,0,texture.width,texture.height),transform);
+            PixelBuffer(texture, x, y, new Rect(0, 0, texture.width, texture.height), transform);
         }
 
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
@@ -246,10 +240,10 @@ namespace Disaster {
             x1 += offsetX;
             y1 += offsetY;
 
-            Line(x1, y1, x1 + width-1, y1, color);
-            Line(x1 + width-1, y1, x1 + width-1, y1 + height-1, color);
-            Line(x1 + width-1, y1 + height-1, x1, y1 + height-1, color);
-            Line(x1, y1 + height-1, x1, y1, color);
+            Line(x1, y1, x1 + width - 1, y1, color);
+            Line(x1 + width - 1, y1, x1 + width - 1, y1 + height - 1, color);
+            Line(x1 + width - 1, y1 + height - 1, x1, y1 + height - 1, color);
+            Line(x1, y1 + height - 1, x1, y1, color);
         }
 
         // public static void DrawLine(Vector3 p1, Vector3 p2, Color32 color, int steps = 2)
@@ -277,7 +271,7 @@ namespace Disaster {
 
         public static void Line(Vector2 p1, Vector2 p2, Color32 color)
         {
-            Line(new Vector2Int((int)p1.X, (int)p1.Y), new Vector2Int((int)p2.X, (int)p2.Y), color); 
+            Line(new Vector2Int((int)p1.X, (int)p1.Y), new Vector2Int((int)p2.X, (int)p2.Y), color);
         }
 
         public static void Line(Vector2Int p1, Vector2Int p2, Color32 color)
@@ -287,7 +281,7 @@ namespace Disaster {
 
         public static void Line(float x0, float y0, float x1, float y1, Color32 color)
         {
-            Line((int) x0, (int) y0, (int) x1, (int) y1, color);
+            Line((int)x0, (int)y0, (int)x1, (int)y1, color);
         }
 
         public static void Line(int x0, int y0, int x1, int y1, Color32 color)
@@ -301,8 +295,10 @@ namespace Disaster {
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
             if (dx > 1000 || dy > 1000) return;
             int err = (dx > dy ? dx : -dy) / 2, e2;
-            for(;;) {
-                if (y0 >= 0 && x0 >= 0 && x0<textureWidth && y0 < textureHeight) {
+            for (; ; )
+            {
+                if (y0 >= 0 && x0 >= 0 && x0 < textureWidth && y0 < textureHeight)
+                {
                     int index = y0 * textureWidth + x0;
                     if (index >= 0 && index < colorBuffer.Length) colorBuffer[index] = color;
                 }
@@ -320,7 +316,7 @@ namespace Disaster {
 
             x += offsetX;
             y += offsetY;
-            
+
             int x2 = x + width;
             int y2 = y + height;
 
@@ -332,13 +328,18 @@ namespace Disaster {
 
             if (x < 0) x = 0;
             if (y < 0) y = 0;
-            
-            for (int i = x; i < x2; i++) {
-                for (int j = y; j < y2; j++) {
+
+            for (int i = x; i < x2; i++)
+            {
+                for (int j = y; j < y2; j++)
+                {
                     int yoff = j * textureWidth;
-                    if (color.a != 255) {
+                    if (color.a != 255)
+                    {
                         colorBuffer[i + yoff] = Mix(colorBuffer[i + yoff], color);
-                    } else {
+                    }
+                    else
+                    {
                         colorBuffer[i + yoff] = color;
                     }
                 }
@@ -351,25 +352,27 @@ namespace Disaster {
             float a = B.a / 256f;
             float ba = A.a / 256f;
             float ia = 1f - a;
-            r = (byte) MathF.Floor((A.r * ia) + (B.r * a));
-            g = (byte) MathF.Floor((A.g * ia) + (B.g * a));
-            b = (byte) MathF.Floor((A.b * ia) + (B.b * a));
+            r = (byte)MathF.Floor((A.r * ia) + (B.r * a));
+            g = (byte)MathF.Floor((A.g * ia) + (B.g * a));
+            b = (byte)MathF.Floor((A.b * ia) + (B.b * a));
             return new Color32(r, g, b, (byte)MathF.Floor(a * ba * 255f));
         }
 
         public static void DrawPath(Vector2[] path, Color32 color, bool closed = true)
         {
-            for (int i = 0; i < path.Length-1; i++) {
+            for (int i = 0; i < path.Length - 1; i++)
+            {
                 Line(
                     path[i],
-                    path[i+1],
+                    path[i + 1],
                     color
                 );
             }
 
-            if (closed) {
+            if (closed)
+            {
                 Line(
-                    path[path.Length-1],
+                    path[path.Length - 1],
                     path[0],
                     color
                 );
@@ -378,17 +381,19 @@ namespace Disaster {
 
         public static void DrawPath(Vector2Int[] path, Color32 color, bool closed = true)
         {
-            for (int i = 0; i < path.Length-1; i++) {
+            for (int i = 0; i < path.Length - 1; i++)
+            {
                 Line(
                     path[i],
-                    path[i+1],
+                    path[i + 1],
                     color
                 );
             }
 
-            if (closed) {
+            if (closed)
+            {
                 Line(
-                    path[path.Length-1],
+                    path[path.Length - 1],
                     path[0],
                     color
                 );
@@ -417,7 +422,7 @@ namespace Disaster {
         // public static void DrawMesh(Mesh mesh, Matrix4x4 matrix, Color32 color) {
         //     DrawMesh(mesh, matrix, Vector3.zero, color);
         // }
-        
+
         // public static void DrawMesh(Mesh mesh, Matrix4x4 matrix, Vector3 offset, Color32 color)
         // {
         //     var verts = mesh.vertices;
@@ -448,7 +453,8 @@ namespace Disaster {
 
         public static void Text(int x, int y, Color32 color, string text)
         {
-            for (int i = 0; i < text.Length; i++) {
+            for (int i = 0; i < text.Length; i++)
+            {
                 Character(x + (i * fontWidth), y, text[i], color);
             }
         }
@@ -459,12 +465,15 @@ namespace Disaster {
             y += offsetY;
 
             int charX = (character % 16) * fontWidth;
-            int charY = (int) (MathF.Floor(character / 16));
+            int charY = (int)(MathF.Floor(character / 16));
             charY = 8 - charY - 1;
             charY *= fontHeight;
-            for (int i = 0; i < fontWidth; i++) {
-                for (int j = 0; j < fontHeight; j++) {
-                    if (fontBuffer[charX + i, (charY+fontHeight) - j - 1]) {
+            for (int i = 0; i < fontWidth; i++)
+            {
+                for (int j = 0; j < fontHeight; j++)
+                {
+                    if (fontBuffer[charX + i, (charY + fontHeight) - j - 1])
+                    {
                         int index = PointToBufferIndex(x + i, y + j);
                         if (index >= 0 && index < colorBuffer.Length) colorBuffer[index] = color;
                     }
@@ -513,73 +522,76 @@ namespace Disaster {
             return (y * textureWidth) + x;
         }
 
-        public static Texture CreateOGLTexture()
-        {
-            if (drawTexture == null) {
-                return null;
-            }
+        //public static Texture CreateOGLTexture()
+        //{
+        //    if (drawTexture == null)
+        //    {
+        //        return null;
+        //    }
 
-            unsafe
-            {
-                colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
-            }
-            //Debug.Label("unsafe memory");
+        //    unsafe
+        //    {
+        //        colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
+        //    }
+        //    //Debug.Label("unsafe memory");
 
-            //if (texture != null)
-            //{
-            //    texture.Dispose();
-            //}
-            //Debug.Label("dispose texture");
-            //texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-            //Debug.Label("create texture");
+        //    //if (texture != null)
+        //    //{
+        //    //    texture.Dispose();
+        //    //}
+        //    //Debug.Label("dispose texture");
+        //    //texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+        //    //Debug.Label("create texture");
 
-            if (texture == null)
-            {
-                texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-            }
-            Gl.BindTexture(texture);
-            Gl.TexImage2D(texture.TextureTarget, 0, PixelInternalFormat.Rgba, textureWidth, textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
-            //Debug.Label("texsubimage2d");
+        //    if (texture == null)
+        //    {
+        //        texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
+        //    }
+        //    Gl.BindTexture(texture);
+        //    Gl.TexImage2D(texture.TextureTarget, 0, PixelInternalFormat.Rgba, textureWidth, textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+        //    //Debug.Label("texsubimage2d");
 
 
-            return texture;
-        }
+        //    return texture;
+        //}
 
-        static Texture texture;
+        //static Texture texture;
 
         public static void UpdateBufferTexture()
         {
-            if (drawTexture == null) {
-                return;
-            }
+            //if (drawTexture == null)
+            //{
+            //    return;
+            //}
 
-            SDL.SDL_LockTexture(drawTexture, IntPtr.Zero, out IntPtr pixels, out int pitch);
-            unsafe {
-                colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth*textureHeight*4));
-            }
-            SDL.SDL_UpdateTexture(drawTexture, IntPtr.Zero, pixels, pitch);
-            SDL.SDL_UnlockTexture(drawTexture);
+            //SDL.SDL_LockTexture(drawTexture, IntPtr.Zero, out IntPtr pixels, out int pitch);
+            //unsafe
+            //{
+            //    colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
+            //}
+            //SDL.SDL_UpdateTexture(drawTexture, IntPtr.Zero, pixels, pitch);
+            //SDL.SDL_UnlockTexture(drawTexture);
         }
 
         public static void ApplyColorBuffer(IntPtr renderer)
         {
-            UpdateBufferTexture();
+            //UpdateBufferTexture();
 
-            float srcAspect = textureWidth / textureHeight;
-            SDL.SDL_GetRendererOutputSize(renderer, out int outputWidth, out int outputHeight);
-            float heightRatio = (float)outputHeight / textureHeight;
-            float widthRatio = (float)outputWidth / textureWidth;
-            float minDimension = MathF.Min(heightRatio, widthRatio);
-            int upScale = (int) MathF.Floor(minDimension);
-            var outputRect = new SDL.SDL_Rect();
-            outputRect.w = textureWidth * upScale;
-            outputRect.h = textureHeight * upScale;
-            outputRect.x = (outputWidth / 2) - (outputRect.w / 2);
-            outputRect.y = (outputHeight / 2) - (outputRect.h / 2);
+            //float srcAspect = textureWidth / textureHeight;
+            //SDL.SDL_GetRendererOutputSize(renderer, out int outputWidth, out int outputHeight);
+            //float heightRatio = (float)outputHeight / textureHeight;
+            //float widthRatio = (float)outputWidth / textureWidth;
+            //float minDimension = MathF.Min(heightRatio, widthRatio);
+            //int upScale = (int)MathF.Floor(minDimension);
+            //var outputRect = new SDL.SDL_Rect();
+            //outputRect.w = textureWidth * upScale;
+            //outputRect.h = textureHeight * upScale;
+            //outputRect.x = (outputWidth / 2) - (outputRect.w / 2);
+            //outputRect.y = (outputHeight / 2) - (outputRect.h / 2);
 
-            SDL.SDL_RenderCopy(renderer, drawTexture, IntPtr.Zero, ref outputRect);
+            //SDL.SDL_RenderCopy(renderer, drawTexture, IntPtr.Zero, ref outputRect);
         }
 
-        
+
     }
 }
