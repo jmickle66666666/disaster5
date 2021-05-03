@@ -70,9 +70,23 @@ namespace Disaster
         }
 
         static int GetInt(object value) {
-            IConvertible val = (IConvertible) value;
-            int cast = val.ToInt32(null);
-            return cast;
+            // sorry about this
+            try
+            {
+                if (value.GetType() == typeof(Jurassic.ConcatenatedString))
+                {
+                    return int.Parse(((Jurassic.ConcatenatedString) value).ToString());
+                }
+
+                IConvertible val = (IConvertible)value;
+                int cast = val.ToInt32(null);
+                return cast;
+
+            } 
+            catch
+            {
+                return 0;
+            }
         }
 
         static float GetFloat(object value) {
