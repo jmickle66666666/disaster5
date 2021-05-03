@@ -1,8 +1,9 @@
-using SDL2;
+//using SDL2;
 using Jurassic;
 using Jurassic.Library;
 using System.Collections.Generic;
 using System.Numerics;
+using Raylib_cs;
 namespace DisasterAPI
 {
     public class Input : ObjectInstance
@@ -10,19 +11,6 @@ namespace DisasterAPI
         public Input(ScriptEngine engine) : base (engine)
         {
             this.PopulateFunctions();
-        }
-
-        public static Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)> keyState;
-
-        public static void Clear()
-        {
-            Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)> nextState = new Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
-            foreach (var kvp in keyState)
-            {
-                nextState[kvp.Key] = (false, kvp.Value.held, false);
-            }
-            keyState = nextState;
-            _anyKeyDown = false;
         }
 
         [JSProperty(Name = "mouseX")]
@@ -37,50 +25,24 @@ namespace DisasterAPI
             get { return (int)mousePosition.Y; }
         }
 
-        [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return _mouseLeft; } }
-        [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return _mouseLeftDown; } }
-        [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return _mouseLeftUp; } }
-
-        static bool _mouseLeft;
-        static bool _mouseLeftDown;
-        static bool _mouseLeftUp;
+        [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON); } }
+        [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON); } }
+        [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON); } }
         
-        [JSProperty(Name = "mouseRight")] public static bool mouseRight { get { return _mouseRight; } }
-        [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return _mouseRightDown; } }
-        [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return _mouseRightUp; } }
-
-        static bool _mouseRight;
-        static bool _mouseRightDown;
-        static bool _mouseRightUp;
+        [JSProperty(Name = "mouseRight")] public static bool mouseRight { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_RIGHT_BUTTON); } }
+        [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_RIGHT_BUTTON); } }
+        [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_RIGHT_BUTTON); } }
 
         public static void UpdateMouse()
         {
-            uint mouseState = SDL.SDL_GetMouseState(out int x, out int y);
-
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
             float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
 
-            x = (int)(x * ratioW);
-            y = (int)(y * ratioH);
+            var x = (int)(Raylib.GetMouseX() * ratioW);
+            var y = (int)(Raylib.GetMouseY() * ratioH);
 
-            _mouseLeftDown = false;
-            _mouseLeftUp = false;
-            _mouseRightDown = false;
-            _mouseRightUp = false;
-            
             mousePosition.X = x;
             mousePosition.Y = y;
-
-            bool currentLeft = (mouseState & SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT)) == SDL.SDL_BUTTON(SDL.SDL_BUTTON_LEFT);
-            bool currentRight = (mouseState & SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT)) == SDL.SDL_BUTTON(SDL.SDL_BUTTON_RIGHT);
-
-            if (_mouseLeft && !currentLeft) { _mouseLeftUp = true; }
-            if (!_mouseLeft && currentLeft) { _mouseLeftDown = true; }
-            _mouseLeft = currentLeft;
-
-            if (_mouseRight && !currentRight) { _mouseRightUp = true; }
-            if (!_mouseRight && currentRight) { _mouseRightDown = true; }
-            _mouseRight = currentRight;
         }
 
         public static Vector2 mousePosition = new Vector2();
@@ -88,16 +50,16 @@ namespace DisasterAPI
         [JSFunction(Name = "getKey")]
         [FunctionDescription("Check if a key is held")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
-        public static bool GetKey(int key) { return GetKey(keyCodes[key]); }
+        public static bool GetKey(int key) { return Raylib.IsKeyDown(keyCodes[key]); }
         [JSFunction(Name = "getKeyDown")]
         [FunctionDescription("Check if a key has been pressed this frame")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
-        public static bool GetKeyDown(int key) { return GetKeyDown(keyCodes[key]); }
+        public static bool GetKeyDown(int key) { return Raylib.IsKeyPressed(keyCodes[key]); }
         [JSFunction(Name = "getKeyUp")]
         [FunctionDescription("Check if a key has been released this frame")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
-        public static bool GetKeyUp(int key) { return GetKeyUp(keyCodes[key]); }
-        
+        public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
+
         [JSProperty(Name = "lastChar")]
         public static string LastChar
         {
@@ -116,102 +78,84 @@ namespace DisasterAPI
             }
         }
 
-        public static bool GetKey(SDL.SDL_Keycode key)
+        public static KeyboardKey[] keyCodes = new KeyboardKey[]
         {
-            if (!keyState.ContainsKey(key)) return false;
-            return keyState[key].held;
-        }
+            KeyboardKey.KEY_UP,
+            KeyboardKey.KEY_DOWN,
+            KeyboardKey.KEY_LEFT,
+            KeyboardKey.KEY_RIGHT,
 
-        public static bool GetKeyDown(SDL.SDL_Keycode key)
-        {
-            if (!keyState.ContainsKey(key)) return false;
-            return keyState[key].down;
-        }
+            KeyboardKey.KEY_A,
+            KeyboardKey.KEY_B,
+            KeyboardKey.KEY_C,
+            KeyboardKey.KEY_D,
+            KeyboardKey.KEY_E,
+            KeyboardKey.KEY_F,
+            KeyboardKey.KEY_G,
+            KeyboardKey.KEY_H,
+            KeyboardKey.KEY_I,
+            KeyboardKey.KEY_J,
+            KeyboardKey.KEY_K,
+            KeyboardKey.KEY_L,
+            KeyboardKey.KEY_M,
+            KeyboardKey.KEY_N,
+            KeyboardKey.KEY_O,
+            KeyboardKey.KEY_P,
+            KeyboardKey.KEY_Q,
+            KeyboardKey.KEY_R,
+            KeyboardKey.KEY_S,
+            KeyboardKey.KEY_T,
+            KeyboardKey.KEY_U,
+            KeyboardKey.KEY_V,
+            KeyboardKey.KEY_W,
+            KeyboardKey.KEY_X,
+            KeyboardKey.KEY_Y,
+            KeyboardKey.KEY_Z,
 
-        public static bool GetKeyUp(SDL.SDL_Keycode key)
-        {
-            if (!keyState.ContainsKey(key)) return false;
-            return keyState[key].up;
-        }
+            KeyboardKey.KEY_ZERO,
+            KeyboardKey.KEY_ONE,
+            KeyboardKey.KEY_TWO,
+            KeyboardKey.KEY_THREE,
+            KeyboardKey.KEY_FOUR,
+            KeyboardKey.KEY_FIVE,
+            KeyboardKey.KEY_SIX,
+            KeyboardKey.KEY_SEVEN,
+            KeyboardKey.KEY_EIGHT,
+            KeyboardKey.KEY_NINE,
 
-        public static SDL.SDL_Keycode[] keyCodes = new SDL.SDL_Keycode[]
-        {
-            SDL.SDL_Keycode.SDLK_UP,
-            SDL.SDL_Keycode.SDLK_DOWN,
-            SDL.SDL_Keycode.SDLK_LEFT,
-            SDL.SDL_Keycode.SDLK_RIGHT,
+            KeyboardKey.KEY_F1,
+            KeyboardKey.KEY_F2,
+            KeyboardKey.KEY_F3,
+            KeyboardKey.KEY_F4,
+            KeyboardKey.KEY_F5,
+            KeyboardKey.KEY_F6,
+            KeyboardKey.KEY_F7,
+            KeyboardKey.KEY_F8,
+            KeyboardKey.KEY_F9,
+            KeyboardKey.KEY_F10,
+            KeyboardKey.KEY_F11,
+            KeyboardKey.KEY_F12,
 
-            SDL.SDL_Keycode.SDLK_a,
-            SDL.SDL_Keycode.SDLK_b,
-            SDL.SDL_Keycode.SDLK_c,
-            SDL.SDL_Keycode.SDLK_d,
-            SDL.SDL_Keycode.SDLK_e,
-            SDL.SDL_Keycode.SDLK_f,
-            SDL.SDL_Keycode.SDLK_g,
-            SDL.SDL_Keycode.SDLK_h,
-            SDL.SDL_Keycode.SDLK_i,
-            SDL.SDL_Keycode.SDLK_j,
-            SDL.SDL_Keycode.SDLK_k,
-            SDL.SDL_Keycode.SDLK_l,
-            SDL.SDL_Keycode.SDLK_m,
-            SDL.SDL_Keycode.SDLK_n,
-            SDL.SDL_Keycode.SDLK_o,
-            SDL.SDL_Keycode.SDLK_p,
-            SDL.SDL_Keycode.SDLK_q,
-            SDL.SDL_Keycode.SDLK_r,
-            SDL.SDL_Keycode.SDLK_s,
-            SDL.SDL_Keycode.SDLK_t,
-            SDL.SDL_Keycode.SDLK_u,
-            SDL.SDL_Keycode.SDLK_v,
-            SDL.SDL_Keycode.SDLK_w,
-            SDL.SDL_Keycode.SDLK_x,
-            SDL.SDL_Keycode.SDLK_y,
-            SDL.SDL_Keycode.SDLK_z,
-            
-            SDL.SDL_Keycode.SDLK_0,
-            SDL.SDL_Keycode.SDLK_1,
-            SDL.SDL_Keycode.SDLK_2,
-            SDL.SDL_Keycode.SDLK_3,
-            SDL.SDL_Keycode.SDLK_4,
-            SDL.SDL_Keycode.SDLK_5,
-            SDL.SDL_Keycode.SDLK_6,
-            SDL.SDL_Keycode.SDLK_7,
-            SDL.SDL_Keycode.SDLK_8,
-            SDL.SDL_Keycode.SDLK_9,
+            KeyboardKey.KEY_ESCAPE,
+            KeyboardKey.KEY_ENTER,
+            KeyboardKey.KEY_BACKSPACE,
+            KeyboardKey.KEY_TAB,
+            KeyboardKey.KEY_SPACE,
+            KeyboardKey.KEY_LEFT_BRACKET,
+            KeyboardKey.KEY_RIGHT_BRACKET,
 
-            SDL.SDL_Keycode.SDLK_F1,
-            SDL.SDL_Keycode.SDLK_F2,
-            SDL.SDL_Keycode.SDLK_F3,
-            SDL.SDL_Keycode.SDLK_F4,
-            SDL.SDL_Keycode.SDLK_F5,
-            SDL.SDL_Keycode.SDLK_F6,
-            SDL.SDL_Keycode.SDLK_F7,
-            SDL.SDL_Keycode.SDLK_F8,
-            SDL.SDL_Keycode.SDLK_F9,
-            SDL.SDL_Keycode.SDLK_F10,
-            SDL.SDL_Keycode.SDLK_F11,
-            SDL.SDL_Keycode.SDLK_F12,
-
-            SDL.SDL_Keycode.SDLK_ESCAPE,
-            SDL.SDL_Keycode.SDLK_RETURN,
-            SDL.SDL_Keycode.SDLK_BACKSPACE,
-            SDL.SDL_Keycode.SDLK_TAB,
-            SDL.SDL_Keycode.SDLK_SPACE,
-            SDL.SDL_Keycode.SDLK_LEFTBRACKET,
-            SDL.SDL_Keycode.SDLK_RIGHTBRACKET,
-
-            SDL.SDL_Keycode.SDLK_PRINTSCREEN,
-            SDL.SDL_Keycode.SDLK_SCROLLLOCK,
-            SDL.SDL_Keycode.SDLK_PAUSE,
-            SDL.SDL_Keycode.SDLK_INSERT,
-            SDL.SDL_Keycode.SDLK_HOME,
-            SDL.SDL_Keycode.SDLK_PAGEUP,
-            SDL.SDL_Keycode.SDLK_DELETE,
-            SDL.SDL_Keycode.SDLK_END,
-            SDL.SDL_Keycode.SDLK_PAGEDOWN,
+            KeyboardKey.KEY_PRINT_SCREEN,
+            KeyboardKey.KEY_SCROLL_LOCK,
+            KeyboardKey.KEY_PAUSE,
+            KeyboardKey.KEY_INSERT,
+            KeyboardKey.KEY_HOME,
+            KeyboardKey.KEY_PAGE_UP,
+            KeyboardKey.KEY_DELETE,
+            KeyboardKey.KEY_END,
+            KeyboardKey.KEY_PAGE_DOWN,
         };
 
     }
 
-    
+
 }

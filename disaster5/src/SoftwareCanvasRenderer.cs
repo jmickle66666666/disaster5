@@ -1,64 +1,51 @@
-// opengl renderer for software renderer
-
-using OpenGL;
 using System.Numerics;
 using System;
-namespace Disaster{
-    public class SoftwareCanvasRenderer : Renderer 
+using Raylib_cs;
+using System.Runtime.InteropServices;
+namespace Disaster
+{
+    public class SoftwareCanvasRenderer : Renderer
     {
-        VBO<Vector3> vertices;
-        VBO<Vector2> uvs;
-        VBO<uint> triangles;
-        ShaderProgram shader;
-        public SoftwareCanvasRenderer(ShaderProgram shader)
+        Texture2D texture;
+        Shader shader;
+        IntPtr pixels;
+
+        public SoftwareCanvasRenderer(Shader shader)
         {
+            texture = Raylib.LoadTextureFromImage(Raylib.GenImageChecked(320, 240, 16, 16, Color.BLUE, Color.BROWN));
+            Raylib.SetTextureFilter(texture, TextureFilterMode.FILTER_POINT);
+
             this.shader = shader;
+            pixels = Marshal.AllocHGlobal(SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4);
+        }
 
-            vertices = new VBO<Vector3>(
-                new Vector3[] {
-                    new Vector3(-1, -1, 0),
-                    new Vector3(1, -1, 0),
-                    new Vector3(1, 1, 0),
-                    new Vector3(-1, 1, 0),
-                }
-            );
-
-            uvs = new VBO<Vector2>(
-                new Vector2[] {
-                    new Vector2(0, 1),
-                    new Vector2(1, 1),
-                    new Vector2(1, 0),
-                    new Vector2(0, 0),
-                }
-            );
-
-            triangles = new VBO<uint>(
-                new uint[] {
-                    0, 1, 2, 0, 2, 3
-                }, BufferTarget.ElementArrayBuffer
-            );
+        public void Update()
+        {
+            unsafe
+            {
+                SoftwareCanvas.colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4));
+            }
+            Raylib.UpdateTexture(texture, pixels);
         }
 
         public void Render()
         {
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.UseProgram(shader);
-            Gl.BindBufferToShaderAttribute(vertices, shader, "pos");
-            Gl.BindBufferToShaderAttribute(uvs, shader, "uv");
-
-            //Debug.Label("soft render setup");
-            SoftwareCanvas.CreateOGLTexture();
-            //Debug.Label("create ogl texture");
-            Gl.BindBuffer(triangles);
-            Gl.DrawElements(BeginMode.Triangles, triangles.Count, DrawElementsType.UnsignedInt, IntPtr.Zero);
+            Raylib.BeginShaderMode(shader);
+            Raylib.DrawTexturePro(
+                texture,
+                new Rectangle(0, 0, texture.width, texture.height),
+                new Rectangle(0, 0, ScreenController.windowWidth, ScreenController.windowHeight),
+                Vector2.Zero,
+                0,
+                Color.RAYWHITE
+            );
+            Raylib.EndShaderMode();
         }
 
         public void Dispose()
         {
-            vertices.Dispose();
-            uvs.Dispose();
-            triangles.Dispose();
-            shader.Dispose();
+            Raylib.UnloadTexture(texture);
+            Raylib.UnloadShader(shader);
         }
     }
 }

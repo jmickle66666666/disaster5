@@ -2,7 +2,7 @@ using System.IO;
 using System;
 using Jurassic;
 using System.Collections.Generic;
-using SDL2;
+using Raylib_cs;
 
 namespace Disaster {
 
@@ -34,7 +34,8 @@ namespace Disaster {
         {
             if (stopped)
             {
-                if (DisasterAPI.Input.GetKeyDown(SDL.SDL_Keycode.SDLK_r)) {
+                if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
+                {
                     Assets.UnloadAll();
                     Reset();
                     stopped = false;
