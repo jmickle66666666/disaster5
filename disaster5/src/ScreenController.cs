@@ -64,7 +64,6 @@ namespace Disaster
             Raylib.ClearBackground(Color.BLACK);
 
 
-
             Raylib.DrawTexturePro(
                 renderTexture.texture,
                 new Rectangle(0, 0, renderTexture.texture.width, -renderTexture.texture.height),

@@ -33,7 +33,7 @@ namespace DisasterAPI
         [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_RIGHT_BUTTON); } }
         [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_RIGHT_BUTTON); } }
 
-        public static void UpdateMouse()
+        public static void Update()
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
             float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
@@ -43,6 +43,22 @@ namespace DisasterAPI
 
             mousePosition.X = x;
             mousePosition.Y = y;
+
+            _anyKeyDown = false;
+            while (Raylib.GetKeyPressed() != 0)
+            {
+                _anyKeyDown = true;
+            }
+
+            _inputString = "";
+            var c = Raylib.GetCharPressed();
+            while (c != 0)
+            {
+                _inputString += ((char)c).ToString();
+                c = Raylib.GetCharPressed();
+                _anyKeyDown = true;
+            }
+
         }
 
         public static Vector2 mousePosition = new Vector2();
@@ -60,13 +76,13 @@ namespace DisasterAPI
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
 
-        [JSProperty(Name = "lastChar")]
-        public static string LastChar
+        [JSProperty(Name = "inputString")]
+        public static string InputString
         {
-            get { return _lastChar; }
+            get { return _inputString; }
         }
 
-        public static string _lastChar;
+        public static string _inputString;
 
         public static bool _anyKeyDown = false;
         [JSProperty(Name = "anyKeyDown")]

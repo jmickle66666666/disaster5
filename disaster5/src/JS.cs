@@ -45,7 +45,7 @@ namespace Disaster {
 
             try
             {
-                DisasterAPI.Input.UpdateMouse();
+                DisasterAPI.Input.Update();
                 
                 updateFunction.Call(null, deltaTime);
             }
