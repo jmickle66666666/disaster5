@@ -52,7 +52,7 @@ namespace Disaster
 
             Raylib.BeginDrawing();
             Raylib.BeginTextureMode(renderTexture);
-            Raylib.ClearBackground(Color.RAYWHITE);
+            Raylib.ClearBackground(Color.BLACK);
 
             Raylib.BeginMode3D(camera);
 

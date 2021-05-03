@@ -112,7 +112,7 @@ namespace Disaster
                     renderQueue[i].transform.rotationAxis,
                     renderQueue[i].transform.rotationAngle,
                     renderQueue[i].transform.scale,
-                    Color.RAYWHITE
+                    new Color(255, 255, 255, 255)
                 );
             }
             Raylib.EndShaderMode();
