@@ -474,6 +474,10 @@ namespace Disaster
                 {
                     if (fontBuffer[charX + i, (charY + fontHeight) - j - 1])
                     {
+                        if (x + i < 0) continue;
+                        if (x + i >= textureWidth) continue;
+                        if (y + j < 0) continue;
+                        if (y + j >= textureHeight) continue;
                         int index = PointToBufferIndex(x + i, y + j);
                         if (index >= 0 && index < colorBuffer.Length) colorBuffer[index] = color;
                     }
