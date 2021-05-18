@@ -6,6 +6,11 @@ namespace Disaster
 {
     public class Util
     {
+        public static int Lerp(int a, int b, float t)
+        {
+            return (int) ((b * t) + (a * (1 - t)));
+        }
+
         public static (Vector3 axis, float rotation) EulerToAxisAngle(Vector3 eulers)
         {
             var heading = eulers.Y * Math.PI / 180;

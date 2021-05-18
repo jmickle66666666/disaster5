@@ -23,7 +23,14 @@ namespace Disaster
         {
             unsafe
             {
-                SoftwareCanvas.colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4));
+                if (!SoftwareCanvas.overdraw)
+                {
+                    SoftwareCanvas.colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4));
+                } else
+                {
+                    var buff = SoftwareCanvas.GetOverdrawColorBuffer();
+                    buff.AsSpan().CopyTo(new Span<Color32>((void*)pixels, SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4));
+                }
             }
             Raylib.UpdateTexture(texture, pixels);
         }

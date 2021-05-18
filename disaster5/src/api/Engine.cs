@@ -54,5 +54,20 @@ namespace DisasterAPI
         {
             Disaster.Assets.Preload(path);
         }
+
+        [JSFunction(Name ="slowDrawFrame")]
+        [FunctionDescription("Draw the next frame pixel by pixel")]
+        [ArgumentDescription("frameSkip", "How many pixels to draw per frame of slow draw")]
+        public static void SlowDrawFrame(int frameSkip)
+        {
+            Disaster.SoftwareCanvas.slowDrawPixels = frameSkip;
+            Disaster.SoftwareCanvas.slowDraw = true;
+        }
+
+        [JSFunction(Name = "toggleOverdraw")]
+        public static void ToggleOverdraw()
+        {
+            Disaster.SoftwareCanvas.overdraw =! Disaster.SoftwareCanvas.overdraw;
+        }
     }
 }

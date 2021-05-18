@@ -33,5 +33,17 @@ namespace DisasterAPI
             Disaster.Assets.LoadPath(path, out string assetPath);
             System.IO.File.WriteAllText(assetPath, data);
         }
+
+        [JSFunction(Name = "getTextureSize")]
+        [FunctionDescription("Returns the size of a specified texture. {w, h}")]
+        [ArgumentDescription("path", "Path of the texture")]
+        public ObjectInstance GetTextureSize(string path)
+        {
+            var texture = Disaster.Assets.PixelBuffer(path);
+            var output = Disaster.JS.instance.engine.Object.Construct();
+            output["w"] = texture.width;
+            output["h"] = texture.height;
+            return output;
+        }
     }
 }

@@ -90,9 +90,22 @@ namespace Disaster
         }
 
         static float GetFloat(object value) {
-            IConvertible val = (IConvertible) value;
-            float cast = val.ToSingle(null);
-            return cast;
+            try
+            {
+                if (value.GetType() == typeof(Jurassic.ConcatenatedString))
+                {
+                    return float.Parse(((Jurassic.ConcatenatedString)value).ToString());
+                }
+
+                IConvertible val = (IConvertible)value;
+                float cast = val.ToSingle(null);
+                return cast;
+
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }

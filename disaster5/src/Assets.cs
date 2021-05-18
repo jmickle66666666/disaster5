@@ -151,11 +151,11 @@ namespace Disaster
         public static string[] GetAllPaths()
         {
             string[] output = Directory.GetFiles(basePath, "*.*", SearchOption.AllDirectories);
-            int len = basePath.Length;
-            Array.ForEach(output, (p) =>
+            int len = basePath.Length + 1;
+            for (int i = 0; i < output.Length; i++)
             {
-                p = p.Substring(len);
-            });
+                output[i] = output[i].Substring(len);
+            }
             return output;
         }
 

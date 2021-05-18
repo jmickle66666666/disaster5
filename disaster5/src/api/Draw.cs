@@ -77,28 +77,67 @@ namespace DisasterAPI
         }
 
 
-        [JSFunction(Name = "strokeRect")]
-        [FunctionDescription("Draw a rectangle outline. See also: fillRect")]
+        [JSFunction(Name = "rect")]
+        [FunctionDescription("Draw a rectangle")]
         [ArgumentDescription("x", "x position of the rectangle")]
         [ArgumentDescription("y", "y position of the rectangle")]
         [ArgumentDescription("width", "width of the rectangle")]
         [ArgumentDescription("height", "height of the rectangle")]
         [ArgumentDescription("color", "Rectangle color", "Color32 { r, g, b, a }")]
-        public static void StrokeRect(int x, int y, int width, int height, ObjectInstance color)
+        [ArgumentDescription("filled", "Draw a filled rect (true) or an outline (false)")]
+        public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled)
         {
-            Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            if (filled)
+            {
+                Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            } else
+            {
+                Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            }
         }
 
-        [JSFunction(Name = "fillRect")]
-        [FunctionDescription("Draw a filled rectangle. See also: strokeRect")]
-        [ArgumentDescription("x", "x position of the rectangle")]
-        [ArgumentDescription("y", "y position of the rectangle")]
-        [ArgumentDescription("width", "width of the rectangle")]
-        [ArgumentDescription("height", "height of the rectangle")]
-        [ArgumentDescription("color", "Rectangle color", "Color32 { r, g, b, a }")]
-        public static void FillRect(int x, int y, int width, int height, ObjectInstance color)
+        [JSFunction(Name = "triangle")]
+        [FunctionDescription("Draw a triangle")]
+        [ArgumentDescription("x1", "x position of the first point")]
+        [ArgumentDescription("y1", "y position of the first point")]
+        [ArgumentDescription("x2", "x position of the second point")]
+        [ArgumentDescription("y2", "y position of the second point")]
+        [ArgumentDescription("x3", "x position of the third point")]
+        [ArgumentDescription("y3", "y position of the third point")]
+        [ArgumentDescription("color", "color for the triangle")]
+        [ArgumentDescription("filled", "Draw a filled triangle (true) or an outline (false)")]
+        public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled)
         {
-            Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            var col = Disaster.TypeInterface.Color32(color);
+            if (filled)
+            {
+                Disaster.SoftwareCanvas.Triangle(x1, y1, x2, y2, x3, y3, col);
+            } else
+            {
+                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
+                Disaster.SoftwareCanvas.Line(x3, y3, x2, y2, col);
+                Disaster.SoftwareCanvas.Line(x1, y1, x3, y3, col);
+            }
+        }
+
+        [JSFunction(Name = "circle")]
+        [FunctionDescription("Draw a circle")]
+        [ArgumentDescription("x", "x position of the center")]
+        [ArgumentDescription("y", "y position of the center")]
+        [ArgumentDescription("radius", "radius of the circle (distance from center to edge)")]
+        [ArgumentDescription("color", "color for the triangle")]
+        [ArgumentDescription("filled", "Draw a filled circle (true) or an outline (false)")]
+        public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled)
+        {
+            var col = Disaster.TypeInterface.Color32(color);
+            if (filled)
+            {
+                Disaster.SoftwareCanvas.CircleFilled(x, y, (float)radius, col);
+            }
+            else
+            {
+                Disaster.SoftwareCanvas.Circle(x, y, (float)radius, col);
+            }
         }
 
         [JSFunction(Name ="line")]

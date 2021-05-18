@@ -87,6 +87,7 @@ namespace Disaster
             {
                 js.Update(Raylib.GetFrameTime());
                 screen.Update();
+                SoftwareCanvas.slowDraw = false;
             }
 
             screen.Done();
