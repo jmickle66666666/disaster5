@@ -71,7 +71,7 @@ namespace Disaster
             SoftwareCanvas.InitTexture(320, 240);
             LoadConfig();
             // TODO: bake in a default font! so you can't end up with no font at all
-            if (Assets.LoadPath("fontsmall.png", out string fontPath))
+            if (Assets.LoadPath("lib/fontsmall.png", out string fontPath))
             {
                 SoftwareCanvas.LoadFont(fontPath);
             }

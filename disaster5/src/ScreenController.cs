@@ -34,8 +34,8 @@ namespace Disaster
                 45f
             );
 
-            Assets.LoadPath("screenfrag.glsl", out string fragPath);
-            Assets.LoadPath("screenvert.glsl", out string vertPath);
+            Assets.LoadPath("shaders/screenfrag.glsl", out string fragPath);
+            Assets.LoadPath("shaders/screenvert.glsl", out string vertPath);
 
             var shader = Raylib.LoadShader(
                 vertPath,
