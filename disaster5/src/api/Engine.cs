@@ -1,5 +1,6 @@
 ﻿using Jurassic.Library;
 using Jurassic;
+using Raylib_cs;
 
 namespace DisasterAPI
 {
@@ -65,9 +66,25 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "toggleOverdraw")]
+        [FunctionDescription("Toggle overdraw debug visualisation. Brighter pixels are being drawn more times")]
         public static void ToggleOverdraw()
         {
             Disaster.SoftwareCanvas.overdraw =! Disaster.SoftwareCanvas.overdraw;
         }
+
+        [JSFunction(Name = "setMouseVisible")]
+        [FunctionDescription("Show or hide the mouse cursor")]
+        [ArgumentDescription("visible", "true: show mouse, false: hide mouse")]
+        public static void SetMouseVisible(bool visible)
+        {
+            if (visible)
+            {
+                Raylib.ShowCursor();
+            } else
+            {
+                Raylib.HideCursor();
+            }
+        }
     }
+
 }

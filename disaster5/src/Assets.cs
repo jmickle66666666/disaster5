@@ -247,36 +247,43 @@ namespace Disaster
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (!scripts.ContainsKey(path))
             {
-                if (!LoadPath(path, out string scriptPath))
-                {
-                    return null;
-                }
-
-                if (currentlyLoadingScripts == null) currentlyLoadingScripts = new List<string>();
-
-                if (currentlyLoadingScripts.Contains(scriptPath))
-                {
-                    Console.WriteLine($"Circular dependency: {scriptPath}");
-                    return null;
-                }
-
-                if (!File.Exists(scriptPath))
-                {
-                    Console.WriteLine($"Cannot find script: {scriptPath}");
-                    return null;
-                }
-
-                currentlyLoadingScripts.Add(scriptPath);
-
-                var newEngine = new ScriptEngine();
-                JS.LoadStandardFunctions(newEngine);
-                newEngine.Execute(File.ReadAllText(scriptPath));
-                scripts.Add(path, newEngine.Global);
-
-                currentlyLoadingScripts.Remove(scriptPath);
+                var newScript = LoadScript(path);
+                if (newScript != null) scripts.Add(path, newScript);
             }
 
             return scripts[path];
+        }
+
+        public static ObjectInstance LoadScript(string path)
+        {
+            if (!LoadPath(path, out string scriptPath))
+            {
+                return null;
+            }
+
+            if (currentlyLoadingScripts == null) currentlyLoadingScripts = new List<string>();
+
+            if (currentlyLoadingScripts.Contains(scriptPath))
+            {
+                Console.WriteLine($"Circular dependency: {scriptPath}");
+                return null;
+            }
+
+            if (!File.Exists(scriptPath))
+            {
+                Console.WriteLine($"Cannot find script: {scriptPath}");
+                return null;
+            }
+
+            currentlyLoadingScripts.Add(scriptPath);
+
+            var newEngine = new ScriptEngine();
+            JS.LoadStandardFunctions(newEngine);
+            newEngine.Execute(File.ReadAllText(scriptPath));
+            
+            currentlyLoadingScripts.Remove(scriptPath);
+
+            return newEngine.Global;
         }
 
         public static Music Music(string path)

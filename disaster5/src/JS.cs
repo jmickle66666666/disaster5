@@ -69,6 +69,11 @@ namespace Disaster {
                 return Assets.Script(path);
             }));
 
+            engine.SetGlobalFunction("clone", new Func<string, object>((string path) =>
+            {
+                return Assets.LoadScript(path);
+            }));
+
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));
 
             engine.SetGlobalValue("Draw", new DisasterAPI.Draw(engine));
