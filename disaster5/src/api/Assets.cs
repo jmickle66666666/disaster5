@@ -9,6 +9,22 @@ namespace DisasterAPI
             this.PopulateFunctions();
         }
 
+        [JSFunction(Name = "exists")]
+        [FunctionDescription("Check if asset exists")]
+        [ArgumentDescription("path", "path for asset")]
+        public bool Exists(string path)
+        {
+            return Disaster.Assets.LoadPath(path, out _);
+        }
+
+        [JSFunction(Name = "unload")]
+        [FunctionDescription("Unload an asset")]
+        [ArgumentDescription("path", "path to the asset")]
+        public void Unload(string path)
+        {
+            Disaster.Assets.Unload(path);
+        }
+
         [JSFunction(Name = "list")]
         [FunctionDescription("Returns a list of the paths to all assets, delimited with a comma `,`")]
         public string List()
@@ -31,6 +47,11 @@ namespace DisasterAPI
         public void WriteText(string path, string data)
         {
             Disaster.Assets.LoadPath(path, out string assetPath);
+            string dir = System.IO.Path.GetDirectoryName(assetPath);
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
             System.IO.File.WriteAllText(assetPath, data);
         }
 

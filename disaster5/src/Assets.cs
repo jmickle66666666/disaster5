@@ -20,6 +20,11 @@ namespace Disaster
         }
 
         public static PixelBuffer missing = new PixelBuffer(new Color32[4] { new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255) }, 2);
+
+        public string Serialise()
+        {
+            return pixels.GetHashCode().ToString();
+        }
     }
 
     public class Assets
@@ -95,32 +100,17 @@ namespace Disaster
 
         public static void Unload(string path)
         {
-            //string extension = Path.GetExtension(path).ToLower();
-            //switch (extension)
-            //{
-            //    case ".txt":
-            //        texts.Remove(path);
-            //        break;
-            //    case ".png":
-            //        if (textures.ContainsKey(path))
-            //        {
-            //            textures[path].Dispose();
-            //            textures.Remove(path);
-            //        }
-            //        pixelBuffers.Remove(path);
-            //        break;
-            //    case ".wav":
-            //        audio.Remove(path);
-            //        break;
-            //    case ".ogg":
-            //    case ".mp3":
-            //        music.Remove(path);
-            //        break;
-            //    case ".obj":
-            //        objModels.Remove(path);
-            //        break;
-            //}
-
+            if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
+            if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
+            if (audio == null) audio = new Dictionary<string, Sound>();
+            if (music == null) music = new Dictionary<string, Music>();
+            if (texts == null) texts = new Dictionary<string, string>();
+            if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
+            if (scripts.ContainsKey(path)) { scripts.Remove(path); }
+            if (audio.ContainsKey(path)) { audio.Remove(path); }
+            if (music.ContainsKey(path)) { music.Remove(path); }
+            if (texts.ContainsKey(path)) { texts.Remove(path); }
+            GC.Collect();
         }
 
         public static void Preload(string path)

@@ -24,7 +24,7 @@ namespace Disaster
         public ScreenController()
         {
 
-            Raylib.InitWindow(640, 480, "disaster engine raylib");
+            Raylib.InitWindow(640, 480, "disaster engine 5.0");
             renderTexture = Raylib.LoadRenderTexture(640 / scale, 480 / scale);
             Raylib.SetTargetFPS(60);
             camera = new Camera3D(

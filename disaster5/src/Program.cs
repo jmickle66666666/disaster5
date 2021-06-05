@@ -83,11 +83,18 @@ namespace Disaster
 
             var js = new JS();
 
+            Debug.enabled = false;
+
             while (!Raylib.WindowShouldClose())
             {
+                Debug.FrameStart();
                 js.Update(Raylib.GetFrameTime());
+                Debug.Label("js update");
+                Debug.DrawGraph();
                 screen.Update();
                 SoftwareCanvas.slowDraw = false;
+                Debug.FrameEnd();
+                Debug.GetFrameMSData();
             }
 
             screen.Done();
@@ -100,20 +107,13 @@ namespace Disaster
             //double ms = 0;
             //int frame = 0;
 
-            //LoadingMessage("building input collection");
-            //DisasterAPI.Input.keyState = new System.Collections.Generic.Dictionary<SDL.SDL_Keycode, (bool down, bool held, bool up)>();
-
-            //LoadingMessage("opening audio");
-            //SDL_mixer.Mix_OpenAudio(44100, SDL_mixer.MIX_DEFAULT_FORMAT, 2, 1024);
-            //SDL_mixer.Mix_AllocateChannels(DisasterAPI.Audio.maxChannels);
-            //LoadingMessage("complete");
 
             //System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.LowLatency;
 
             //long ticks;
             //long t;
 
-            //Debug.enabled = false;
+            
 
             //while (running)
             //{

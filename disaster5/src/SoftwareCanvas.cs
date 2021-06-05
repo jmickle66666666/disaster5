@@ -17,6 +17,11 @@ namespace Disaster
         public static int textureWidth;
         public static int textureHeight;
         public static Color32[] colorBuffer;
+        
+        public static Color32[] tempBuffer;
+        public static int tempWidth;
+        public static int tempHeight;
+
         public static int fontWidth;
         public static int fontHeight;
         //public static IntPtr pixels;
@@ -143,7 +148,7 @@ namespace Disaster
                 {
                     if (i + x < 0 || i + x >= textureWidth) continue;
                     if (j + y < 0 || j + y >= textureHeight) continue;
-                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.width) continue;
+                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.height) continue;
 
                     Color32 tcol = texture.pixels[(j * twidth) + i];
                     if (tcol.a == 0) continue;
@@ -621,16 +626,29 @@ namespace Disaster
         //     }
         // }
 
-        public static void Paragraph(int x, int y, Color32 color, string text)
+        public static void Paragraph(int x, int y, Color32 color, string text, int maxWidth = -1)
         {
             string[] lines = text.Split(
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.None
             );
 
+            int line = 0;
             for (int i = 0; i < lines.Length; i++)
             {
-                Text(x, y + (i * fontHeight), color, lines[i]);
+                if (maxWidth != -1)
+                {
+                    int l = 0;
+                    for (int j = 0; j < lines[i].Length; j+= maxWidth)
+                    {
+                        Text(x, y + (line * fontHeight), color, lines[i].Substring(j, Math.Min(lines[i].Length-j, maxWidth)));
+                        line += 1;
+                    }
+                } else
+                {
+                    Text(x, y + (i * fontHeight), color, lines[i]);
+                }
+                line += 1;
             }
         }
 
@@ -743,74 +761,32 @@ namespace Disaster
             return output;
         }
 
-        //public static Texture CreateOGLTexture()
-        //{
-        //    if (drawTexture == null)
-        //    {
-        //        return null;
-        //    }
-
-        //    unsafe
-        //    {
-        //        colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
-        //    }
-        //    //Debug.Label("unsafe memory");
-
-        //    //if (texture != null)
-        //    //{
-        //    //    texture.Dispose();
-        //    //}
-        //    //Debug.Label("dispose texture");
-        //    //texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-        //    //Debug.Label("create texture");
-
-        //    if (texture == null)
-        //    {
-        //        texture = new Texture(pixels, 320, 240, PixelFormat.Rgba, PixelInternalFormat.Rgba);
-        //    }
-        //    Gl.BindTexture(texture);
-        //    Gl.TexImage2D(texture.TextureTarget, 0, PixelInternalFormat.Rgba, textureWidth, textureHeight, 0, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
-        //    //Debug.Label("texsubimage2d");
-
-
-        //    return texture;
-        //}
-
-        //static Texture texture;
-
-        public static void UpdateBufferTexture()
+        public static void StartBuffer(int width, int height)
         {
-            //if (drawTexture == null)
-            //{
-            //    return;
-            //}
+            tempBuffer = colorBuffer;
+            tempWidth = textureWidth;
+            tempHeight = textureHeight;
 
-            //SDL.SDL_LockTexture(drawTexture, IntPtr.Zero, out IntPtr pixels, out int pitch);
-            //unsafe
-            //{
-            //    colorBuffer.AsSpan().CopyTo(new Span<Color32>((void*)pixels, textureWidth * textureHeight * 4));
-            //}
-            //SDL.SDL_UpdateTexture(drawTexture, IntPtr.Zero, pixels, pitch);
-            //SDL.SDL_UnlockTexture(drawTexture);
+            textureWidth = width;
+            textureHeight = height;
+
+            colorBuffer = new Color32[width * height];
+            overdrawBuffer = new int[width * height];
         }
 
-        public static void ApplyColorBuffer(IntPtr renderer)
+        public static string EndBuffer()
         {
-            //UpdateBufferTexture();
+            var output = new PixelBuffer(colorBuffer, textureWidth);
+            var hash = output.GetHashCode().ToString();
 
-            //float srcAspect = textureWidth / textureHeight;
-            //SDL.SDL_GetRendererOutputSize(renderer, out int outputWidth, out int outputHeight);
-            //float heightRatio = (float)outputHeight / textureHeight;
-            //float widthRatio = (float)outputWidth / textureWidth;
-            //float minDimension = MathF.Min(heightRatio, widthRatio);
-            //int upScale = (int)MathF.Floor(minDimension);
-            //var outputRect = new SDL.SDL_Rect();
-            //outputRect.w = textureWidth * upScale;
-            //outputRect.h = textureHeight * upScale;
-            //outputRect.x = (outputWidth / 2) - (outputRect.w / 2);
-            //outputRect.y = (outputHeight / 2) - (outputRect.h / 2);
+            colorBuffer = tempBuffer;
+            textureWidth = tempWidth;
+            textureHeight = tempHeight;
+            overdrawBuffer = new int[textureWidth * textureHeight];
 
-            //SDL.SDL_RenderCopy(renderer, drawTexture, IntPtr.Zero, ref outputRect);
+            Assets.pixelBuffers.Add(hash, output);
+
+            return hash;
         }
 
 

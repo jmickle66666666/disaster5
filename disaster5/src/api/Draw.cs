@@ -184,6 +184,36 @@ namespace DisasterAPI
             Disaster.ModelRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, transform);
         }
 
+        [JSFunction(Name = "colorBuffer")]
+        [FunctionDescription("Draw a color buffer.")]
+        [ArgumentDescription("x", "x position to draw at")]
+        [ArgumentDescription("y", "y position to draw at")]
+        [ArgumentDescription("colors", "color array defining the image", "Color32[] {r, g, b, a}")]
+        [ArgumentDescription("width", "width of the image")]
+        public static void ColorBuffer(int x, int y, ObjectInstance colors, int width)
+        {
+            int len = (int) colors.GetPropertyValue("length");
+            Disaster.Color32[] color32s = new Disaster.Color32[len];
+            for (int i = 0; i < len; i++)
+            {
+                color32s[i] = Disaster.TypeInterface.Color32((ObjectInstance)colors.GetPropertyValue(i));
+            }
+            var pixelBuffer = new Disaster.PixelBuffer(color32s, width);
+            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
+        }
+
+        [JSFunction(Name ="startBuffer")]
+        public static void StartBuffer(int width, int height)
+        {
+            Disaster.SoftwareCanvas.StartBuffer(width, height);
+        }
+
+        [JSFunction(Name = "endBuffer")]
+        public static string EndBuffer()
+        {
+            return Disaster.SoftwareCanvas.EndBuffer();
+        }
+
         [JSFunction(Name = "texture")]
         [FunctionDescription("Draw an image to the software canvas.")]
         [ArgumentDescription("x", "x position of the image")]
