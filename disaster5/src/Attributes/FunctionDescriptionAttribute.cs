@@ -12,9 +12,15 @@ namespace DisasterAPI
             get;
             private set;
         }
-        public FunctionDescriptionAttribute(string description)
+        public string ReturnTypeOverride
+        {
+            get;
+            private set;
+        }
+        public FunctionDescriptionAttribute(string description, string returnType = "")
         {
             Description = description;
+            ReturnTypeOverride = returnType;
         }
     }
 }

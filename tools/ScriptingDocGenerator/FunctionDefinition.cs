@@ -25,6 +25,10 @@ namespace ScriptingDocGenerator
         public FunctionDefinition(Type BaseClass, MethodInfo Method)
         {
             ReturnType = Method.ReturnType.Name;
+            if (Method.GetCustomAttribute<DisasterAPI.FunctionDescriptionAttribute>()?.ReturnTypeOverride != "")
+            {
+                ReturnType = Method.GetCustomAttribute<DisasterAPI.FunctionDescriptionAttribute>()?.ReturnTypeOverride;
+            }
             Class = BaseClass.Name;
             Name = Method.GetCustomAttribute<Jurassic.Library.JSFunctionAttribute>().Name;
             Description = Method.GetCustomAttribute<DisasterAPI.FunctionDescriptionAttribute>()?.Description;

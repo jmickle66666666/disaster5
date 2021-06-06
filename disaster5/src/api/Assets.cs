@@ -56,7 +56,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "getTextureSize")]
-        [FunctionDescription("Returns the size of a specified texture. {w, h}")]
+        [FunctionDescription("Returns the size of a specified texture.", "{int w, int h}")]
         [ArgumentDescription("path", "Path of the texture")]
         public ObjectInstance GetTextureSize(string path)
         {

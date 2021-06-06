@@ -34,38 +34,6 @@ namespace DisasterAPI
         [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
         [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
 
-        [JSFunction(Name = "setFog")]
-        [FunctionDescription("Sets fog properties.")]
-        [ArgumentDescription("color", "Fog color", "Color32 { r, g, b, a }")]
-        [ArgumentDescription("fogStart", "Distance at which the fog starts")]
-        [ArgumentDescription("fogDistance", "Distance after fog start when the fog will be 100% dense")]
-        public static void SetFog(ObjectInstance color, double fogStart, double fogDistance)
-        {
-            //var clr = Disaster.TypeInterface.Color32(color);
-            //Disaster.ObjRenderer.SetFogProperties(clr, (float)fogStart, (float)fogDistance);
-        }
-
-        [JSFunction(Name = "enableFog")]
-        [FunctionDescription("Enable 3D fog. See also: setFog, disableFog")]
-        public static void EnableFog()
-        {
-            //Disaster.ObjRenderer.SetFogEnabled(true);
-        }
-
-        [JSFunction(Name = "disableFog")]
-        [FunctionDescription("Disable 3D fog. See also: setFog, enableFog")]
-        public static void DisableFog()
-        {
-            //Disaster.ObjRenderer.SetFogEnabled(false);
-        }
-
-        [JSFunction(Name = "setClearColor")]
-        public static void SetClearColor(ObjectInstance color, double fogStart, double fogDistance)
-        {
-            //var clr = Disaster.TypeInterface.Color32(color);
-            //Disaster.ScreenController.SetClearColor(clr);
-        }
-
         [JSFunction(Name = "offset")]
         [FunctionDescription("Set a global offset for 2D rendering.")]
         [ArgumentDescription("x", "Pixels in the x axis to offset by")]
@@ -83,7 +51,7 @@ namespace DisasterAPI
         [ArgumentDescription("y", "y position of the rectangle")]
         [ArgumentDescription("width", "width of the rectangle")]
         [ArgumentDescription("height", "height of the rectangle")]
-        [ArgumentDescription("color", "Rectangle color", "Color32 { r, g, b, a }")]
+        [ArgumentDescription("color", "Rectangle color", "{r, g, b, a}")]
         [ArgumentDescription("filled", "Draw a filled rect (true) or an outline (false)")]
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled)
         {
@@ -104,7 +72,7 @@ namespace DisasterAPI
         [ArgumentDescription("y2", "y position of the second point")]
         [ArgumentDescription("x3", "x position of the third point")]
         [ArgumentDescription("y3", "y position of the third point")]
-        [ArgumentDescription("color", "color for the triangle")]
+        [ArgumentDescription("color", "color for the triangle", "{r, g, b, a}")]
         [ArgumentDescription("filled", "Draw a filled triangle (true) or an outline (false)")]
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled)
         {
@@ -125,7 +93,7 @@ namespace DisasterAPI
         [ArgumentDescription("x", "x position of the center")]
         [ArgumentDescription("y", "y position of the center")]
         [ArgumentDescription("radius", "radius of the circle (distance from center to edge)")]
-        [ArgumentDescription("color", "color for the triangle")]
+        [ArgumentDescription("color", "color for the triangle", "{r, g, b, a}")]
         [ArgumentDescription("filled", "Draw a filled circle (true) or an outline (false)")]
         public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled)
         {
@@ -146,7 +114,7 @@ namespace DisasterAPI
         [ArgumentDescription("y1", "starting y position")]
         [ArgumentDescription("x2", "ending x position")]
         [ArgumentDescription("y2", "ending y position")]
-        [ArgumentDescription("color", "line color", "Color32 { r, g, b, a }")]
+        [ArgumentDescription("color", "line color", "{r, g, b, a}")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
@@ -161,18 +129,17 @@ namespace DisasterAPI
         [ArgumentDescription("x", "x position of the text")]
         [ArgumentDescription("y", "x position of the text")]
         [ArgumentDescription("text", "the text content to draw")]
-        [ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
+        [ArgumentDescription("color", "text color", "{r, g, b, a}")]
         public static void Text(int x, int y, string text, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
         [JSFunction(Name = "model")]
-        [FunctionDescription("Draw a line of text.")]
-        [ArgumentDescription("x", "x position of the text")]
-        [ArgumentDescription("y", "x position of the text")]
-        [ArgumentDescription("text", "the text content to draw")]
-        [ArgumentDescription("color", "text color", "Color32 { r, g, b, a }")]
+        [FunctionDescription("Draw a 3D model.")]
+        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
+        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
         public static void Model(ObjectInstance position, ObjectInstance rotation, string modelPath)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
@@ -188,7 +155,7 @@ namespace DisasterAPI
         [FunctionDescription("Draw a color buffer.")]
         [ArgumentDescription("x", "x position to draw at")]
         [ArgumentDescription("y", "y position to draw at")]
-        [ArgumentDescription("colors", "color array defining the image", "Color32[] {r, g, b, a}")]
+        [ArgumentDescription("colors", "color array defining the image", "{r, g, b, a}[]")]
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(int x, int y, ObjectInstance colors, int width)
         {
@@ -203,12 +170,16 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name ="startBuffer")]
+        [FunctionDescription("Start drawing to a pixel buffer instead of the screen. Call with Draw.endBuffer();")]
+        [ArgumentDescription("width", "Width of the new buffer to draw to")]
+        [ArgumentDescription("height", "Height of the new buffer to draw to")]
         public static void StartBuffer(int width, int height)
         {
             Disaster.SoftwareCanvas.StartBuffer(width, height);
         }
 
         [JSFunction(Name = "endBuffer")]
+        [FunctionDescription("Finish drawing to a pixel buffer and return a reference to the new texture.")]
         public static string EndBuffer()
         {
             return Disaster.SoftwareCanvas.EndBuffer();
@@ -229,7 +200,7 @@ namespace DisasterAPI
         [FunctionDescription("Draw an image to the software canvas, with scaling, rotation and origin offset.")]
         [ArgumentDescription("x", "x position of the image")]
         [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "Transform2D { originX, originY, rotation, scaleX, scaleY }")]
+        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
         [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TextureTransformed(int x, int y, ObjectInstance transformation, string texturePath)
         {
@@ -242,7 +213,7 @@ namespace DisasterAPI
         [FunctionDescription("Draw a part of an image to the software canvas")]
         [ArgumentDescription("x", "x position of the image")]
         [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "Rectangle { x, y, w, h }")]
+        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
         [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TexturePart(int x, int y, ObjectInstance rectangle, string texturePath)
         {
@@ -256,8 +227,8 @@ namespace DisasterAPI
         [FunctionDescription("Draw a part of an image to the software canvas, with transformations")]
         [ArgumentDescription("x", "x position of the image")]
         [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "Rectangle { x, y, w, h }")]
-        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "Transform2D { originX, originY, rotation, scaleX, scaleY }")]
+        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
+        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
         [ArgumentDescription("texturePath", "path to the image asset")]
         public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, ObjectInstance transformation, string texturePath)
         {
