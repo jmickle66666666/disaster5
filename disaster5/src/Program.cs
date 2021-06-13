@@ -64,7 +64,6 @@ namespace Disaster
             Raylib.SetTraceLogLevel(TraceLogType.LOG_WARNING);
             Raylib.InitAudioDevice();
 
-            Raylib.SetExitKey(KeyboardKey.KEY_F10);
             Console.WriteLine($"Welcome to disaster engine");
 
             // software renderer initialisation
@@ -85,6 +84,7 @@ namespace Disaster
 
             Debug.enabled = false;
 
+            Raylib.SetExitKey(KeyboardKey.KEY_F12);
             while (!Raylib.WindowShouldClose())
             {
                 Debug.FrameStart();

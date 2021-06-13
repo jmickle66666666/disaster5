@@ -17,12 +17,27 @@ namespace DisasterAPI
             return Disaster.Assets.LoadPath(path, out _);
         }
 
+        [JSFunction(Name = "loaded")]
+        [FunctionDescription("Check if asset is loaded")]
+        [ArgumentDescription("path", "path for asset")]
+        public bool Loaded(string path)
+        {
+            return Disaster.Assets.Loaded(path);
+        }
+
         [JSFunction(Name = "unload")]
         [FunctionDescription("Unload an asset")]
         [ArgumentDescription("path", "path to the asset")]
         public void Unload(string path)
         {
             Disaster.Assets.Unload(path);
+        }
+
+        [JSFunction(Name = "unloadAll")]
+        [FunctionDescription("Unload all assets")]
+        public void UnloadAll()
+        {
+            Disaster.Assets.UnloadAll();
         }
 
         [JSFunction(Name = "list")]

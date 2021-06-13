@@ -85,6 +85,16 @@ namespace Disaster
             }
         }
 
+        public static bool Loaded(string path)
+        {
+            if (scripts != null && scripts.ContainsKey(path)) return true;
+            if (pixelBuffers != null && pixelBuffers.ContainsKey(path)) return true;
+            if (audio != null && audio.ContainsKey(path)) return true;
+            if (music != null && music.ContainsKey(path)) return true;
+            if (texts != null && texts.ContainsKey(path)) return true;
+            return false;
+        }
+
         public static void UnloadAll()
         {
             Dispose();

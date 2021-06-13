@@ -777,7 +777,12 @@ namespace Disaster
         public static string EndBuffer()
         {
             var output = new PixelBuffer(colorBuffer, textureWidth);
-            var hash = output.GetHashCode().ToString();
+            var hashnum = output.GetHashCode();
+            while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
+            {
+                hashnum += 1;
+            }
+            var hash = hashnum.ToString();
 
             colorBuffer = tempBuffer;
             textureWidth = tempWidth;
