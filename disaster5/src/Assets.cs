@@ -50,9 +50,9 @@ namespace Disaster
             {
                 if (!assignedDefaultShader)
                 {
-                    if (LoadPath("vert.glsl", out string vertShaderPath))
+                    if (LoadPath("shaders/vert.glsl", out string vertShaderPath))
                     {
-                        if (LoadPath("frag.glsl", out string fragShaderPath))
+                        if (LoadPath("shaders/frag.glsl", out string fragShaderPath))
                         {
                             var vertShader = File.ReadAllText(vertShaderPath);
                             var fragShader = File.ReadAllText(fragShaderPath);

@@ -19,7 +19,7 @@ namespace Disaster
 
         static RenderTexture2D renderTexture;
         static int scale = 2;
-        static Camera3D camera;
+        public static Camera3D camera;
 
         public ScreenController()
         {

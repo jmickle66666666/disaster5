@@ -15,23 +15,6 @@ namespace Disaster
         public Texture2D texture;
         public Matrix4x4 transform;
 
-        public static Color32 fogColor;
-        public static float fogStart = 16.0f;
-        public static float fogDistance = 128.0f;
-        public static bool fogEnabled = false;
-
-        public static void SetFogProperties(Color32 clr, float startDist, float dist)
-        {
-            fogColor = clr;
-            fogStart = startDist;
-            fogDistance = dist;
-        }
-
-        public static void SetFogEnabled(bool enabled)
-        {
-            fogEnabled = enabled;
-        }
-
         //static Dictionary<int, ShaderProgram> shaderCache;
         static int currentShader = -1;
 
@@ -42,10 +25,6 @@ namespace Disaster
             this.texture = texture;
 
             transform = Matrix4x4.CreateTranslation(new Vector3(0, 0, -5));
-
-            fogColor = new Color32(0, 0, 0, 255);
-            fogStart = 32.0f;
-            fogDistance = 96.0f;
         }
 
         public void Render()
@@ -58,11 +37,11 @@ namespace Disaster
 
         public static void EnqueueRender(Model model, Shader shader, Transformation transform)
         {
-
             if (renderQueue == null)
             {
                 renderQueue = new (Model model, Shader shader, Transformation transform)[16];
             }
+
             renderQueue[renderQueueLength] = (model, shader, transform);
             renderQueueLength += 1;
             if (renderQueueLength >= renderQueue.Length)
@@ -94,16 +73,6 @@ namespace Disaster
                     Raylib.BeginShaderMode(renderQueue[i].shader);
                     currentShader = shaderHash;
                     Raylib.SetShaderValueMatrix(renderQueue[i].shader, 0, Matrix4x4.CreatePerspectiveFieldOfView(1f, (float)320 / 240, 0.1f, 1000f));
-                    //renderQueue[i].shader["projection_matrix"].SetValue();
-
-                    //renderQueue[i].shader["Use_Fog"]?.SetValue(fogEnabled);
-
-                    //System.Numerics.Vector3 fogColorV3 =
-                    //    new Vector3(fogColor.r / 255.0f, fogColor.g / 255.0f, fogColor.b / 255.0f);
-
-                    //renderQueue[i].shader["Fog_Color"]?.SetValue(fogColorV3);
-                    //renderQueue[i].shader["Fog_Start"]?.SetValue(fogStart);
-                    //renderQueue[i].shader["Fog_Distance"]?.SetValue(fogDistance);
                 }
 
                 Raylib.DrawModelEx(

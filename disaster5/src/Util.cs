@@ -11,8 +11,23 @@ namespace Disaster
             return (int) ((b * t) + (a * (1 - t)));
         }
 
+        public static Vector3 EulerToForward(Vector3 eulers)
+        {
+            var yaw = eulers.Y * MathF.PI / 180f;
+            var pitch = eulers.X * MathF.PI / 180f;
+            return new Vector3(
+                MathF.Sin(yaw),
+                -(MathF.Sin(pitch) * MathF.Cos(yaw)),
+                -(MathF.Cos(pitch) * MathF.Cos(yaw))
+            );
+        }
+
         public static (Vector3 axis, float rotation) EulerToAxisAngle(Vector3 eulers)
         {
+            if (eulers.X > 360f) eulers.X %= 360f;
+            if (eulers.Y > 360f) eulers.Y %= 360f;
+            if (eulers.Z > 360f) eulers.Z %= 360f;
+
             var heading = eulers.Y * Math.PI / 180;
             var altitude = eulers.X * Math.PI / 180;
             var bank = eulers.Z * Math.PI / 180;
@@ -134,7 +149,7 @@ namespace Disaster
             this.scale = scale;
             var angleAxis = Util.EulerToAxisAngle(eulers);
             this.rotationAxis = angleAxis.axis;
-            this.rotationAngle = angleAxis.rotation;
+            this.rotationAngle = angleAxis.rotation * (180f/MathF.PI);
         }
     }
 

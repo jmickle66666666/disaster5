@@ -239,9 +239,18 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect, trans);
         }
 
-        //public void TexturePart() {}
-        // [JSFunction(Name = "reset")] public void Reset() {}
-        // [JSFunction(Name = "fogColor")] public void FogColor(double r, double g, double b) {}
+        [JSFunction(Name = "setCamera")]
+        [FunctionDescription("Set the 3d camera position and rotation")]
+        [ArgumentDescription("position", "position to set the camera to", "{x, y, z}")]
+        [ArgumentDescription("rotation", "rotation to set the camera to, in euler angles", "{x, y, z}")]
+        public static void SetCamera(ObjectInstance position, ObjectInstance rotation)
+        {
+            var rot = Disaster.TypeInterface.Vector3(rotation);
+            var pos = Disaster.TypeInterface.Vector3(position);
+            var forward = Disaster.Util.EulerToForward(rot);
+            Disaster.ScreenController.camera.position = pos;
+            Disaster.ScreenController.camera.target = pos + forward;
+        }
 
 
     }
