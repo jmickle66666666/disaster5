@@ -121,6 +121,8 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "worldToScreenPoint")]
+        [FunctionDescription("Transform a point from world position to screen position.", "{x, y}")]
+        [ArgumentDescription("position", "World position to transform", "{x, y, z}")]
         public static ObjectInstance WorldToScreenPoint(ObjectInstance position)
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
