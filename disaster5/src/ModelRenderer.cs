@@ -108,10 +108,10 @@ namespace Disaster
             Raylib.EndShaderMode();
             renderQueueLength = 0;
         }
-
+        
         public void Dispose()
         {
-
+            
         }
 
         public unsafe static void SetMaterialShader(ref Model model, int materialIndex, ref Shader shader)

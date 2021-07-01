@@ -36,7 +36,34 @@ namespace Disaster
             this.texture = texture;
         }
 
-        public static PixelBuffer missing = new PixelBuffer(new Color32[4] { new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255) }, 2, new Texture2D());
+        private static PixelBuffer _missing;
+        private static bool _missingDefined = false;
+        public static PixelBuffer missing
+        {
+            get
+            {
+                if (!_missingDefined)
+                {
+                    int mw = 16;
+                    int mh = 16;
+                    Color32[] pixels = new Color32[mw * mh];
+                    for (int j = 0; j < mh; j++)
+                    { 
+                        for (int i = 0; i < mw; i++)
+                        {
+                            pixels[i + j * mw] = (i + j) % 8 < 4 ? new Color32(255, 160, 0) : new Color32(0, 0, 0);
+                        }
+                    }
+                    var image = Raylib.GenImageColor(mw, mh, Color.MAGENTA);
+                    unsafe
+                    {
+                        pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, mw * mh * 4));
+                    }
+                    _missing = new PixelBuffer(pixels, mw);
+                }
+                return _missing;
+            }
+        }
 
         public string Serialise()
         {

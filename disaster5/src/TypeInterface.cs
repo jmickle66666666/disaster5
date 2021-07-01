@@ -210,7 +210,14 @@ namespace Disaster
 
             if (input.TryGetPropertyValue("texture", out object texturePath))
             {
-                var texture = Assets.PixelBuffer((string)texturePath).texture;
+                Texture2D texture;
+                if (!Assets.LoadPath((string)texturePath, out _))
+                {
+                    texture = PixelBuffer.missing.texture;
+                } else
+                {
+                    texture = Assets.PixelBuffer((string)texturePath).texture;
+                }
                 SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_DIFFUSE, ref texture);
             }
             
