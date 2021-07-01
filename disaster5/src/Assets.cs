@@ -4,6 +4,7 @@ using Jurassic.Library;
 using System.IO;
 using System;
 using Raylib_cs;
+using System.Runtime.InteropServices;
 
 namespace Disaster
 {
@@ -12,14 +13,30 @@ namespace Disaster
         public int width;
         public int height;
         public Color32[] pixels;
+        public Texture2D texture;
+
         public PixelBuffer(Color32[] pixels, int width)
+        {
+            this.height = pixels.Length / width;
+            var image = Raylib.GenImageColor(width, height, Color.MAGENTA);
+            unsafe
+            {
+                pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, width * height * 4));
+            }
+            this.width = width;
+            this.pixels = pixels;
+            this.texture = Raylib.LoadTextureFromImage(image);
+        }
+
+        public PixelBuffer(Color32[] pixels, int width, Texture2D texture)
         {
             this.width = width;
             this.height = pixels.Length / width;
             this.pixels = pixels;
+            this.texture = texture;
         }
 
-        public static PixelBuffer missing = new PixelBuffer(new Color32[4] { new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255) }, 2);
+        public static PixelBuffer missing = new PixelBuffer(new Color32[4] { new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255), new Color32(255, 0, 255) }, 2, new Texture2D());
 
         public string Serialise()
         {
@@ -35,14 +52,15 @@ namespace Disaster
 
         public static Dictionary<string, ObjectInstance> scripts;
         public static List<string> currentlyLoadingScripts;
-        //public static Dictionary<string, Texture> textures;
+        public static Dictionary<string, Texture2D> textures;
         public static Dictionary<string, PixelBuffer> pixelBuffers;
         public static Dictionary<string, Model> models;
         public static Dictionary<string, Sound> audio;
         public static Dictionary<string, Music> music;
+        public static Dictionary<string, Shader> shaders;
         public static Dictionary<string, string> texts;
 
-        static bool assignedDefaultShader = false;
+        public static bool assignedDefaultShader = false;
         static Shader _defaultShader;
         public static Shader defaultShader
         {
@@ -50,16 +68,8 @@ namespace Disaster
             {
                 if (!assignedDefaultShader)
                 {
-                    if (LoadPath("shaders/vert.glsl", out string vertShaderPath))
-                    {
-                        if (LoadPath("shaders/frag.glsl", out string fragShaderPath))
-                        {
-                            var vertShader = File.ReadAllText(vertShaderPath);
-                            var fragShader = File.ReadAllText(fragShaderPath);
-                            _defaultShader = Raylib.LoadShaderCode(vertShader, fragShader);
-                            assignedDefaultShader = true;
-                        }
-                    }
+                    _defaultShader = Shader("shaders/model");
+                    assignedDefaultShader = true;
                 }
                 return _defaultShader;
             }
@@ -99,12 +109,19 @@ namespace Disaster
         {
             Dispose();
             if (scripts != null) scripts.Clear();
-            //if (textures != null) textures.Clear();
             if (pixelBuffers != null) pixelBuffers.Clear();
-            //if (objModels != null) objModels.Clear();
             if (audio != null) audio.Clear();
             if (music != null) music.Clear();
             if (texts != null) texts.Clear();
+
+            if (shaders != null)
+            {
+                foreach (var s in shaders)
+                {
+                    Raylib.UnloadShader(s.Value);
+                }
+                shaders.Clear();
+            }
             GC.Collect();
         }
 
@@ -120,6 +137,16 @@ namespace Disaster
             if (audio.ContainsKey(path)) { audio.Remove(path); }
             if (music.ContainsKey(path)) { music.Remove(path); }
             if (texts.ContainsKey(path)) { texts.Remove(path); }
+            if (shaders.ContainsKey(path)) { Raylib.UnloadShader(shaders[path]); shaders.Remove(path); }
+            if (models.ContainsKey(path))
+            {
+                unsafe
+                {
+                    Mesh* meshes = (Mesh*)models[path].meshes.ToPointer();
+                    Raylib.UnloadMesh(ref meshes[0]);
+                }
+                models.Remove(path);
+            }
             GC.Collect();
         }
 
@@ -132,19 +159,19 @@ namespace Disaster
                     Text(path);
                     break;
                 case ".png":
-                    //Texture(path);
                     PixelBuffer(path);
                     break;
                 case ".wav":
                     Audio(path);
                     break;
+                case ".frag":
+                case ".vert":
+                    Shader(path);
+                    break;
                 case ".ogg":
                 case ".mp3":
                     Music(path);
                     break;
-                    //case ".obj":
-                    //    ObjModel(path);
-                    //    break;
             }
         }
 
@@ -157,6 +184,26 @@ namespace Disaster
                 output[i] = output[i].Substring(len);
             }
             return output;
+        }
+
+        public static Shader Shader(string path)
+        {
+            if (shaders == null) shaders = new Dictionary<string, Shader>();
+            if (!shaders.ContainsKey(path))
+            {
+                var vertFound = LoadPath(path + ".vert", out string vertPath);
+                var fragFound = LoadPath(path + ".frag", out string fragPath);
+                if (!vertFound || !fragFound)
+                {
+                    if (!vertFound) { Console.WriteLine($"No shader: {path}.vert"); }
+                    if (!fragFound) { Console.WriteLine($"No shader: {path}.vert"); }
+                    return _defaultShader;
+                }
+
+                var output = Raylib.LoadShader(vertPath, fragPath);
+                shaders.Add(path, output);
+            }
+            return shaders[path];
         }
 
         public static string Text(string path)
@@ -174,26 +221,6 @@ namespace Disaster
             }
             return texts[path];
         }
-
-        //public static Texture Texture(string path)
-        //{
-        //    if (textures == null) textures = new Dictionary<string, Texture>();
-        //    if (!textures.ContainsKey(path))
-        //    {
-        //        if (!LoadPath(path, out string texturePath))
-        //        {
-        //            // TODO: exception? return default "missing" texture?
-        //            return null;
-        //        }
-
-        //        var imgPtr = SDL2.SDL_image.IMG_Load(texturePath);
-
-        //        SDL2.SDL.SDL_Surface surface = System.Runtime.InteropServices.Marshal.PtrToStructure<SDL2.SDL.SDL_Surface>(imgPtr);
-        //        var texture = new Texture(surface.pixels, surface.w, surface.h);
-        //        textures.Add(path, texture);
-        //    }
-        //    return textures[path];
-        //}
 
         public static PixelBuffer PixelBuffer(string path)
         {
@@ -217,9 +244,12 @@ namespace Disaster
                     }
                 }
 
+                var texture = Raylib.LoadTextureFromImage(image);
+
                 var pixelBuffer = new PixelBuffer(
                     pixels,
-                    image.width
+                    image.width,
+                    texture
                 );
                 pixelBuffers.Add(path, pixelBuffer);
             }
@@ -318,13 +348,7 @@ namespace Disaster
 
         public static void Dispose()
         {
-            //if (textures != null)
-            //{
-            //    foreach (var t in textures.Values)
-            //    {
-            //        t.Dispose();
-            //    }
-            //}
+           
         }
     }
 }

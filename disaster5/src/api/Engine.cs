@@ -31,6 +31,8 @@ namespace DisasterAPI
         public static void Reset()
         {
             Disaster.Assets.UnloadAll();
+            Disaster.Assets.assignedDefaultShader = false;
+            Disaster.ScreenController.instance.ReloadShader();
             Disaster.JS.instance.Reset();
         }
 

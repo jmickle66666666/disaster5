@@ -7,13 +7,13 @@ namespace Disaster
     public class SoftwareCanvasRenderer : Renderer
     {
         Texture2D texture;
-        Shader shader;
+        public Shader shader;
         IntPtr pixels;
 
         public SoftwareCanvasRenderer(Shader shader)
         {
             texture = Raylib.LoadTextureFromImage(Raylib.GenImageChecked(320, 240, 16, 16, Color.BLUE, Color.BROWN));
-            Raylib.SetTextureFilter(texture, TextureFilterMode.FILTER_POINT);
+            Raylib.SetTextureFilter(texture, TextureFilter.TEXTURE_FILTER_POINT);
 
             this.shader = shader;
             pixels = Marshal.AllocHGlobal(SoftwareCanvas.textureWidth * SoftwareCanvas.textureHeight * 4);

@@ -25,6 +25,18 @@ namespace DisasterAPI
             get { return (int)mousePosition.Y; }
         }
 
+        [JSFunction(Name = "lockMouse")]
+        public void LockMouse()
+        {
+            Raylib_cs.Raylib.DisableCursor();
+        }
+
+        [JSFunction(Name = "unlockMouse")]
+        public void UnlockMouse()
+        {
+            Raylib_cs.Raylib.EnableCursor();
+        }
+
         [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON); } }
         [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON); } }
         [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON); } }

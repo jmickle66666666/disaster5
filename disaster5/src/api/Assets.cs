@@ -81,5 +81,22 @@ namespace DisasterAPI
             output["h"] = texture.height;
             return output;
         }
+
+        [JSFunction(Name = "createMesh")]
+        public string CreateMesh(ObjectInstance meshData)
+        {
+            Raylib_cs.Model model = Disaster.TypeInterface.Model(meshData);
+            
+            int hash = model.GetHashCode();
+            if (Disaster.Assets.models == null)
+            {
+                Disaster.Assets.models = new System.Collections.Generic.Dictionary<string, Raylib_cs.Model>();
+            }
+            while (Disaster.Assets.models.ContainsKey(hash.ToString())) {
+                hash += 1;
+            }
+            Disaster.Assets.models.Add(hash.ToString(), model);
+            return hash.ToString();
+        }
     }
 }

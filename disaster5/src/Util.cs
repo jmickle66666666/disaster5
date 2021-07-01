@@ -13,20 +13,24 @@ namespace Disaster
 
         public static Vector3 EulerToForward(Vector3 eulers)
         {
-            var yaw = eulers.Y * MathF.PI / 180f;
             var pitch = eulers.X * MathF.PI / 180f;
+            var yaw = eulers.Y * MathF.PI / 180f;
+            var roll = eulers.Z * MathF.PI / 180f;
+
+            var a = MathF.Sin(pitch);
+            var b = MathF.Cos(yaw) * MathF.Cos(pitch);
+            var c = (MathF.Sin(yaw) * MathF.Cos(pitch));
+
             return new Vector3(
-                MathF.Sin(yaw),
-                -(MathF.Sin(pitch) * MathF.Cos(yaw)),
-                -(MathF.Cos(pitch) * MathF.Cos(yaw))
+                c, -a, b
             );
         }
 
         public static (Vector3 axis, float rotation) EulerToAxisAngle(Vector3 eulers)
         {
-            if (eulers.X > 360f) eulers.X %= 360f;
-            if (eulers.Y > 360f) eulers.Y %= 360f;
-            if (eulers.Z > 360f) eulers.Z %= 360f;
+            if (eulers.X >= 360f) eulers.X %= 360f;
+            if (eulers.Y >= 360f) eulers.Y %= 360f;
+            if (eulers.Z >= 360f) eulers.Z %= 360f;
 
             var heading = eulers.Y * Math.PI / 180;
             var altitude = eulers.X * Math.PI / 180;
@@ -47,7 +51,7 @@ namespace Disaster
             double z = c1 * s2 * c3 - s1 * c2 * s3;
             double angle = 2 * Math.Acos(w);
             double norm = x * x + y * y + z * z;
-            if (norm < 0.001)
+            if (norm < 0.00001)
             { // when all euler angles are zero angle =0 so
               // we can set axis to anything to avoid divide by zero
                 x = 1;

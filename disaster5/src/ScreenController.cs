@@ -10,6 +10,7 @@ namespace Disaster
     public class ScreenController
     {
         SoftwareCanvasRenderer drawScreen;
+        public static ScreenController instance;
 
         public static int screenWidth = 320;
         public static int screenHeight = 240;
@@ -23,7 +24,7 @@ namespace Disaster
 
         public ScreenController()
         {
-
+            instance = this;
             Raylib.InitWindow(640, 480, "disaster engine 5.0");
             renderTexture = Raylib.LoadRenderTexture(640 / scale, 480 / scale);
             Raylib.SetTargetFPS(60);
@@ -31,19 +32,17 @@ namespace Disaster
                 new Vector3(0, 0f, 0f),
                 new Vector3(0, 0, -1),
                 new Vector3(0, 1, 0),
-                45f
+                45f,
+                CameraProjection.CAMERA_PERSPECTIVE
             );
 
-            Assets.LoadPath("shaders/screenfrag.glsl", out string fragPath);
-            Assets.LoadPath("shaders/screenvert.glsl", out string vertPath);
+            drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen"));
 
-            var shader = Raylib.LoadShader(
-                vertPath,
-                fragPath
-            );
+        }
 
-            drawScreen = new SoftwareCanvasRenderer(shader);
-
+        public void ReloadShader()
+        {
+            drawScreen.shader = Assets.Shader("shaders/screen");
         }
 
         public void Update()
@@ -74,6 +73,7 @@ namespace Disaster
             );
 
             drawScreen.Render();
+
             Raylib.EndDrawing();
 
             Debug.Label("swap window");

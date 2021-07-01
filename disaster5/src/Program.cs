@@ -61,7 +61,9 @@ namespace Disaster
         }
         static void Main(string[] args)
         {
-            Raylib.SetTraceLogLevel(TraceLogType.LOG_WARNING);
+            //Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ALL);
+            Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
+            
             Raylib.InitAudioDevice();
 
             Console.WriteLine($"Welcome to disaster engine");
@@ -79,7 +81,6 @@ namespace Disaster
             LoadingMessage("disaster engine 5.0");
             LoadingMessage("(c) jazz mickle ultramegacorp 2021");
             LoadingMessage("initialised screen");
-
             var js = new JS();
 
             Debug.enabled = false;

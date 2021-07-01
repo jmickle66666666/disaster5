@@ -105,6 +105,7 @@ namespace Disaster {
             engine.SetGlobalValue("Debug", new DisasterAPI.Debug(engine));
             engine.SetGlobalValue("Engine", new DisasterAPI.Engine(engine));
             engine.SetGlobalValue("Assets", new DisasterAPI.Assets(engine));
+            engine.SetGlobalValue("Physics", new DisasterAPI.Physics(engine));
         }
 
         void LoadScripts()

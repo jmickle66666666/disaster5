@@ -120,9 +120,16 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
         }
 
-        //public static void Pixel(int x, int y, Color32 color) {
-        //    Disaster.Draw.Pixel(x, y, color);
-        //}
+        [JSFunction(Name = "worldToScreenPoint")]
+        public static ObjectInstance WorldToScreenPoint(ObjectInstance position)
+        {
+            float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
+            float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
+            var p = Raylib_cs.Raylib.GetWorldToScreen(Disaster.TypeInterface.Vector3(position), Disaster.ScreenController.camera);
+            p.X *= ratioW;
+            p.Y *= ratioH;
+            return Disaster.TypeInterface.Object(p);
+        }
 
         [JSFunction(Name = "text")]
         [FunctionDescription("Draw a line of text.")]
@@ -144,11 +151,33 @@ namespace DisasterAPI
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
-            //Matrix4x4 matrix = Matrix4x4.CreateFromYawPitchRoll(rot.Y, rot.X, rot.Z) * Matrix4x4.CreateTranslation(pos);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
             
             var model = Disaster.Assets.Model(modelPath);
             Disaster.ModelRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, transform);
+        }
+
+        [JSFunction(Name = "modelShader")]
+        public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, string modelPath)
+        {
+            var rot = Disaster.TypeInterface.Vector3(rotation);
+            var pos = Disaster.TypeInterface.Vector3(position);
+            var transform = new Disaster.Transformation(pos, rot, Vector3.One);
+            var model = Disaster.Assets.Model(modelPath);
+            var shader = Disaster.Assets.Shader(shaderPath);
+            Disaster.ModelRenderer.EnqueueRender(model, shader, transform);
+        }
+
+        [JSFunction(Name = "modelShaderParams")]
+        public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, ObjectInstance parameters, string modelPath)
+        {
+            var rot = Disaster.TypeInterface.Vector3(rotation);
+            var pos = Disaster.TypeInterface.Vector3(position);
+            var transform = new Disaster.Transformation(pos, rot, Vector3.One);
+            var model = Disaster.Assets.Model(modelPath);
+            var shader = Disaster.Assets.Shader(shaderPath);
+            var parms = Disaster.TypeInterface.ShaderParameters(parameters);
+            Disaster.ModelRenderer.EnqueueRender(model, shader, transform, parms);
         }
 
         [JSFunction(Name = "colorBuffer")]
@@ -252,6 +281,16 @@ namespace DisasterAPI
             Disaster.ScreenController.camera.target = pos + forward;
         }
 
+
+        [JSFunction(Name = "getCameraTransform")]
+        public static ObjectInstance GetCameraTransform()
+        {
+            var output = Disaster.JS.instance.engine.Object.Construct();
+            output["forward"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position);
+            output["up"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.up);
+            output["right"] = Disaster.TypeInterface.Object(Vector3.Cross(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position, Disaster.ScreenController.camera.up));
+            return output;
+        }
 
     }
 }

@@ -8,15 +8,25 @@ using Raylib_cs;
 
 namespace Disaster
 {
+    public struct ShaderParameter
+    {
+        public ShaderUniformDataType dataType;
+        public string uniformName;
+        public object uniformValue;
+        public ShaderParameter(string name, object value, ShaderUniformDataType type)
+        {
+            dataType = type;
+            uniformName = name;
+            uniformValue = value;
+        }
+    }
+
     public struct ModelRenderer : Renderer
     {
         public Model model;
         public Shader shader;
         public Texture2D texture;
         public Matrix4x4 transform;
-
-        //static Dictionary<int, ShaderProgram> shaderCache;
-        static int currentShader = -1;
 
         public ModelRenderer(Model model, Shader shader, Texture2D texture)
         {
@@ -32,17 +42,22 @@ namespace Disaster
             
         }
 
-        public static (Model model, Shader shader, Transformation transform)[] renderQueue;
+        public static (Model model, Shader shader, Transformation transform, ShaderParameter[] shaderParameters)[] renderQueue;
         public static int renderQueueLength;
 
         public static void EnqueueRender(Model model, Shader shader, Transformation transform)
         {
+            EnqueueRender(model, shader, transform, new ShaderParameter[0]);
+        }
+
+        public static void EnqueueRender(Model model, Shader shader, Transformation transform, ShaderParameter[] shaderParameters)
+        {
             if (renderQueue == null)
             {
-                renderQueue = new (Model model, Shader shader, Transformation transform)[16];
+                renderQueue = new (Model model, Shader shader, Transformation transform, ShaderParameter[] shaderParameters)[16];
             }
 
-            renderQueue[renderQueueLength] = (model, shader, transform);
+            renderQueue[renderQueueLength] = (model, shader, transform, shaderParameters);
             renderQueueLength += 1;
             if (renderQueueLength >= renderQueue.Length)
             {
@@ -52,28 +67,34 @@ namespace Disaster
 
         public static void RenderQueue()
         {
-            //Array.Sort(renderQueue, (a, b) =>
-            //{
-            //    int shaderHash1 = a.shader.GetHashCode();
-            //    int shaderHash2 = b.shader.GetHashCode();
-            //    if (shaderHash1 == shaderHash2)
-            //    {
-            //        return a.objFile.hash - b.objFile.hash;
-            //    }
-            //    return shaderHash1 - shaderHash2;
-            //});
-            //int currentModelHash = -1;
-            Raylib.BeginShaderMode(Raylib.GetShaderDefault());
             for (int i = 0; i < renderQueueLength; i++)
             {
-                int shaderHash = renderQueue[i].shader.GetHashCode();
-                if (currentShader != shaderHash)
+                var t = (float) Raylib.GetTime();
+                Raylib.SetShaderValue(renderQueue[i].shader, Raylib.GetShaderLocation(renderQueue[i].shader, "time"), ref t, ShaderUniformDataType.SHADER_UNIFORM_FLOAT);
+
+                for (int j = 0; j < renderQueue[i].shaderParameters.Length; j++)
                 {
-                    Raylib.EndShaderMode();
-                    Raylib.BeginShaderMode(renderQueue[i].shader);
-                    currentShader = shaderHash;
-                    Raylib.SetShaderValueMatrix(renderQueue[i].shader, 0, Matrix4x4.CreatePerspectiveFieldOfView(1f, (float)320 / 240, 0.1f, 1000f));
+                    var shaderParam = renderQueue[i].shaderParameters[j];
+                    switch (shaderParam.dataType)
+                    {
+                        case ShaderUniformDataType.SHADER_UNIFORM_FLOAT:
+                            float valuef = (float) shaderParam.uniformValue;
+                            Raylib.SetShaderValue(renderQueue[i].shader, Raylib.GetShaderLocation(renderQueue[i].shader, shaderParam.uniformName), ref valuef, shaderParam.dataType);
+                            break;
+                        case ShaderUniformDataType.SHADER_UNIFORM_SAMPLER2D:
+                            Texture2D valuet = (Texture2D)shaderParam.uniformValue;
+                            Raylib.SetShaderValueTexture(renderQueue[i].shader, Raylib.GetShaderLocation(renderQueue[i].shader, shaderParam.uniformName), valuet);
+                            break;
+                        // TODO:
+                        //case ShaderUniformDataType.SHADER_UNIFORM_VEC4:
+                        //    IntPtr valuev = (IntPtr)shaderParam.uniformValue;
+                        //    Raylib.SetShaderValueV(renderQueue[i].shader, Raylib.GetShaderLocation(renderQueue[i].shader, shaderParam.uniformName), valuev, shaderParam.dataType, 4);
+                        //    break;
+                    }
+
                 }
+
+                SetMaterialShader(ref renderQueue[i].model, 0, ref renderQueue[i].shader);
 
                 Raylib.DrawModelEx(
                     renderQueue[i].model,
@@ -86,12 +107,17 @@ namespace Disaster
             }
             Raylib.EndShaderMode();
             renderQueueLength = 0;
-            currentShader = -1;
         }
 
         public void Dispose()
         {
 
+        }
+
+        public unsafe static void SetMaterialShader(ref Model model, int materialIndex, ref Shader shader)
+        {
+            Material* materials = (Material*)model.materials.ToPointer();
+            materials[materialIndex].shader = shader;
         }
     }
 

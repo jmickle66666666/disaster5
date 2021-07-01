@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="Jurassic" Version="3.1.0" />
-    <PackageReference Include="Raylib-cs" Version="3.5.0" />
+    <PackageReference Include="Raylib-cs" Version="3.7.0" />
   </ItemGroup>
 
   <ItemGroup>
