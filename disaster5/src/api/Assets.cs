@@ -83,6 +83,8 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "createMesh")]
+        [FunctionDescription("Creates a new mesh object and returns a reference for it.")]
+        [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices [, indices, uvs, uv2s, normals, tangents, colors]}")]
         public string CreateMesh(ObjectInstance meshData)
         {
             Raylib_cs.Model model = Disaster.TypeInterface.Model(meshData);

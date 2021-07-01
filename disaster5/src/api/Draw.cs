@@ -5,8 +5,8 @@ using System.Numerics;
 
 namespace DisasterAPI
 {
-    
-    public class Draw : ObjectInstance{
+
+    public class Draw : ObjectInstance {
 
         public Draw(ScriptEngine engine) : base(engine) {
             this.PopulateFunctions();
@@ -108,7 +108,7 @@ namespace DisasterAPI
             }
         }
 
-        [JSFunction(Name ="line")]
+        [JSFunction(Name = "line")]
         [FunctionDescription("Draw a 2d line.")]
         [ArgumentDescription("x1", "starting x position")]
         [ArgumentDescription("y1", "starting y position")]
@@ -152,12 +152,17 @@ namespace DisasterAPI
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            
+
             var model = Disaster.Assets.Model(modelPath);
             Disaster.ModelRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, transform);
         }
 
         [JSFunction(Name = "modelShader")]
+        [FunctionDescription("Draw a 3D model with a specified shader.")]
+        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
+        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
+        [ArgumentDescription("shaderPath", "Path of the shader to use (without extension)")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
         public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, string modelPath)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
@@ -169,6 +174,12 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "modelShaderParams")]
+        [FunctionDescription("Draw a 3D model with a specified shader and parameters to use.")]
+        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
+        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
+        [ArgumentDescription("shaderPath", "Path of the shader to use (without extension)")]
+        [ArgumentDescription("parameters", "Object of key/value pairs to send to the shader")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
         public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, ObjectInstance parameters, string modelPath)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
@@ -188,7 +199,7 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(int x, int y, ObjectInstance colors, int width)
         {
-            int len = (int) colors.GetPropertyValue("length");
+            int len = (int)colors.GetPropertyValue("length");
             Disaster.Color32[] color32s = new Disaster.Color32[len];
             for (int i = 0; i < len; i++)
             {
@@ -198,7 +209,7 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
         }
 
-        [JSFunction(Name ="startBuffer")]
+        [JSFunction(Name = "startBuffer")]
         [FunctionDescription("Start drawing to a pixel buffer instead of the screen. Call with Draw.endBuffer();")]
         [ArgumentDescription("width", "Width of the new buffer to draw to")]
         [ArgumentDescription("height", "Height of the new buffer to draw to")]
@@ -283,6 +294,7 @@ namespace DisasterAPI
 
 
         [JSFunction(Name = "getCameraTransform")]
+        [FunctionDescription("Get the 3d camera transformation", "{forward, up, right}")]
         public static ObjectInstance GetCameraTransform()
         {
             var output = Disaster.JS.instance.engine.Object.Construct();

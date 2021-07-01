@@ -13,6 +13,9 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "getCollisionRayGround")]
+        [FunctionDescription("Cast a ray against the floor plane at the specified height", "{hit, distance, position, normal}")]
+        [ArgumentDescription("ray", "Ray to cast", "{position, direction}")]
+        [ArgumentDescription("height", "Height of the floor plane")]
         public static ObjectInstance GetCollisionRayGround(ObjectInstance ray, double height)
         {
             var rayo = Disaster.TypeInterface.Ray(ray);
@@ -21,6 +24,9 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "screenPointToRay")]
+        [FunctionDescription("Create a ray from the screen position and return it", "{position, direction}")]
+        [ArgumentDescription("x", "Screen X position to start the ray")]
+        [ArgumentDescription("y", "Screen Y position to start the ray")]
         public static ObjectInstance ScreenPointToRay(int x, int y)
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
