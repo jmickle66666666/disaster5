@@ -26,12 +26,14 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "lockMouse")]
+        [FunctionDescription("Lock the mouse and hide it")]
         public void LockMouse()
         {
             Raylib_cs.Raylib.DisableCursor();
         }
 
         [JSFunction(Name = "unlockMouse")]
+        [FunctionDescription("Unlock the mouse and show it")]
         public void UnlockMouse()
         {
             Raylib_cs.Raylib.EnableCursor();
