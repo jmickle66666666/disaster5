@@ -2,6 +2,7 @@
 using Jurassic;
 using Jurassic.Library;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace DisasterAPI
 {
@@ -120,6 +121,19 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
         }
 
+        [JSFunction(Name = "lineGradient")]
+        [FunctionDescription("Draw a 2d line with a gradient.")]
+        [ArgumentDescription("x1", "starting x position")]
+        [ArgumentDescription("y1", "starting y position")]
+        [ArgumentDescription("x2", "ending x position")]
+        [ArgumentDescription("y2", "ending y position")]
+        [ArgumentDescription("colorStart", "color at the start of the line", "{r, g, b, a}")]
+        [ArgumentDescription("colorEnd", "color at the end of the line", "{r, g, b, a}")]
+        public static void Line(int x1, int y1, int x2, int y2, ObjectInstance colorStart, ObjectInstance colorEnd)
+        {
+            Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(colorStart), Disaster.TypeInterface.Color32(colorEnd));
+        }
+
         [JSFunction(Name = "worldToScreenPoint")]
         [FunctionDescription("Transform a point from world position to screen position.", "{x, y}")]
         [ArgumentDescription("position", "World position to transform", "{x, y, z}")]
@@ -157,6 +171,30 @@ namespace DisasterAPI
 
             var model = Disaster.Assets.Model(modelPath);
             Disaster.ModelRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, transform);
+        }
+
+        [JSFunction(Name = "wireframe")]
+        [FunctionDescription("Draw a 3D wireframe.")]
+        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
+        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
+        [ArgumentDescription("color", "Color of the wireframe", "{r, g, b, a}")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
+        [ArgumentDescription("backfaceCulling", "Whether to skip triangles that face away from the camera")]
+        [ArgumentDescription("drawDepth", "Whether to render depth on the lines")]
+        public static void Wireframe(ObjectInstance position, ObjectInstance rotation, ObjectInstance color, string modelPath, bool backfaceCulling, bool drawDepth, bool filled)
+        {
+            var rot = Disaster.TypeInterface.Vector3(rotation);
+            var pos = Disaster.TypeInterface.Vector3(position);
+            var transform = new Disaster.Transformation(pos, rot, Vector3.One);
+            var col = Disaster.TypeInterface.Color32(color);
+
+            var model = Disaster.Assets.Model(modelPath);
+            
+            unsafe
+            {
+                var mesh = ((Raylib_cs.Mesh*)model.meshes.ToPointer())[0];
+                Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
+            }
         }
 
         [JSFunction(Name = "modelShader")]
@@ -300,7 +338,7 @@ namespace DisasterAPI
         public static ObjectInstance GetCameraTransform()
         {
             var output = Disaster.JS.instance.engine.Object.Construct();
-            output["forward"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position);
+            output["forward"] = Disaster.TypeInterface.Object(Vector3.Normalize(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position));
             output["up"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.up);
             output["right"] = Disaster.TypeInterface.Object(Vector3.Cross(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position, Disaster.ScreenController.camera.up));
             return output;

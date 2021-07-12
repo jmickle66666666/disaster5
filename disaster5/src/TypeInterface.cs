@@ -95,6 +95,13 @@ namespace Disaster
             return new Rect(X, Y, W, H);
         }
 
+        public static Plane Plane(ObjectInstance input)
+        {
+            Vector3 position = Vector3((ObjectInstance) input.GetPropertyValue("position"));
+            Vector3 normal = Vector3((ObjectInstance) input.GetPropertyValue("normal"));
+            return Util.CreatePlaneFromPositionNormal(position, normal);
+        }
+
         public static Raylib_cs.Ray Ray(ObjectInstance input)
         {
             Vector3 position = new Vector3();

@@ -140,6 +140,7 @@ namespace Disaster
             if (audio != null) audio.Clear();
             if (music != null) music.Clear();
             if (texts != null) texts.Clear();
+            if (models != null) models.Clear();
 
             if (shaders != null)
             {

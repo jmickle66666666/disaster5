@@ -4,7 +4,7 @@ using System;
 
 namespace Disaster
 {
-    public class Util
+    public static class Util
     {
         public static int Lerp(int a, int b, float t)
         {
@@ -69,6 +69,34 @@ namespace Disaster
                 new Vector3((float) x, (float)y, (float)z), (float)angle
             );
         }
+
+        public static Raylib_cs.Mesh GetFirstMesh(this Raylib_cs.Model model)
+        {
+            unsafe
+            {
+                Raylib_cs.Mesh* meshes = (Raylib_cs.Mesh*)model.meshes;
+                return meshes[0];
+            }
+        }
+
+        public static Raylib_cs.RayHitInfo GetCollisionRayPlane(Raylib_cs.Ray ray, Plane plane)
+        {
+            float denom = Vector3.Dot(plane.Normal, ray.direction);
+            if (denom > 0.00001f)
+            {
+                float t = (plane.D - Vector3.Dot(plane.Normal, ray.position)) / denom;
+                Vector3 hitPoint = ray.position + ray.direction * t;
+                return new Raylib_cs.RayHitInfo() { hit = 1, distance = t, normal = plane.Normal, position = hitPoint };
+            } else
+            {
+                return new Raylib_cs.RayHitInfo() { hit = 0 };
+            }
+        }
+
+        public static Plane CreatePlaneFromPositionNormal(Vector3 position, Vector3 normal)
+        {
+            return new Plane(normal, Vector3.Dot(position, normal));
+        }
     }
 
     public struct Color32
@@ -91,6 +119,18 @@ namespace Disaster
             this.r = r;
             this.g = g;
             this.b = b;
+        }
+
+        public static Color32 Lerp(Color32 a, Color32 b, float t)
+        {
+            if (t < 0f) t = 0f;
+            if (t > 1f) t = 1f;
+            return new Color32(
+                (byte) ((a.r * (1f - t)) + b.r * t),
+                (byte) ((a.g * (1f - t)) + b.g * t),
+                (byte) ((a.b * (1f - t)) + b.b * t),
+                (byte) ((a.a * (1f - t)) + b.a * t)
+            );
         }
     }
 
@@ -154,6 +194,13 @@ namespace Disaster
             var angleAxis = Util.EulerToAxisAngle(eulers);
             this.rotationAxis = angleAxis.axis;
             this.rotationAngle = angleAxis.rotation * (180f/MathF.PI);
+        }
+
+        public Matrix4x4 ToMatrix()
+        {
+            var rot = Matrix4x4.CreateFromAxisAngle(rotationAxis, rotationAngle);
+            var pos = Matrix4x4.CreateTranslation(position);
+            return pos * rot;
         }
     }
 

@@ -450,6 +450,11 @@ namespace Disaster
             Line(new Vector2Int((int)p1.X, (int)p1.Y), new Vector2Int((int)p2.X, (int)p2.Y), color);
         }
 
+        public static void Line(Vector2 p1, Vector2 p2, Color32 colorA, Color32 colorB)
+        {
+            Line((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, colorA, colorB);
+        }
+
         public static void Line(Vector2Int p1, Vector2Int p2, Color32 color)
         {
             Line(p1.x, p1.y, p2.x, p2.y, color);
@@ -479,6 +484,40 @@ namespace Disaster
                     if (index >= 0 && index < colorBuffer.Length)
                     {
                         colorBuffer[index] = color;
+                        overdrawBuffer[index] += 1;
+                        maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
+                        SlowDraw();
+                    }
+                }
+                if (x0 == x1 && y0 == y1) break;
+                e2 = err;
+                if (e2 > -dx) { err -= dy; x0 += sx; }
+                if (e2 < dy) { err += dx; y0 += sy; }
+            }
+        }
+
+        public static void Line(int x0, int y0, int x1, int y1, Color32 color0, Color32 color1)
+        {
+            x0 += offsetX;
+            y0 += offsetY;
+            x1 += offsetX;
+            y1 += offsetY;
+
+            float maxDist = Vector2.Distance(new Vector2(x0, y0), new Vector2(x1, y1));
+
+            int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+            int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+            if (dx > 1000 || dy > 1000) return;
+            int err = (dx > dy ? dx : -dy) / 2, e2;
+            for (; ; )
+            {
+                if (y0 >= 0 && x0 >= 0 && x0 < textureWidth && y0 < textureHeight)
+                {
+                    int index = y0 * textureWidth + x0;
+                    float t = Vector2.Distance(new Vector2(x1, y1), new Vector2(x0, y0)) / maxDist;
+                    if (index >= 0 && index < colorBuffer.Length)
+                    {
+                        colorBuffer[index] = Color32.Lerp(color1, color0, t);
                         overdrawBuffer[index] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                         SlowDraw();
@@ -611,20 +650,65 @@ namespace Disaster
         //     DrawMesh(mesh, matrix, Vector3.zero, color);
         // }
 
-        // public static void DrawMesh(Mesh mesh, Matrix4x4 matrix, Vector3 offset, Color32 color)
-        // {
-        //     var verts = mesh.vertices;
-        //     var tris = mesh.triangles;
-        //     for (int i = 0; i < tris.Length; i += 3) {
-        //         var p1 = WorldToScreenPoint(matrix.MultiplyPoint3x4(verts[tris[i + 0]]) + offset);
-        //         var p2 = WorldToScreenPoint(matrix.MultiplyPoint3x4(verts[tris[i + 1]]) + offset);
-        //         var p3 = WorldToScreenPoint(matrix.MultiplyPoint3x4(verts[tris[i + 2]]) + offset);
+        public static unsafe void Wireframe(Mesh mesh, Matrix4x4 matrix, Color32 color, bool backfaceCulling, bool depth, bool filled)
+        {
+            var verts = (Vector3*)mesh.vertices;
+            var tris = (short*)mesh.indices;
+            //Matrix4x4.Invert(matrix, out matrix);
+            for (int i = 0; i < mesh.triangleCount * 3; i += 3)
+            {
+                var v1 = Vector3.Transform(verts[tris[i + 0]], matrix);
+                var v2 = Vector3.Transform(verts[tris[i + 1]], matrix);
+                var v3 = Vector3.Transform(verts[tris[i + 2]], matrix);
 
-        //         DrawLine(p1, p2, color);
-        //         DrawLine(p2, p3, color);
-        //         DrawLine(p3, p1, color);
-        //     }
-        // }
+                if (backfaceCulling)
+                {
+                    var midpoint = v1;
+                    var dir = Vector3.Cross(v2 - v1, v3 - v1);
+                    var norm = dir / dir.Length();
+                    var camNorm = (midpoint - ScreenController.camera.position);// / (midpoint - ScreenController.camera.position).Length();
+                    if (Vector3.Dot(camNorm, dir) > 0) continue;
+                }
+
+                var p1 = WorldToScreenPoint(v1);
+                var p2 = WorldToScreenPoint(v2);
+                var p3 = WorldToScreenPoint(v3);
+
+                if (depth)
+                {
+                    var black = new Color32(0, 0, 0, 255);
+                    var cpos = ScreenController.camera.position;
+                    Color32 a = Color32.Lerp(black, color, MathF.Pow(1f + Vector3.Distance(cpos, v1) * 0.2f, -1.5f));
+                    Color32 b = Color32.Lerp(black, color, MathF.Pow(1f + Vector3.Distance(cpos, v2) * 0.2f, -1.5f));
+                    Color32 c = Color32.Lerp(black, color, MathF.Pow(1f + Vector3.Distance(cpos, v3) * 0.2f, -1.5f));
+                    Line(p1, p2, a, b);
+                    Line(p2, p3, b, c);
+                    Line(p3, p1, c, a);
+                } else
+                {
+                    if (filled)
+                    {
+                        Triangle((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, (int)p3.X, (int)p3.Y, color);
+                    } else
+                    {
+                        Line(p1, p2, color);
+                        Line(p2, p3, color);
+                        Line(p3, p1, color);
+                    }
+                }
+
+            }
+        }
+
+        static Vector2 WorldToScreenPoint(Vector3 worldPoint)
+        {
+            float ratioW = (float)ScreenController.screenWidth / (float)ScreenController.windowWidth;
+            float ratioH = (float)ScreenController.screenHeight / (float)ScreenController.windowHeight;
+            var p = Raylib.GetWorldToScreen(worldPoint, ScreenController.camera);
+            p.X *= ratioW;
+            p.Y *= ratioH;
+            return p;
+        }
 
         public static void Paragraph(int x, int y, Color32 color, string text, int maxWidth = -1)
         {

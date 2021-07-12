@@ -39,5 +39,33 @@ namespace DisasterAPI
                 )
             );
         }
+
+        [JSFunction(Name = "getCollisionRayModel")]
+        public static ObjectInstance GetCollisionRayModel(ObjectInstance ray, ObjectInstance position, ObjectInstance rotation, string modelPath)
+        {
+            var rayo = Disaster.TypeInterface.Ray(ray);
+            var model = Disaster.Assets.Model(modelPath);
+            var transform = new Disaster.Transformation(Disaster.TypeInterface.Vector3(position), Disaster.TypeInterface.Vector3(rotation), Vector3.One).ToMatrix();
+            Matrix4x4.Invert(transform, out Matrix4x4 inverse);
+            rayo.position = Vector3.Transform(rayo.position, inverse);
+            rayo.direction = Vector3.TransformNormal(rayo.direction, inverse);
+            //model.transform = transform;
+            
+            var output = Raylib.GetCollisionRayModel(rayo, model);
+            
+            //model.transform = Matrix4x4.Identity;
+            return Disaster.TypeInterface.Object(output);
+        }
+
+        [JSFunction(Name = "getCollisionRayPlane")]
+        public static ObjectInstance GetCollisionRayPlane(ObjectInstance ray, ObjectInstance plane)
+        {
+            return Disaster.TypeInterface.Object(
+                Disaster.Util.GetCollisionRayPlane(
+                    Disaster.TypeInterface.Ray(ray), 
+                    Disaster.TypeInterface.Plane(plane)
+                )
+            );
+        }
     }
 }
