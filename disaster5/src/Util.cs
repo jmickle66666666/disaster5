@@ -4,10 +4,34 @@ using System;
 
 namespace Disaster
 {
-    public class Util
+    public static class Util
     {
+        public static int Lerp(int a, int b, float t)
+        {
+            return (int) ((b * t) + (a * (1 - t)));
+        }
+
+        public static Vector3 EulerToForward(Vector3 eulers)
+        {
+            var pitch = eulers.X * MathF.PI / 180f;
+            var yaw = eulers.Y * MathF.PI / 180f;
+            var roll = eulers.Z * MathF.PI / 180f;
+
+            var a = MathF.Sin(pitch);
+            var b = MathF.Cos(yaw) * MathF.Cos(pitch);
+            var c = (MathF.Sin(yaw) * MathF.Cos(pitch));
+
+            return new Vector3(
+                c, -a, b
+            );
+        }
+
         public static (Vector3 axis, float rotation) EulerToAxisAngle(Vector3 eulers)
         {
+            if (eulers.X >= 360f) eulers.X %= 360f;
+            if (eulers.Y >= 360f) eulers.Y %= 360f;
+            if (eulers.Z >= 360f) eulers.Z %= 360f;
+
             var heading = eulers.Y * Math.PI / 180;
             var altitude = eulers.X * Math.PI / 180;
             var bank = eulers.Z * Math.PI / 180;
@@ -27,7 +51,7 @@ namespace Disaster
             double z = c1 * s2 * c3 - s1 * c2 * s3;
             double angle = 2 * Math.Acos(w);
             double norm = x * x + y * y + z * z;
-            if (norm < 0.001)
+            if (norm < 0.00001)
             { // when all euler angles are zero angle =0 so
               // we can set axis to anything to avoid divide by zero
                 x = 1;
@@ -44,6 +68,34 @@ namespace Disaster
             return (
                 new Vector3((float) x, (float)y, (float)z), (float)angle
             );
+        }
+
+        public static Raylib_cs.Mesh GetFirstMesh(this Raylib_cs.Model model)
+        {
+            unsafe
+            {
+                Raylib_cs.Mesh* meshes = (Raylib_cs.Mesh*)model.meshes;
+                return meshes[0];
+            }
+        }
+
+        public static Raylib_cs.RayHitInfo GetCollisionRayPlane(Raylib_cs.Ray ray, Plane plane)
+        {
+            float denom = Vector3.Dot(plane.Normal, ray.direction);
+            if (denom > 0.00001f)
+            {
+                float t = (plane.D - Vector3.Dot(plane.Normal, ray.position)) / denom;
+                Vector3 hitPoint = ray.position + ray.direction * t;
+                return new Raylib_cs.RayHitInfo() { hit = 1, distance = t, normal = plane.Normal, position = hitPoint };
+            } else
+            {
+                return new Raylib_cs.RayHitInfo() { hit = 0 };
+            }
+        }
+
+        public static Plane CreatePlaneFromPositionNormal(Vector3 position, Vector3 normal)
+        {
+            return new Plane(normal, Vector3.Dot(position, normal));
         }
     }
 
@@ -67,6 +119,18 @@ namespace Disaster
             this.r = r;
             this.g = g;
             this.b = b;
+        }
+
+        public static Color32 Lerp(Color32 a, Color32 b, float t)
+        {
+            if (t < 0f) t = 0f;
+            if (t > 1f) t = 1f;
+            return new Color32(
+                (byte) ((a.r * (1f - t)) + b.r * t),
+                (byte) ((a.g * (1f - t)) + b.g * t),
+                (byte) ((a.b * (1f - t)) + b.b * t),
+                (byte) ((a.a * (1f - t)) + b.a * t)
+            );
         }
     }
 
@@ -129,7 +193,14 @@ namespace Disaster
             this.scale = scale;
             var angleAxis = Util.EulerToAxisAngle(eulers);
             this.rotationAxis = angleAxis.axis;
-            this.rotationAngle = angleAxis.rotation;
+            this.rotationAngle = angleAxis.rotation * (180f/MathF.PI);
+        }
+
+        public Matrix4x4 ToMatrix()
+        {
+            var rot = Matrix4x4.CreateFromAxisAngle(rotationAxis, rotationAngle);
+            var pos = Matrix4x4.CreateTranslation(position);
+            return pos * rot;
         }
     }
 

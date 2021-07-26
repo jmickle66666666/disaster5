@@ -25,6 +25,20 @@ namespace DisasterAPI
             get { return (int)mousePosition.Y; }
         }
 
+        [JSFunction(Name = "lockMouse")]
+        [FunctionDescription("Lock the mouse and hide it")]
+        public void LockMouse()
+        {
+            Raylib_cs.Raylib.DisableCursor();
+        }
+
+        [JSFunction(Name = "unlockMouse")]
+        [FunctionDescription("Unlock the mouse and show it")]
+        public void UnlockMouse()
+        {
+            Raylib_cs.Raylib.EnableCursor();
+        }
+
         [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON); } }
         [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON); } }
         [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON); } }
@@ -33,6 +47,8 @@ namespace DisasterAPI
         [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_RIGHT_BUTTON); } }
         [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_RIGHT_BUTTON); } }
 
+        [JSProperty(Name = "mouseWheel")] public static double mouseWheel { get { return Raylib.GetMouseWheelMove(); } }
+
         public static void Update()
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
@@ -40,6 +56,8 @@ namespace DisasterAPI
 
             var x = (int)(Raylib.GetMouseX() * ratioW);
             var y = (int)(Raylib.GetMouseY() * ratioH);
+
+            
 
             mousePosition.X = x;
             mousePosition.Y = y;
@@ -169,6 +187,13 @@ namespace DisasterAPI
             KeyboardKey.KEY_DELETE,
             KeyboardKey.KEY_END,
             KeyboardKey.KEY_PAGE_DOWN,
+
+            KeyboardKey.KEY_LEFT_CONTROL,
+            KeyboardKey.KEY_RIGHT_CONTROL,
+            KeyboardKey.KEY_LEFT_ALT,
+            KeyboardKey.KEY_RIGHT_ALT,
+            KeyboardKey.KEY_LEFT_SHIFT,
+            KeyboardKey.KEY_RIGHT_SHIFT,
         };
 
     }

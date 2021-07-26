@@ -1,5 +1,6 @@
 ﻿using Jurassic.Library;
 using Jurassic;
+using Raylib_cs;
 
 namespace DisasterAPI
 {
@@ -30,6 +31,8 @@ namespace DisasterAPI
         public static void Reset()
         {
             Disaster.Assets.UnloadAll();
+            Disaster.Assets.assignedDefaultShader = false;
+            Disaster.ScreenController.instance.ReloadShader();
             Disaster.JS.instance.Reset();
         }
 
@@ -54,5 +57,36 @@ namespace DisasterAPI
         {
             Disaster.Assets.Preload(path);
         }
+
+        [JSFunction(Name ="slowDrawFrame")]
+        [FunctionDescription("Draw the next frame pixel by pixel")]
+        [ArgumentDescription("frameSkip", "How many pixels to draw per frame of slow draw")]
+        public static void SlowDrawFrame(int frameSkip)
+        {
+            Disaster.SoftwareCanvas.slowDrawPixels = frameSkip;
+            Disaster.SoftwareCanvas.slowDraw = true;
+        }
+
+        [JSFunction(Name = "toggleOverdraw")]
+        [FunctionDescription("Toggle overdraw debug visualisation. Brighter pixels are being drawn more times")]
+        public static void ToggleOverdraw()
+        {
+            Disaster.SoftwareCanvas.overdraw =! Disaster.SoftwareCanvas.overdraw;
+        }
+
+        [JSFunction(Name = "setMouseVisible")]
+        [FunctionDescription("Show or hide the mouse cursor")]
+        [ArgumentDescription("visible", "true: show mouse, false: hide mouse")]
+        public static void SetMouseVisible(bool visible)
+        {
+            if (visible)
+            {
+                Raylib.ShowCursor();
+            } else
+            {
+                Raylib.HideCursor();
+            }
+        }
     }
+
 }
