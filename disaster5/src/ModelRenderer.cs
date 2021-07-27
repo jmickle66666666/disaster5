@@ -21,6 +21,15 @@ namespace Disaster
         }
     }
 
+    public struct RenderQueueElement
+    {
+        public Model model;
+        public Shader shader;
+        public Transformation transform;
+        public ShaderParameter[] shaderParameters;
+        public bool wireframe;
+    }
+
     public struct ModelRenderer : Renderer
     {
         public Model model;
@@ -42,7 +51,7 @@ namespace Disaster
             
         }
 
-        public static (Model model, Shader shader, Transformation transform, ShaderParameter[] shaderParameters)[] renderQueue;
+        public static RenderQueueElement[] renderQueue;
         public static int renderQueueLength;
 
         public static void EnqueueRender(Model model, Shader shader, Transformation transform)
@@ -54,10 +63,10 @@ namespace Disaster
         {
             if (renderQueue == null)
             {
-                renderQueue = new (Model model, Shader shader, Transformation transform, ShaderParameter[] shaderParameters)[16];
+                renderQueue = new RenderQueueElement[16];
             }
 
-            renderQueue[renderQueueLength] = (model, shader, transform, shaderParameters);
+            renderQueue[renderQueueLength] = new RenderQueueElement() { model = model, shader = shader, transform = transform, shaderParameters = shaderParameters};
             renderQueueLength += 1;
             if (renderQueueLength >= renderQueue.Length)
             {
@@ -105,7 +114,7 @@ namespace Disaster
                     new Color(255, 255, 255, 255)
                 );
             }
-            Raylib.EndShaderMode();
+            //Raylib.EndShaderMode();
             renderQueueLength = 0;
         }
         

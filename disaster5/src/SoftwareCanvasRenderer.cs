@@ -12,7 +12,7 @@ namespace Disaster
 
         public SoftwareCanvasRenderer(Shader shader)
         {
-            texture = Raylib.LoadTextureFromImage(Raylib.GenImageChecked(320, 240, 16, 16, Color.BLUE, Color.BROWN));
+            texture = Raylib.LoadTextureFromImage(Raylib.GenImageChecked(ScreenController.screenWidth, ScreenController.screenHeight, 16, 16, Color.BLUE, Color.BROWN));
             Raylib.SetTextureFilter(texture, TextureFilter.TEXTURE_FILTER_POINT);
 
             this.shader = shader;

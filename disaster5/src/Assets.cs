@@ -160,6 +160,7 @@ namespace Disaster
             if (audio == null) audio = new Dictionary<string, Sound>();
             if (music == null) music = new Dictionary<string, Music>();
             if (texts == null) texts = new Dictionary<string, string>();
+            if (models == null) models = new Dictionary<string, Model>();
             if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
             if (scripts.ContainsKey(path)) { scripts.Remove(path); }
             if (audio.ContainsKey(path)) { audio.Remove(path); }
@@ -261,6 +262,7 @@ namespace Disaster
                 }
 
                 var image = Raylib.LoadImage(pixelBufferPath);
+                Raylib.ImageFormat(ref image, PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 
                 Color32[] pixels = new Color32[image.width * image.height];
                 unsafe
