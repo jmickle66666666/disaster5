@@ -100,7 +100,6 @@ namespace Disaster
                     pointer,
                     ShaderUniformDataType.SHADER_UNIFORM_VEC4
                 );
-                Marshal.FreeHGlobal(pointer);
             }
             
             Raylib.DrawTexturePro(

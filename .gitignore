@@ -365,3 +365,5 @@ FodyWeavers.xsd
 # LUNA: Rider
 
 .idea
+
+builds/*

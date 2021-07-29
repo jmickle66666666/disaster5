@@ -135,6 +135,10 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "line3d")]
+        [FunctionDescription("Draw a 3d line!")]
+        [ArgumentDescription("start", "start position", "{x, y, z}")]
+        [ArgumentDescription("end", "end position", "{x, y, z}")]
+        [ArgumentDescription("color", "line color", "{r, g, b, a}")]
         public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Line(
