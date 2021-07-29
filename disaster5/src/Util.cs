@@ -1,6 +1,7 @@
 // extra stuff
 using System.Numerics;
 using System;
+using Raylib_cs;
 
 namespace Disaster
 {
@@ -87,6 +88,11 @@ namespace Disaster
                 float t = (plane.D - Vector3.Dot(plane.Normal, ray.position)) / denom;
                 Vector3 hitPoint = ray.position + ray.direction * t;
                 return new Raylib_cs.RayHitInfo() { hit = 1, distance = t, normal = plane.Normal, position = hitPoint };
+            //} else if (denom < 0.00001f)
+            //{
+            //    float t = (plane.D - Vector3.Dot(plane.Normal, ray.position)) / denom;
+            //    Vector3 hitPoint = ray.position + ray.direction * t;
+            //    return new Raylib_cs.RayHitInfo() { hit = 1, distance = t, normal = -plane.Normal, position = hitPoint };
             } else
             {
                 return new Raylib_cs.RayHitInfo() { hit = 0 };
@@ -95,7 +101,64 @@ namespace Disaster
 
         public static Plane CreatePlaneFromPositionNormal(Vector3 position, Vector3 normal)
         {
+            normal = Vector3.Normalize(normal);
             return new Plane(normal, Vector3.Dot(position, normal));
+        }
+
+        public static bool IntersectSegmentPlane(Vector3 a, Vector3 b, Plane p, out float t, out Vector3 intersection)
+        {
+            // Compute the t value for the directed line ab intersecting the plane
+            Vector3 ab = b - a;
+            t = (p.D - Vector3.Dot(p.Normal, a)) / Vector3.Dot(p.Normal, ab);
+            // If t in [0..1] compute and return intersection point
+            if (t >= 0.0f && t <= 1.0f)
+            {
+                intersection = a + t * ab;
+                return true;
+            }
+            // Else no intersection
+            intersection = Vector3.Zero;
+            return false;
+
+        }
+
+        public static RenderTexture2D LoadRenderTexture(int width, int height)
+        {
+            RenderTexture2D target = new RenderTexture2D();
+
+            target.id = Rlgl.rlLoadFramebuffer(width, height);   // Load an empty framebuffer
+
+            if (target.id > 0)
+            {
+                Rlgl.rlEnableFramebuffer(target.id);
+
+                // Create color texture (default to RGBA)
+                target.texture.id = Rlgl.rlLoadTexture(IntPtr.Zero, width, height, PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1);
+                target.texture.width = width;
+                target.texture.height = height;
+                target.texture.format = PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+                target.texture.mipmaps = 1;
+
+                // Create depth renderbuffer/texture
+                target.depth.id = Rlgl.rlLoadTextureDepth(width, height, false);
+                target.depth.width = width;
+                target.depth.height = height;
+                target.depth.format = (PixelFormat)19;       //DEPTH_COMPONENT_24BIT?
+                target.depth.mipmaps = 1;
+
+                // Attach color texture and depth renderbuffer/texture to FBO
+                
+                Rlgl.rlFramebufferAttach(target.id, target.texture.id, FramebufferAttachType.RL_ATTACHMENT_COLOR_CHANNEL0, FramebufferAttachTextureType.RL_ATTACHMENT_TEXTURE2D, 0);
+                Rlgl.rlFramebufferAttach(target.id, target.depth.id, FramebufferAttachType.RL_ATTACHMENT_DEPTH, FramebufferAttachTextureType.RL_ATTACHMENT_TEXTURE2D, 0);
+
+                // Check if fbo is complete with attachments (valid)
+                //if (Rlgl.rlFramebufferComplete(target.id)) TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
+
+                Rlgl.rlDisableFramebuffer();
+            }
+            //else TRACELOG(LOG_WARNING, "FBO: Framebuffer object can not be created");
+
+            return target;
         }
     }
 

@@ -134,6 +134,21 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(colorStart), Disaster.TypeInterface.Color32(colorEnd));
         }
 
+        [JSFunction(Name = "line3d")]
+        [FunctionDescription("Draw a 3d line!")]
+        [ArgumentDescription("start", "start position", "{x, y, z}")]
+        [ArgumentDescription("end", "end position", "{x, y, z}")]
+        [ArgumentDescription("color", "line color", "{r, g, b, a}")]
+        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
+        {
+            Disaster.SoftwareCanvas.Line(
+                Disaster.TypeInterface.Vector3(start),
+                Disaster.TypeInterface.Vector3(end),
+                Disaster.TypeInterface.Color32(color),
+                Disaster.TypeInterface.Color32(color)
+            );
+        }
+
         [JSFunction(Name = "worldToScreenPoint")]
         [FunctionDescription("Transform a point from world position to screen position.", "{x, y}")]
         [ArgumentDescription("position", "World position to transform", "{x, y, z}")]
@@ -189,7 +204,7 @@ namespace DisasterAPI
             var col = Disaster.TypeInterface.Color32(color);
 
             var model = Disaster.Assets.Model(modelPath);
-            
+
             unsafe
             {
                 var mesh = ((Raylib_cs.Mesh*)model.meshes.ToPointer())[0];

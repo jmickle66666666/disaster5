@@ -100,5 +100,13 @@ namespace DisasterAPI
             Disaster.Assets.models.Add(hash.ToString(), model);
             return hash.ToString();
         }
+
+        //[JSFunction(Name = "getMeshData")]
+        //[FunctionDescription("Returns an object containing a meshes data.")]
+        //[ArgumentDescription("meshReference", "Path to the mesh to retrieve")]
+        //public ObjectInstance GetMeshData(string meshReference)
+        //{
+
+        //}
     }
 }

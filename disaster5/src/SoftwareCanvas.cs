@@ -13,7 +13,7 @@ namespace Disaster
 {
     public class SoftwareCanvas
     {
-        public static IntPtr drawTexture;
+        //public static IntPtr drawTexture;
         public static int textureWidth;
         public static int textureHeight;
         public static Color32[] colorBuffer;
@@ -530,6 +530,45 @@ namespace Disaster
             }
         }
 
+        public static void Line(Vector3 start, Vector3 end, Color32 colorStart, Color32 colorEnd)
+        {
+            Vector3 cameraNormal = Vector3.Normalize(ScreenController.camera.target - ScreenController.camera.position);
+
+            float dotStart = Vector3.Dot(
+                Vector3.Normalize(start - ScreenController.camera.position), 
+                cameraNormal
+            );
+
+            float dotEnd = Vector3.Dot(
+                Vector3.Normalize(end - ScreenController.camera.position),
+                cameraNormal
+            );
+
+            if (dotStart < 0f && dotEnd < 0f) return;
+
+            if (Util.IntersectSegmentPlane(
+                start, 
+                end, 
+                Util.CreatePlaneFromPositionNormal(ScreenController.camera.position, cameraNormal),
+                out float _,
+                out Vector3 intersection))
+            {
+                Console.WriteLine("gotit");
+                if (dotStart < 0f)
+                {
+                    end = intersection;
+                } else
+                {
+                    start = intersection;
+                }
+            }
+
+            Vector2 start2d = WorldToScreenPoint(start);
+            Vector2 end2d = WorldToScreenPoint(end);
+
+            Line(start2d, end2d, dotStart > 0 ? Colors.red : Colors.slimegreen, dotEnd > 0 ? Colors.red : Colors.slimegreen);
+        }
+
         public static void FillRect(int x, int y, int width, int height, Color32 color)
         {
             if (x >= textureWidth) return;
@@ -722,7 +761,6 @@ namespace Disaster
             {
                 if (maxWidth != -1)
                 {
-                    int l = 0;
                     for (int j = 0; j < lines[i].Length; j+= maxWidth)
                     {
                         Text(x, y + (line * fontHeight), color, lines[i].Substring(j, Math.Min(lines[i].Length-j, maxWidth)));

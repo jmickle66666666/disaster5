@@ -187,6 +187,15 @@ namespace Disaster
             return output.ToArray();
         }
 
+        //public unsafe static ObjectInstance Object(Model model)
+        //{
+            //var mesh = ((Mesh*)model.meshes)[0];
+            //var output = JS.instance.engine.Object.Construct();
+            //output.SetPropertyValue("position", Object(model.position), true);
+            //output.SetPropertyValue("direction", Object(model.direction), true);
+            //return output;
+        //}
+
         public static Model Model(ObjectInstance input)
         {
             Mesh output = new Mesh();
@@ -226,6 +235,10 @@ namespace Disaster
                     texture = Assets.PixelBuffer((string)texturePath).texture;
                 }
                 SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_DIFFUSE, ref texture);
+            } else
+            {
+                var texture = PixelBuffer.missing.texture;
+                SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_DIFFUSE, ref texture);
             }
             
             return model;
@@ -256,7 +269,7 @@ namespace Disaster
             short[] output = new short[(uint)input.GetPropertyValue("length")];
             for (uint i = 0; i < output.Length; i++)
             {
-                output[i] = (short)(int)input.GetPropertyValue(i);
+                output[i] = (short)GetInt(input.GetPropertyValue(i));
             }
             return output;
         }

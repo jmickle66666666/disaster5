@@ -36,6 +36,15 @@ namespace DisasterAPI
             Disaster.JS.instance.Reset();
         }
 
+        [JSFunction(Name ="reloadShaders")]
+        [FunctionDescription("Reload all shaders without resetting the engine.")]
+        public static void ReloadShaders()
+        {
+            Disaster.Assets.shaders.Clear();
+            Disaster.Assets.assignedDefaultShader = false;
+            Disaster.ScreenController.instance.ReloadShader();
+        }
+
         [JSFunction(Name = "quit")]
         [FunctionDescription("Quit the game.")]
         public static void Quit()
@@ -86,6 +95,16 @@ namespace DisasterAPI
             {
                 Raylib.HideCursor();
             }
+        }
+
+        [JSFunction(Name = "setResolution")]
+        [FunctionDescription("Set the screen resolution")]
+        [ArgumentDescription("width", "sometimes i don't know what to write in here cause the variable name says everything already")]
+        [ArgumentDescription("height", "i do'nt think it a PROBLEM to have a redundant description but its difficult to write them")]
+        [ArgumentDescription("scale", "integer scaling for the screen")]
+        public static void SetResolution(int width, int height, int scale)
+        {
+            Disaster.ScreenController.instance.Resize(width, height, scale);
         }
     }
 

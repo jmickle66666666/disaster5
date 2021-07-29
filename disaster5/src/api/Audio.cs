@@ -14,7 +14,9 @@ namespace DisasterAPI
         [ArgumentDescription("audioPath", "path to the audio asset to play")]
         public void PlayMusic(string audioPath)
         {
-            Raylib.PlayMusicStream(Disaster.Assets.Music(audioPath));
+            var music = Disaster.Assets.Music(audioPath);
+            
+            Disaster.MusicController.PlayMusic(music);
         }
 
         public static int maxChannels = 64;

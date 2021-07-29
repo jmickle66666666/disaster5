@@ -34,13 +34,18 @@ namespace DisasterAPI
 
             return Disaster.TypeInterface.Object(
                 Raylib.GetMouseRay(
-                    new Vector2(x / ratioW, y / ratioH), 
+                    new Vector2(x / ratioW, y / ratioH),
                     Disaster.ScreenController.camera
                 )
             );
         }
 
         [JSFunction(Name = "getCollisionRayModel")]
+        [FunctionDescription("Cast a ray against a model at a specified position and rotation", "{hit, distance, position, normal}")]
+        [ArgumentDescription("ray", "Ray to cast against the model", "{position, direction}")]
+        [ArgumentDescription("position", "Position of the model", "{x, y, z}")]
+        [ArgumentDescription("rotation", "Rotation of the model in euler angles", "{x, y, z}")]
+        [ArgumentDescription("modelPath", "Path of the model to cast against")]
         public static ObjectInstance GetCollisionRayModel(ObjectInstance ray, ObjectInstance position, ObjectInstance rotation, string modelPath)
         {
             var rayo = Disaster.TypeInterface.Ray(ray);
@@ -51,13 +56,16 @@ namespace DisasterAPI
             rayo.direction = Vector3.TransformNormal(rayo.direction, inverse);
             //model.transform = transform;
             
-            var output = Raylib.GetCollisionRayModel(rayo, model);
+            RayHitInfo output = Raylib.GetCollisionRayModel(rayo, model);
             
             //model.transform = Matrix4x4.Identity;
             return Disaster.TypeInterface.Object(output);
         }
 
         [JSFunction(Name = "getCollisionRayPlane")]
+        [FunctionDescription("Cast a ray against a plane", "{hit, distance, position, normal}")]
+        [ArgumentDescription("ray", "Ray to cast against the plane", "{position, direction}")]
+        [ArgumentDescription("plane", "Position and normal of the plane", "{position: {x, y, z}, normal: {x, y, z}}")]
         public static ObjectInstance GetCollisionRayPlane(ObjectInstance ray, ObjectInstance plane)
         {
             return Disaster.TypeInterface.Object(
