@@ -162,6 +162,7 @@ namespace Disaster
 
         public static void Unload(string path)
         {
+            path = Reslash(path);
             if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (audio == null) audio = new Dictionary<string, Sound>();
@@ -174,16 +175,7 @@ namespace Disaster
             if (music.ContainsKey(path)) { music.Remove(path); }
             if (texts.ContainsKey(path)) { texts.Remove(path); }
             if (shaders.ContainsKey(path)) { Raylib.UnloadShader(shaders[path]); shaders.Remove(path); }
-            if (models.ContainsKey(path))
-            {
-                unsafe
-                {
-                    Mesh* meshes = (Mesh*)models[path].meshes.ToPointer();
-                    Raylib.UnloadMesh(ref meshes[0]);
-                }
-                models.Remove(path);
-            }
-            GC.Collect();
+            if (models.ContainsKey(path)) { models.Remove(path); }
         }
 
         public static void Preload(string path)
