@@ -1,4 +1,8 @@
 == features ==
+- sound volume
+- music volume
+- sound panning
+- sound pitch?
 - load new post processing shader
 
 == bugs ==

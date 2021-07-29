@@ -122,6 +122,13 @@ namespace Disaster
             }
         }
 
+        public static string Reslash(string path)
+        {
+            path = path.Replace('/', Path.AltDirectorySeparatorChar);
+            path = path.Replace('\\', Path.AltDirectorySeparatorChar);
+            return path;
+        }
+
         public static bool Loaded(string path)
         {
             if (scripts != null && scripts.ContainsKey(path)) return true;
@@ -217,6 +224,7 @@ namespace Disaster
 
         public static Shader Shader(string path)
         {
+            path = Reslash(path);
             if (shaders == null) shaders = new Dictionary<string, Shader>();
             if (!shaders.ContainsKey(path))
             {
@@ -237,6 +245,7 @@ namespace Disaster
 
         public static string Text(string path)
         {
+            path = Reslash(path);
             if (texts == null) texts = new Dictionary<string, string>();
             if (!texts.ContainsKey(path))
             {
@@ -253,6 +262,7 @@ namespace Disaster
 
         public static PixelBuffer PixelBuffer(string path)
         {
+            path = Reslash(path);
             if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
             if (!pixelBuffers.ContainsKey(path))
             {
@@ -288,6 +298,7 @@ namespace Disaster
 
         public static Model Model(string path)
         {
+            path = Reslash(path);
             if (models == null) models = new Dictionary<string, Model>();
             if (!models.ContainsKey(path))
             {
@@ -304,6 +315,7 @@ namespace Disaster
 
         public static ObjectInstance Script(string path)
         {
+            path = Reslash(path);
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (!scripts.ContainsKey(path))
             {
@@ -316,6 +328,7 @@ namespace Disaster
 
         public static ObjectInstance LoadScript(string path)
         {
+            path = Reslash(path);
             if (!LoadPath(path, out string scriptPath))
             {
                 return null;
@@ -348,6 +361,7 @@ namespace Disaster
 
         public static Music Music(string path)
         {
+            path = Reslash(path);
             if (music == null) music = new Dictionary<string, Music>();
             if (!music.ContainsKey(path))
             {
@@ -363,6 +377,7 @@ namespace Disaster
 
         public static Sound Audio(string path)
         {
+            path = Reslash(path);
             if (audio == null) audio = new Dictionary<string, Sound>();
             if (!audio.ContainsKey(path))
             {
