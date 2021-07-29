@@ -14,3 +14,8 @@
 - embed default shader
 - default main.js script
 - ignore post processing when not found
+
+== 3d editor ==
+- delete part
+- clone part
+- fix selection overlap issue
