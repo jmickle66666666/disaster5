@@ -1,0 +1,12 @@
+== features ==
+- load new post processing shader
+
+== bugs ==
+- pass screen size/window size into post processing shader
+
+== load without content ==
+- test this more
+- embed default font
+- embed default shader
+- default main.js script
+- ignore post processing when not found
