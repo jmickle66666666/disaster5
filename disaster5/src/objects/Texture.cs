@@ -7,7 +7,7 @@ namespace DisasterAPI
     {
         public Texture(ScriptEngine engine, string assetID) : base(engine)
         {
-            //this.pixelBuffer = Disaster.Assets.PixelBuffer(assetID);
+            this.pixelBuffer = Disaster.Assets.PixelBuffer(assetID);
             this.PopulateFunctions();
             this.SetPropertyValue("assetID", assetID, true);
             this.SetPropertyValue("width", pixelBuffer.width, true);
@@ -16,8 +16,7 @@ namespace DisasterAPI
         }
 
         private string assetID;
-
-        Disaster.PixelBuffer pixelBuffer { get { return Disaster.Assets.pixelBuffers[assetID]; } }
+        Disaster.PixelBuffer pixelBuffer;
 
         [JSFunction(Name="getPixels")]
         public ObjectInstance GetPixels()
@@ -29,6 +28,7 @@ namespace DisasterAPI
         public void SetPixels(ArrayInstance colors)
         {
             pixelBuffer.SetPixels(Disaster.TypeInterface.Color32Array(colors));
+            Disaster.Assets.pixelBuffers[assetID] = pixelBuffer;
         }
 
         [JSFunction(Name ="startBuffer")]
