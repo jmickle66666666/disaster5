@@ -13,6 +13,7 @@ namespace DisasterAPI
 
 
         [JSProperty(Name = "timescale")]
+        [PropertyDescription("Global game speed modifier. 1.0 = Default. 0.5 = half speed")]
         public static double timescale
         {
             get

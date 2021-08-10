@@ -12,6 +12,7 @@ namespace ScriptingDocGenerator
     class Program
     {
         static List<FunctionDefinition> Functions = new List<FunctionDefinition>();
+        static List<PropertyDefinition> Properties = new List<PropertyDefinition>();
         static void Main(string[] args)
         {
             Assembly asm = Assembly.LoadFrom("disaster5");
@@ -24,8 +25,16 @@ namespace ScriptingDocGenerator
 
                     if (attr != null)
                     {
-                        var ja = ((Jurassic.Library.JSFunctionAttribute)attr);
                         Functions.Add(new FunctionDefinition(type, method));
+                    }
+                }
+
+                foreach (var property in type.GetProperties())
+                {
+                    Attribute attr = property.GetCustomAttribute<Jurassic.Library.JSPropertyAttribute>();
+                    if (attr != null)
+                    {
+                        Properties.Add(new PropertyDefinition(type, property));
                     }
                 }
             }
@@ -54,7 +63,7 @@ namespace ScriptingDocGenerator
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            HTMLOutput.OutputHTML(Functions);
+            HTMLOutput.OutputHTML(Functions, Properties);
             MarkdownOutput.OutputHTML(Functions);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
                 

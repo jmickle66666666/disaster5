@@ -30,10 +30,18 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Clear();
         }
 
-        [JSProperty(Name = "fontHeight")] public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
-        [JSProperty(Name = "fontWidth")] public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
-        [JSProperty(Name = "screenWidth")] public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
-        [JSProperty(Name = "screenHeight")] public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
+        [JSProperty(Name = "fontHeight")] 
+        [PropertyDescription("Height, in pixels, of the currently loaded font.")]
+        public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
+        [JSProperty(Name = "fontWidth")]
+        [PropertyDescription("Width, in pixels, of the currently loaded font.")]
+        public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
+        [JSProperty(Name = "screenWidth")]
+        [PropertyDescription("Width, in pixels, of the screen resolution.")] 
+        public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
+        [JSProperty(Name = "screenHeight")]
+        [PropertyDescription("Height, in pixels, of the screen resolution.")]
+        public static int screenHeight { get { return Disaster.ScreenController.screenHeight; } }
 
         [JSFunction(Name = "offset")]
         [FunctionDescription("Set a global offset for 2D rendering.")]
@@ -277,7 +285,9 @@ namespace DisasterAPI
         [FunctionDescription("Finish drawing to a pixel buffer and return a reference to the new texture.")]
         public static string EndBuffer()
         {
-            return Disaster.SoftwareCanvas.EndBuffer();
+            string output = Disaster.SoftwareCanvas.CreateAssetFromBuffer();
+            Disaster.SoftwareCanvas.EndBuffer();
+            return output;
         }
 
         [JSFunction(Name = "texture")]

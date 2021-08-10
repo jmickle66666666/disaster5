@@ -50,7 +50,10 @@ namespace Disaster {
             {
                 DisasterAPI.Input.Update();
                 
-                updateFunction.Call(null, deltaTime);
+                if (updateFunction != null)
+                {
+                    updateFunction.Call(engine.Global, deltaTime);
+                }
             }
             catch (JavaScriptException e)
             {
@@ -58,10 +61,12 @@ namespace Disaster {
                 {
                     SoftwareCanvas.LoadFont(fontPath);
                 }
-                string message = $"line:{e.LineNumber} {e.Message}\nPress R to restart";
+                string message = $"{e.Message}\nPress R to restart";
+                if (e is JavaScriptException)
+                {
+                    message = $"line:{((JavaScriptException)e).LineNumber} {e.Message}\nPress R to restart";
+                }
 
-                //Program.LoadingMessage(message, new Color32(255, 50, 0));
-                //Program.LoadingMessage("press R to reload", new Color32(255, 50, 0));
                 int x = 32;
                 int y = 32;
                 int chars = 32;
@@ -108,6 +113,7 @@ namespace Disaster {
             engine.SetGlobalValue("Engine", new DisasterAPI.Engine(engine));
             engine.SetGlobalValue("Assets", new DisasterAPI.Assets(engine));
             engine.SetGlobalValue("Physics", new DisasterAPI.Physics(engine));
+            engine.SetGlobalValue("Key", new DisasterAPI.Key(engine));
         }
 
         void LoadScripts()
@@ -117,19 +123,52 @@ namespace Disaster {
             engine = new ScriptEngine();
 
             LoadStandardFunctions(engine);
-        
-            try
+
+            if (Assets.PathExists("main.js")) { 
+                try
+                {
+                    engine.Execute(
+                        File.ReadAllText(Path.Combine(Assets.basePath, "main.js"))
+                    );
+                    updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
+                } catch (Exception e)
+                {
+                    Program.LoadingMessage(e.Message);
+                }
+            } 
+            else
             {
-                engine.Execute(
-                    File.ReadAllText(Path.Combine(Assets.basePath, "main.js"))
-                );
-            } catch (Exception e)
-            {
-                Program.LoadingMessage(e.Message);
+                // load default script here
+                try
+                {
+                    engine.Execute(defaultScript);
+                }
+                catch (Exception e)
+                {
+                    Program.LoadingMessage(e.Message);
+                }
+                updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
             }
 
-            updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
         }
+
+        static string defaultScript = @"
+var x = 10;
+var y = 0;
+var xmov = 1;
+var ymov = 1;
+var speed = 35;
+Draw.clear();
+function update(dt) {
+    Draw.text(x, y, 'no data loaded!', {r:Math.floor(Math.random()*255), g:Math.floor(Math.random()*255), b:Math.floor(Math.random()*255)});
+    x += dt * speed * xmov;
+    y += dt * speed * ymov;
+if (x > 232) xmov = -1;
+if (x < 0) xmov = 1;
+if (y > 232) ymov = -1;
+if (y < 0) ymov = 1;
+}
+";
 
     }
 

@@ -44,15 +44,30 @@ namespace Disaster
                 CameraProjection.CAMERA_PERSPECTIVE
             );
 
-            drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen"));
-            postProcessShader = Assets.Shader("shaders/postprocess");
-
+            ReloadShader();
         }
 
         public void ReloadShader()
         {
-            drawScreen.shader = Assets.Shader("shaders/screen");
-            postProcessShader = Assets.Shader("shaders/postprocess");
+            if (Assets.PathExists("shaders/screen.vert") && Assets.PathExists("shaders/screen.frag"))
+            {
+                drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen"));
+            }
+            else
+            {
+                Console.WriteLine("loading backup software shader");
+                drawScreen = new SoftwareCanvasRenderer(Raylib.LoadMaterialDefault().shader);
+            }
+
+            if (Assets.PathExists("shaders/postprocess.vert") && Assets.PathExists("shaders/postprocess.frag"))
+            {
+                postProcessShader = Assets.Shader("shaders/postprocess");
+            }
+            else
+            {
+                Console.WriteLine("loading backup postprocess shader");
+                postProcessShader = Raylib.LoadMaterialDefault().shader;
+            }
         }
 
         public void Resize(int width, int height, int scale)

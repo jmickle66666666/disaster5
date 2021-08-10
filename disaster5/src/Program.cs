@@ -5,6 +5,9 @@ using System.IO;
 using System.Collections.Generic;
 using Raylib_cs;
 using System.Numerics;
+using System.Reflection;
+using System.Resources;
+using System.Runtime.InteropServices;
 
 namespace Disaster
 {
@@ -15,7 +18,11 @@ namespace Disaster
         static void LoadConfig()
         {
             string basedir = "";
-            string[] lines = File.ReadAllLines("disaster.cfg");
+            string[] lines = new string[] { };
+            if (File.Exists("disaster.cfg"))
+            {
+                lines = File.ReadAllLines("disaster.cfg");
+            }
 
             foreach (var line in lines)
             {
@@ -67,17 +74,21 @@ namespace Disaster
             Raylib.InitAudioDevice();
 
             Console.WriteLine($"Welcome to disaster engine");
+            LoadConfig();
 
             // software renderer initialisation
             SoftwareCanvas.InitTexture(320, 240);
-            LoadConfig();
             // TODO: bake in a default font! so you can't end up with no font at all
             if (Assets.LoadPath("lib/fontsmall.png", out string fontPath))
             {
                 SoftwareCanvas.LoadFont(fontPath);
+            } else
+            {
+                Console.WriteLine("load default font here");
+                SoftwareCanvas.LoadDefaultFont();
             }
-
             screen = new ScreenController(320, 240, 2);
+
             LoadingMessage("disaster engine 5.0");
             LoadingMessage("(c) jazz mickle ultramegacorp 2021");
             LoadingMessage("initialised screen");

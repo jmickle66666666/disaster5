@@ -14,12 +14,14 @@ namespace DisasterAPI
         }
 
         [JSProperty(Name = "mouseX")]
+        [PropertyDescription("X position of the mouse on the screen")]
         public static int mouseX
         {
             get { return (int) mousePosition.X; }
         }
 
         [JSProperty(Name = "mouseY")]
+        [PropertyDescription("Y position of the mouse on the screen")]
         public static int mouseY
         {
             get { return (int)mousePosition.Y; }
@@ -39,15 +41,29 @@ namespace DisasterAPI
             Raylib_cs.Raylib.EnableCursor();
         }
 
-        [JSProperty(Name = "mouseLeft")] public static bool mouseLeft { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON); } }
-        [JSProperty(Name = "mouseLeftDown")] public static bool mouseLeftDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON); } }
-        [JSProperty(Name = "mouseLeftUp")] public static bool mouseLeftUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON); } }
+        [JSProperty(Name = "mouseLeft")]
+        [PropertyDescription("Whether the left mouse button is currently pressed.")]
+        public static bool mouseLeft { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON); } }
+        [JSProperty(Name = "mouseLeftDown")]
+        [PropertyDescription("Whether the left mouse button was pressed on this frame.")]
+        public static bool mouseLeftDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_LEFT_BUTTON); } }
+        [JSProperty(Name = "mouseLeftUp")]
+        [PropertyDescription("Whether the left mouse button was released on this frame.")] 
+        public static bool mouseLeftUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON); } }
         
-        [JSProperty(Name = "mouseRight")] public static bool mouseRight { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_RIGHT_BUTTON); } }
-        [JSProperty(Name = "mouseRightDown")] public static bool mouseRightDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_RIGHT_BUTTON); } }
-        [JSProperty(Name = "mouseRightUp")] public static bool mouseRightUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_RIGHT_BUTTON); } }
+        [JSProperty(Name = "mouseRight")]
+        [PropertyDescription("Whether the right mouse button is currently pressed.")] 
+        public static bool mouseRight { get { return Raylib.IsMouseButtonDown(MouseButton.MOUSE_RIGHT_BUTTON); } }
+        [JSProperty(Name = "mouseRightDown")]
+        [PropertyDescription("Whether the right mouse button was pressed on this frame.")] 
+        public static bool mouseRightDown { get { return Raylib.IsMouseButtonPressed(MouseButton.MOUSE_RIGHT_BUTTON); } }
+        [JSProperty(Name = "mouseRightUp")]
+        [PropertyDescription("Whether the right mouse button was released on this frame.")] 
+        public static bool mouseRightUp { get { return Raylib.IsMouseButtonReleased(MouseButton.MOUSE_RIGHT_BUTTON); } }
 
-        [JSProperty(Name = "mouseWheel")] public static double mouseWheel { get { return Raylib.GetMouseWheelMove(); } }
+        [JSProperty(Name = "mouseWheel")]
+        [PropertyDescription("How much has the mousewheel been moved this frame.")]
+        public static double mouseWheel { get { return Raylib.GetMouseWheelMove(); } }
 
         public static void Update()
         {
@@ -95,6 +111,7 @@ namespace DisasterAPI
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
 
         [JSProperty(Name = "inputString")]
+        [PropertyDescription("Alpha-numeric characters that have been typed this frame.")]
         public static string InputString
         {
             get { return _inputString; }
@@ -104,6 +121,7 @@ namespace DisasterAPI
 
         public static bool _anyKeyDown = false;
         [JSProperty(Name = "anyKeyDown")]
+        [PropertyDescription("Whether any key has been pressed this frame.")]
         public static bool anyKeyDown
         {
             get

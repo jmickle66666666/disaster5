@@ -11,6 +11,7 @@ using Raylib_cs;
 
 namespace Disaster
 {
+
     public class SoftwareCanvas
     {
         //public static IntPtr drawTexture;
@@ -46,12 +47,13 @@ namespace Disaster
 
         public static string[] SplitLineToFitScreen(string message)
         {
-            int necessaryLines = 1 + (message.Length / MaxTextLength());
+            int maxLength = MaxTextLength();
+            int necessaryLines = 1 + (message.Length / maxLength);
             string[] output = new string[necessaryLines];
             for (int i = 0; i < necessaryLines; i++)
             {
-                int end = (int)MathF.Min(message.Length - (i * MaxTextLength()), MaxTextLength());
-                output[i] = message.Substring(i * MaxTextLength(), end);
+                int end = (int)MathF.Min(message.Length - (i * maxLength), maxLength);
+                output[i] = message.Substring(i * maxLength, end);
             }
             return output;
         }
@@ -82,7 +84,6 @@ namespace Disaster
                 fontBuffer = cachedFont.data;
                 return;
             }
-
             var image = Raylib.LoadImage(fontPath);
 
             fontWidth = image.width;
@@ -108,6 +109,39 @@ namespace Disaster
             fontHeight = image.height / 8;
 
             fontCache.Add(fontPath, (fontWidth, fontHeight, fontBuffer));
+        }
+
+        // this outputs the loaded font as base64 and prints it
+        // its hardcoded to work with the actual default font i use
+        public static void OutputFont()
+        {
+            BitArray fontBitArray = new BitArray(fontWidth * fontHeight * 16 * 8);
+            for (int i = 0; i < fontWidth * 16; i++)
+            {
+                for (int j = 0; j < fontHeight * 8; j++)
+                {
+                    fontBitArray[i + (j * fontWidth*16)] = fontBuffer[i, j];
+                }
+            }
+            byte[] fontBytes = new byte[fontBitArray.Length / 8];
+            fontBitArray.CopyTo(fontBytes, 0);
+            string output = Convert.ToBase64String(fontBytes);
+            Console.WriteLine(output);
+        }
+
+        static string DEFAULT_FONT_BASE64 = "AAAAAAAAwAEAAAAAAQYAAAAAAAIAAAAAhxMchkMoifMghAAASRIwQaJURiIQBAEASZIMQRJFRkIQAAEAh3E4RxJFSfIIAAIAAAAAAQAAAAAQBNEAAAAAAQAAAAAghGABAAAAAAAcAGAAAAAAAAAAABAgAJAAAAAAgGMYjhE4iYAUQpQYQJIESTAkiYAUQZQkQJIEyRMkiYAMQZUkgHEYjmE4BwAUwXIYCBAACAAAgYAEAQAABBAACAAAAQAEAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8gZMYhEFEkfE4kAMAQZEkRKJsURIICAIAQZIgRBJVCiIIBAIAR3IYRBJFhEMIBAIASZIERBJFSoIIAqIAh3E4XxJFUfI4gUMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATnIYxxMYyWEkT5QYQ5IkSRAkiZAkQZQk1ZMESRA0iYAUQZQkVXIEyXEEj4AMQdUkk5IkSRAkiYAUwbYkDnMYx/MYyfEkQZQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxvEYiGEEhgEMBCAYiSAkSJIESSIIhmMAiUAgD5IICQIAA8AYiYAQwnEQhiMIhmMgyZAkRBAgSQIABCAkhmAYyOM8hgEAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAEoROYBiAAABEAEAAB8jrYABAEQAAAIAAEoHPEBBgM4gAMIAAEoB2EABqMQAAAQAKF8zvIQBEEAAAAQAKEoxGQQiKAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        public static void LoadDefaultFont()
+        {
+            var bytes = Convert.FromBase64String(DEFAULT_FONT_BASE64);
+            var bitArray = new BitArray(bytes);
+            fontWidth = 6;
+            fontHeight = 8;
+            fontBuffer = new bool[16 * fontWidth, 8 * fontHeight];
+            for (int i = 0; i < bitArray.Length; i++)
+            {
+                fontBuffer[i % (fontWidth * 16), i / (fontWidth * 16)] = bitArray[i];
+            }
+            fontCache.Add("default", (fontWidth, fontHeight, fontBuffer));
         }
 
         public static void Clear()
@@ -896,7 +930,20 @@ namespace Disaster
             overdrawBuffer = new int[width * height];
         }
 
-        public static string EndBuffer()
+        public static void StartBuffer(PixelBuffer pixelBuffer)
+        {
+            tempBuffer = colorBuffer;
+            tempWidth = textureWidth;
+            tempHeight = textureHeight;
+
+            textureWidth = pixelBuffer.width;
+            textureHeight = pixelBuffer.height;
+
+            colorBuffer = pixelBuffer.pixels;
+            overdrawBuffer = new int[textureWidth * textureHeight];
+        }
+
+        public static string CreateAssetFromBuffer()
         {
             var output = new PixelBuffer(colorBuffer, textureWidth);
             var hashnum = output.GetHashCode();
@@ -905,17 +952,16 @@ namespace Disaster
                 hashnum += 1;
             }
             var hash = hashnum.ToString();
+            Assets.pixelBuffers.Add(hash, output);
+            return hash;
+        }
 
+        public static void EndBuffer()
+        {
             colorBuffer = tempBuffer;
             textureWidth = tempWidth;
             textureHeight = tempHeight;
             overdrawBuffer = new int[textureWidth * textureHeight];
-
-            Assets.pixelBuffers.Add(hash, output);
-
-            return hash;
         }
-
-
     }
 }

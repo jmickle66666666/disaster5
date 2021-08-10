@@ -14,7 +14,7 @@ namespace DisasterAPI
         [ArgumentDescription("path", "path for asset")]
         public bool Exists(string path)
         {
-            return Disaster.Assets.LoadPath(path, out _);
+            return Disaster.Assets.PathExists(path);
         }
 
         [JSFunction(Name = "loaded")]
@@ -82,9 +82,17 @@ namespace DisasterAPI
             return output;
         }
 
+        [JSFunction(Name ="getTexture")]
+        [FunctionDescription("Returns a Texture object from the given asset path.")]
+        [ArgumentDescription("path", "Path of the texture")]
+        public Texture GetTexture(string path)
+        {
+            return new Texture(Disaster.JS.instance.engine, path);
+        }
+
         [JSFunction(Name = "createMesh")]
         [FunctionDescription("Creates a new mesh object and returns a reference for it.")]
-        [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices [, indices, uvs, uv2s, normals, tangents, colors]}")]
+        [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices [, indices, uvs, uv2s, normals, tangents, colors, texture]}")]
         public string CreateMesh(ObjectInstance meshData)
         {
             Raylib_cs.Model model = Disaster.TypeInterface.Model(meshData);

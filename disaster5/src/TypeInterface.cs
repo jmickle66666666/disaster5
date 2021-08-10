@@ -23,6 +23,16 @@ namespace Disaster
             return new Color32(R, G, B, A);
         }
 
+        public static ObjectInstance Object(Color32 input)
+        {
+            var output = JS.instance.engine.Object.Construct();
+            output.SetPropertyValue("r", (double)input.r, true);
+            output.SetPropertyValue("g", (double)input.g, true);
+            output.SetPropertyValue("b", (double)input.b, true);
+            output.SetPropertyValue("a", (double)input.a, true);
+            return output;
+        }
+
         public static Vector4 Vector4(ObjectInstance input)
         {
             float X = 0, Y = 0, Z = 0, W = 0;
@@ -227,7 +237,7 @@ namespace Disaster
             if (input.TryGetPropertyValue("texture", out object texturePath))
             {
                 Texture2D texture;
-                if (!Assets.LoadPath((string)texturePath, out _))
+                if (!Assets.PathExists((string)texturePath))
                 {
                     texture = PixelBuffer.missing.texture;
                 } else
@@ -311,6 +321,16 @@ namespace Disaster
             for (var i = 0; i < output.Length; i++)
             {
                 output[i] = Color32((ObjectInstance)input.GetPropertyValue((uint)i));
+            }
+            return output;
+        }
+
+        public static ObjectInstance Object(Color32[] input)
+        {
+            var output = JS.instance.engine.Array.Construct();
+            for (var i = 0; i < input.Length; i++)
+            {
+                output.Push(Object(input[i]));
             }
             return output;
         }

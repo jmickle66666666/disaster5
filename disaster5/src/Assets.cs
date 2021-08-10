@@ -36,6 +36,22 @@ namespace Disaster
             this.texture = texture;
         }
 
+        public void SetPixels(Color32[] pixels)
+        {
+            if (pixels.Length != width * height)
+            {
+                Console.WriteLine($"Incorrect amount of pixels set on pixelbuffer: Expected {width * height} Got {pixels.Length}");
+                return;
+            }
+            var image = Raylib.GenImageColor(width, height, Color.MAGENTA);
+            unsafe
+            {
+                pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, width * height * 4));
+            }
+            this.pixels = pixels;
+            this.texture = Raylib.LoadTextureFromImage(image);
+        }
+
         private static PixelBuffer _missing;
         private static bool _missingDefined = false;
         public static PixelBuffer missing
@@ -73,7 +89,7 @@ namespace Disaster
 
     public class Assets
     {
-        public static string basePath;
+        public static string basePath = "";
 
         static List<string> missingAssetPaths;
 
@@ -102,8 +118,15 @@ namespace Disaster
             }
         }
 
+        public static bool PathExists(string path)
+        {
+            path = Path.Combine(basePath, Reslash(path));
+            return File.Exists(path);
+        }
+
         public static bool LoadPath(string path, out string assetPath)
         {
+            path = Reslash(path);
             var output = Path.Combine(basePath, path);
             assetPath = output;
             if (!File.Exists(output))
