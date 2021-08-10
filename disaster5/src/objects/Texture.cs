@@ -7,7 +7,6 @@ namespace DisasterAPI
     {
         public Texture(ScriptEngine engine, string assetID) : base(engine)
         {
-            if (!Disaster.Assets.PathExists(assetID)) System.Console.WriteLine("can't fined it??");
             this.pixelBuffer = Disaster.Assets.PixelBuffer(assetID);
             this.PopulateFunctions();
             this.SetPropertyValue("assetID", assetID, true);

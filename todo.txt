@@ -9,7 +9,7 @@
 - change reset hotkey to engine-level, set/disable it from js
 
 == bugs ==
-
+- error in the middle of a buffer will crash
 - Draw.endBuffer doesn't check textures dictionary exists
 
 - SYNTAX ERRORS CAUSING CRASH
