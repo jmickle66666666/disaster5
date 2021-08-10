@@ -7,14 +7,17 @@ namespace DisasterAPI
     {
         public Texture(ScriptEngine engine, string assetID) : base(engine)
         {
-            this.pixelBuffer = Disaster.Assets.PixelBuffer(assetID);
+            //this.pixelBuffer = Disaster.Assets.PixelBuffer(assetID);
             this.PopulateFunctions();
             this.SetPropertyValue("assetID", assetID, true);
             this.SetPropertyValue("width", pixelBuffer.width, true);
             this.SetPropertyValue("height", pixelBuffer.height, true);
+            this.assetID = assetID;
         }
 
-        Disaster.PixelBuffer pixelBuffer;
+        private string assetID;
+
+        Disaster.PixelBuffer pixelBuffer { get { return Disaster.Assets.pixelBuffers[assetID]; } }
 
         [JSFunction(Name="getPixels")]
         public ObjectInstance GetPixels()
