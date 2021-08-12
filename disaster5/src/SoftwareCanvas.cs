@@ -27,8 +27,7 @@ namespace Disaster
         public static int fontHeight;
         //public static IntPtr pixels;
 
-        public static int offsetX;
-        public static int offsetY;
+        public static Vector2Int offset;
 
         public static Color32 clear = new Color32() { r = 0, g = 0, b = 0, a = 0 };
 
@@ -165,8 +164,8 @@ namespace Disaster
             rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
             rect.height = Math.Clamp(rect.height, 0, texture.height - rect.y);
 
-            x += offsetX;
-            y += offsetY;
+            x += offset.x;
+            y += offset.y;
 
             int sx = (int)rect.x;
             int sy = (int)rect.y;
@@ -212,8 +211,8 @@ namespace Disaster
             rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
             rect.height = Math.Clamp(rect.height, 0, texture.height - rect.y);
 
-            x += offsetX;
-            y += offsetY;
+            x += offset.x;
+            y += offset.y;
 
             int sx = (int)rect.x;
             int sy = (int)rect.y;
@@ -293,6 +292,12 @@ namespace Disaster
         
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, Color32 color)
         {
+            x1 += offset.x;
+            y1 += offset.y;
+            x2 += offset.x;
+            y2 += offset.y;
+            x3 += offset.x;
+            y3 += offset.y;
             Vector2[] points = new Vector2[]
             {
                 new Vector2(x1, y1),
@@ -399,6 +404,8 @@ namespace Disaster
 
         static void PutPixel(int i, int j, Color32 color)
         {
+            i += offset.x;
+            j += offset.y;
             if (j >= 0 && i >= 0 && i < textureWidth && j < textureHeight)
             {
                 int index = j * textureWidth + i;
@@ -414,6 +421,8 @@ namespace Disaster
 
         public static void CircleFilled(int x, int y, float radius, Color32 color)
         {
+            x += offset.x;
+            y += offset.y;
             int r = (int)radius + 1;
             int minx = x - r;
             int maxx = x + r;
@@ -447,8 +456,8 @@ namespace Disaster
 
         public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
         {
-            x1 += offsetX;
-            y1 += offsetY;
+            x1 += offset.x;
+            y1 += offset.y;
 
             Line(x1, y1, x1 + width - 1, y1, color);
             Line(x1 + width - 1, y1, x1 + width - 1, y1 + height - 1, color);
@@ -501,10 +510,10 @@ namespace Disaster
 
         public static void Line(int x0, int y0, int x1, int y1, Color32 color)
         {
-            x0 += offsetX;
-            y0 += offsetY;
-            x1 += offsetX;
-            y1 += offsetY;
+            x0 += offset.x;
+            y0 += offset.y;
+            x1 += offset.x;
+            y1 += offset.y;
 
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -532,10 +541,10 @@ namespace Disaster
 
         public static void Line(int x0, int y0, int x1, int y1, Color32 color0, Color32 color1)
         {
-            x0 += offsetX;
-            y0 += offsetY;
-            x1 += offsetX;
-            y1 += offsetY;
+            x0 += offset.x;
+            y0 += offset.y;
+            x1 += offset.x;
+            y1 += offset.y;
 
             float maxDist = Vector2.Distance(new Vector2(x0, y0), new Vector2(x1, y1));
 
@@ -608,8 +617,8 @@ namespace Disaster
             if (x >= textureWidth) return;
             if (y >= textureHeight) return;
 
-            x += offsetX;
-            y += offsetY;
+            x += offset.x;
+            y += offset.y;
 
             int x2 = x + width;
             int y2 = y + height;
@@ -719,10 +728,6 @@ namespace Disaster
         //     }
         // }
 
-        // public static void DrawMesh(Mesh mesh, Matrix4x4 matrix, Color32 color) {
-        //     DrawMesh(mesh, matrix, Vector3.zero, color);
-        // }
-
         public static unsafe void Wireframe(Mesh mesh, Matrix4x4 matrix, Color32 color, bool backfaceCulling, bool depth, bool filled)
         {
             var verts = (Vector3*)mesh.vertices;
@@ -818,8 +823,8 @@ namespace Disaster
 
         static void Character(int x, int y, int character, Color32 color)
         {
-            x += offsetX;
-            y += offsetY;
+            x += offset.x;
+            y += offset.y;
 
             int charX = (character % 16) * fontWidth;
             int charY = (int)(MathF.Floor(character / 16));
@@ -850,8 +855,8 @@ namespace Disaster
 
         public static void Pixel(int x, int y, Color32 color)
         {
-            x += offsetX;
-            y += offsetY;
+            x += offset.x;
+            y += offset.y;
 
             colorBuffer[PointToBufferIndex(x, y)] = color;
             overdrawBuffer[PointToBufferIndex(x, y)] += 1;
@@ -871,32 +876,6 @@ namespace Disaster
                 }
             }
         }
-
-        // public static (bool broke, Vector2Int point) WorldToScreenPoint2(Vector3 position)
-        // {
-        //     var point = Camera.main.WorldToScreenPoint(position);
-
-        //     return (point.z<0, new Vector2Int(
-        //         Mathf.FloorToInt(textureWidth * point.x / Camera.main.pixelWidth),
-        //         Mathf.FloorToInt(textureHeight * point.y / Camera.main.pixelHeight)
-        //     ));
-        // }
-
-        // public static Vector2Int WorldToScreenPoint(Vector3 position)
-        // {
-        //     var point = Camera.main.WorldToScreenPoint(position);
-
-        //     // This is still super broke
-        //     if (point.z < 0) {
-        //         point.x *= point.z;
-        //         point.y *= point.z;
-        //     }
-
-        //     return new Vector2Int(
-        //         Mathf.FloorToInt(textureWidth * point.x / Camera.main.pixelWidth),
-        //         Mathf.FloorToInt(textureHeight * point.y / Camera.main.pixelHeight)
-        //     );
-        // }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int PointToBufferIndex(int x, int y)
@@ -947,6 +926,7 @@ namespace Disaster
         {
             var output = new PixelBuffer(colorBuffer, textureWidth);
             var hashnum = output.GetHashCode();
+            if (Assets.pixelBuffers == null) Assets.pixelBuffers = new Dictionary<string, PixelBuffer>();
             while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
             {
                 hashnum += 1;

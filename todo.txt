@@ -10,13 +10,11 @@
 
 == bugs ==
 - error in the middle of a buffer will crash
-- Draw.endBuffer doesn't check textures dictionary exists
 
 - SYNTAX ERRORS CAUSING CRASH
 var pl = [{x: 64, y : 64, g : 1}, {x: 128, y : 128, g : 1}, {x: 256, y : 256, g : 1}]];
 
 - pass screen size/window size into post processing shader
-- Draw.offset doesn't affect Draw.circle
 
 == load without content ==
 - test this more

@@ -49,8 +49,8 @@ namespace DisasterAPI
         [ArgumentDescription("y", "Pixels in the y axis to offset by")]
         public static void Offset(int x, int y)
         {
-            Disaster.SoftwareCanvas.offsetX = x;
-            Disaster.SoftwareCanvas.offsetY = y;
+            Disaster.SoftwareCanvas.offset.x = x;
+            Disaster.SoftwareCanvas.offset.y = y;
         }
 
 
