@@ -7,6 +7,7 @@
 - potentially move vector stuff to c# api
 - put palette in c# api
 - change reset hotkey to engine-level, set/disable it from js
+- gamepad support
 
 == bugs ==
 - error in the middle of a buffer will crash

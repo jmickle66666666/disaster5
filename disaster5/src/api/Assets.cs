@@ -83,7 +83,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name ="getTexture")]
-        [FunctionDescription("Returns a Texture object from the given asset path.")]
+        [FunctionDescription("Returns a Texture object from the given asset path. The Texture section below outlines the texture API")]
         [ArgumentDescription("path", "Path of the texture")]
         public Texture GetTexture(string path)
         {
