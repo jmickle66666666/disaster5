@@ -76,6 +76,7 @@ namespace Disaster
                         pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, mw * mh * 4));
                     }
                     _missing = new PixelBuffer(pixels, mw);
+                    _missingDefined = true;
                 }
                 return _missing;
             }
