@@ -262,13 +262,7 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(int x, int y, ObjectInstance colors, int width)
         {
-            int len = (int)colors.GetPropertyValue("length");
-            Disaster.Color32[] color32s = new Disaster.Color32[len];
-            for (int i = 0; i < len; i++)
-            {
-                color32s[i] = Disaster.TypeInterface.Color32((ObjectInstance)colors.GetPropertyValue(i));
-            }
-            var pixelBuffer = new Disaster.PixelBuffer(color32s, width);
+            var pixelBuffer = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width);
             Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
         }
 
