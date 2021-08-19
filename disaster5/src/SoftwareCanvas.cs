@@ -456,9 +456,6 @@ namespace Disaster
 
         public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
         {
-            x1 += offset.x;
-            y1 += offset.y;
-
             Line(x1, y1, x1 + width - 1, y1, color);
             Line(x1 + width - 1, y1, x1 + width - 1, y1 + height - 1, color);
             Line(x1 + width - 1, y1 + height - 1, x1, y1 + height - 1, color);
