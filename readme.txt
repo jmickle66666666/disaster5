@@ -17,7 +17,7 @@
 
 disaster engine version 5
 
-c# sdl opengl game engine by jazz "danger" mickle
+c# raylib game engine by jazz "danger" mickle
 
 contributors:
 Luna 'Ryuko' Zaremba -- https://lunaryuko.space/
