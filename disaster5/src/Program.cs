@@ -66,8 +66,15 @@ namespace Disaster
             }
             screen.Update();
         }
+
         static void Main(string[] args)
         {
+            if (Array.IndexOf(args, "-h") != -1 || Array.IndexOf(args, "--help") != -1)
+            {
+                Console.WriteLine("usage: disaster.exe [basepath]");
+                return;
+            }
+
             //Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ALL);
             Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
             
@@ -75,6 +82,10 @@ namespace Disaster
 
             Console.WriteLine($"Welcome to disaster engine");
             LoadConfig();
+
+            // handle arguments
+            // arg0 = basepath override
+            Assets.basePath = args[0];
 
             // software renderer initialisation
             SoftwareCanvas.InitTexture(320, 240);

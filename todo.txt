@@ -19,10 +19,7 @@ var pl = [{x: 64, y : 64, g : 1}, {x: 128, y : 128, g : 1}, {x: 256, y : 256, g 
 
 == load without content ==
 - test this more
-- embed default font
-- embed default shader
 - embed default model shader
-- default main.js script
 - ignore post processing when not found
 
 == 3d editor ==
