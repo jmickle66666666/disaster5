@@ -22,6 +22,10 @@ namespace Disaster
             if (File.Exists("disaster.cfg"))
             {
                 lines = File.ReadAllLines("disaster.cfg");
+            } else
+            {
+                Console.WriteLine("Can't find disaster.cfg");
+                Console.WriteLine("working path: " + Directory.GetCurrentDirectory());
             }
 
             foreach (var line in lines)
@@ -85,7 +89,10 @@ namespace Disaster
 
             // handle arguments
             // arg0 = basepath override
-            Assets.basePath = args[0];
+            if (args.Length > 0)
+            {
+                Assets.basePath = args[0];
+            }
 
             // software renderer initialisation
             SoftwareCanvas.InitTexture(320, 240);

@@ -3,20 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishTrimmed>true</PublishTrimmed>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	  <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-
-
+	<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+	<ApplicationIcon>exclam.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <!-- <ItemGroup>
-    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>4</VersionMinor>
-      <VersionMajor>2</VersionMajor>
-      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
-    </COMReference>
-  </ItemGroup> -->
 
   <ItemGroup>
     <PackageReference Include="Jurassic" Version="3.2.4" />
