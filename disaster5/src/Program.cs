@@ -91,6 +91,7 @@ namespace Disaster
             // arg0 = basepath override
             if (args.Length > 0)
             {
+                Console.WriteLine($"Loading basepath from argument: {args[0]}");
                 Assets.basePath = args[0];
             }
 

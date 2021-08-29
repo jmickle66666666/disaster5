@@ -57,40 +57,43 @@ namespace Disaster {
             }
             catch (JavaScriptException e)
             {
-                if (Assets.LoadPath("fontsmall.png", out string fontPath))
-                {
-                    SoftwareCanvas.LoadFont(fontPath);
-                }
-                string message = $"{e.Message}\nPress R to restart";
-                if (e is JavaScriptException)
-                {
-                    message = $"line:{((JavaScriptException)e).LineNumber} {e.Message}\nPress R to restart";
-                }
-
-                int x = 32;
-                int y = 32;
-                int chars = 32;
-                int lines = ((message.Length / chars) + message.Count(f => f == '\n')) + 2;
-
-                SoftwareCanvas.FillRect(x-4, y-4, chars * SoftwareCanvas.fontWidth + 8, lines * SoftwareCanvas.fontHeight + 8, new Color32(255, 180, 0));
-                
-                for (int i = x-4; i < x + chars * SoftwareCanvas.fontWidth + 4; i++)
-                {
-                    for (int j = y - 4; j < y + lines * SoftwareCanvas.fontHeight + 4; j++)
-                    {
-                        if ((i + j) % 6 < 3)
-                        {
-                            SoftwareCanvas.Pixel(i, j, new Color32(0, 0, 0));
-                        }
-                    }
-                }
-                
-                SoftwareCanvas.FillRect(x-1, y-1, chars * SoftwareCanvas.fontWidth + 2, lines * SoftwareCanvas.fontHeight + 2, new Color32(12, 12, 12));
-
-                SoftwareCanvas.Paragraph(x, y, new Color32(255, 50, 0), message, chars);
-                stopped = true;
+                ShowException(e);
             }
             
+        }
+
+        void ShowException(Exception e)
+        {
+            SoftwareCanvas.LoadDefaultFont();
+
+            string message = $"{e.Message}\nPress R to restart";
+            if (e is JavaScriptException)
+            {
+                message = $"line:{((JavaScriptException)e).LineNumber} {e.Message}\nPress R to restart";
+            }
+
+            int x = 32;
+            int y = 32;
+            int chars = 32;
+            int lines = ((message.Length / chars) + message.Count(f => f == '\n')) + 2;
+
+            SoftwareCanvas.FillRect(x - 4, y - 4, chars * SoftwareCanvas.fontWidth + 8, lines * SoftwareCanvas.fontHeight + 8, new Color32(255, 180, 0));
+
+            for (int i = x - 4; i < x + chars * SoftwareCanvas.fontWidth + 4; i++)
+            {
+                for (int j = y - 4; j < y + lines * SoftwareCanvas.fontHeight + 4; j++)
+                {
+                    if ((i + j) % 6 < 3)
+                    {
+                        SoftwareCanvas.Pixel(i, j, new Color32(0, 0, 0));
+                    }
+                }
+            }
+
+            SoftwareCanvas.FillRect(x - 1, y - 1, chars * SoftwareCanvas.fontWidth + 2, lines * SoftwareCanvas.fontHeight + 2, new Color32(12, 12, 12));
+
+            SoftwareCanvas.Paragraph(x, y, new Color32(255, 50, 0), message, chars);
+            stopped = true;
         }
 
         public static void LoadStandardFunctions(ScriptEngine engine)
@@ -133,7 +136,9 @@ namespace Disaster {
                     updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
                 } catch (Exception e)
                 {
-                    Program.LoadingMessage(e.Message);
+                    ShowException(e);
+                    //Program.LoadingMessage($"{e.Message}");
+                    //Console.WriteLine(e.StackTrace);
                 }
             } 
             else
@@ -145,7 +150,9 @@ namespace Disaster {
                 }
                 catch (Exception e)
                 {
-                    Program.LoadingMessage(e.Message);
+                    ShowException(e);
+                    //Program.LoadingMessage($"{e.Message}");
+                    //Console.WriteLine(e.StackTrace);
                 }
                 updateFunction = engine.GetGlobalValue<Jurassic.Library.FunctionInstance>("update");
             }
