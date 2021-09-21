@@ -107,6 +107,12 @@ namespace DisasterAPI
         {
             Disaster.ScreenController.instance.Resize(width, height, scale);
         }
+
+        [JSFunction(Name = "getTime")]
+        public static double GetTime()
+        {
+            return (double)System.DateTime.Now.Ticks/ (double)System.TimeSpan.TicksPerSecond;
+        }
     }
 
 }

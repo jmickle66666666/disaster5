@@ -27,5 +27,18 @@ namespace DisasterAPI
         {
             Console.WriteLine(message);
         }
+
+        [JSFunction(Name = "ilAnalysis")]
+        [FunctionDescription("Return the disassembled IL of a script after compilation. Useful for debugging hopefully")]
+        [ArgumentDescription("sourcePath", "path to the script to analyze")]
+        public string ILAnalysis(string sourcePath)
+        {
+            var options = new Jurassic.Compiler.CompilerOptions();
+            options.EnableILAnalysis = true;
+            
+            var script = CompiledScript.Compile(new StringScriptSource(Disaster.Assets.Text(sourcePath)), options);
+            
+            return script.DisassembledIL;
+        }
     }
 }

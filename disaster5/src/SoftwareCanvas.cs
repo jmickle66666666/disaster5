@@ -196,7 +196,13 @@ namespace Disaster
 
                     // Draw to screen
                     int index = ((j + y) * textureWidth) + (i + x);
-                    colorBuffer[index] = tcol;
+                    if (tcol.a == 255)
+                    {
+                        colorBuffer[index] = tcol;
+                    } else
+                    {
+                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], tcol, tcol.a);
+                    }
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -265,7 +271,14 @@ namespace Disaster
 
                     // Draw to screen
                     int index = ((targetY + y) * textureWidth) + (targetX + x);
-                    colorBuffer[index] = tcol;
+                    if (tcol.a == 255)
+                    {
+                        colorBuffer[index] = tcol;
+                    }
+                    else
+                    {
+                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], tcol, tcol.a);
+                    }
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -383,7 +396,14 @@ namespace Disaster
                         int index = j * textureWidth + i;
                         if (index >= 0 && index < colorBuffer.Length)
                         {
-                            colorBuffer[index] = color;
+                            if (color.a == 255)
+                            {
+                                colorBuffer[index] = color;
+                            }
+                            else
+                            {
+                                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                            }
                             overdrawBuffer[index] += 1;
                             maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                             SlowDraw();
@@ -419,7 +439,14 @@ namespace Disaster
                 int index = j * textureWidth + i;
                 if (index >= 0 && index < colorBuffer.Length)
                 {
-                    colorBuffer[index] = color;
+                    if (color.a == 255)
+                    {
+                        colorBuffer[index] = color;
+                    }
+                    else
+                    {
+                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                    }
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -451,7 +478,14 @@ namespace Disaster
                             int index = j * textureWidth + i;
                             if (index >= 0 && index < colorBuffer.Length)
                             {
-                                colorBuffer[index] = color;
+                                if (color.a == 255)
+                                {
+                                    colorBuffer[index] = color;
+                                }
+                                else
+                                {
+                                    colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                                }
                                 overdrawBuffer[index] += 1;
                                 maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                                 SlowDraw();
@@ -531,7 +565,14 @@ namespace Disaster
                     int index = y0 * textureWidth + x0;
                     if (index >= 0 && index < colorBuffer.Length)
                     {
-                        colorBuffer[index] = color;
+                        if (color.a == 255)
+                        {
+                            colorBuffer[index] = color;
+                        }
+                        else
+                        {
+                            colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                        }
                         overdrawBuffer[index] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                         SlowDraw();
@@ -565,7 +606,15 @@ namespace Disaster
                     float t = Vector2.Distance(new Vector2(x1, y1), new Vector2(x0, y0)) / maxDist;
                     if (index >= 0 && index < colorBuffer.Length)
                     {
-                        colorBuffer[index] = Color32.Lerp(color1, color0, t);
+                        var color = Color32.Lerp(color1, color0, t);
+                        if (color.a == 255)
+                        {
+                            colorBuffer[index] = color;
+                        }
+                        else
+                        {
+                            colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                        }
                         overdrawBuffer[index] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                         SlowDraw();
@@ -848,7 +897,14 @@ namespace Disaster
                         int index = PointToBufferIndex(x + i, y + j);
                         if (index >= 0 && index < colorBuffer.Length)
                         {
-                            colorBuffer[index] = color;
+                            if (color.a == 255)
+                            {
+                                colorBuffer[index] = color;
+                            }
+                            else
+                            {
+                                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+                            }
                             overdrawBuffer[index] += 1;
                             maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                             SlowDraw();
@@ -862,10 +918,19 @@ namespace Disaster
         {
             x += offset.x;
             y += offset.y;
+            int index = PointToBufferIndex(x, y);
 
-            colorBuffer[PointToBufferIndex(x, y)] = color;
-            overdrawBuffer[PointToBufferIndex(x, y)] += 1;
-            maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[PointToBufferIndex(x, y)]);
+            if (color.a == 255)
+            {
+                colorBuffer[index] = color;
+            }
+            else
+            {
+                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
+            }
+            
+            overdrawBuffer[index] += 1;
+            maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
             SlowDraw();
         }
 

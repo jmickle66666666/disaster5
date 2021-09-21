@@ -19,13 +19,13 @@ namespace Disaster
         {
             string basedir = "";
             string[] lines = new string[] { };
-            if (File.Exists("disaster.cfg"))
+            if (File.Exists("settings.cfg"))
             {
-                lines = File.ReadAllLines("disaster.cfg");
+                lines = File.ReadAllLines("settings.cfg");
             } else
             {
-                Console.WriteLine("Can't find disaster.cfg");
-                Console.WriteLine("working path: " + Directory.GetCurrentDirectory());
+                Console.WriteLine("Can't find settings.cfg");
+                //Console.WriteLine("working path: " + Directory.GetCurrentDirectory());
             }
 
             foreach (var line in lines)
@@ -84,14 +84,14 @@ namespace Disaster
             
             Raylib.InitAudioDevice();
 
-            Console.WriteLine($"Welcome to disaster engine");
+            //Console.WriteLine($"Welcome to disaster engine");
             LoadConfig();
 
             // handle arguments
             // arg0 = basepath override
             if (args.Length > 0)
             {
-                Console.WriteLine($"Loading basepath from argument: {args[0]}");
+                //Console.WriteLine($"Loading basepath from argument: {args[0]}");
                 Assets.basePath = args[0];
             }
 
@@ -108,9 +108,9 @@ namespace Disaster
             }
             screen = new ScreenController(320, 240, 2);
 
-            LoadingMessage("disaster engine 5.0");
-            LoadingMessage("(c) jazz mickle ultramegacorp 2021");
-            LoadingMessage("initialised screen");
+            //LoadingMessage("disaster engine 5.0");
+            //LoadingMessage("(c) jazz mickle ultramegacorp 2021");
+            //LoadingMessage("initialised screen");
             var js = new JS();
 
             Debug.enabled = false;
