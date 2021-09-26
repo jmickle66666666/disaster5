@@ -116,7 +116,7 @@ namespace Disaster
             Debug.enabled = false;
 
             Raylib.SetExitKey(KeyboardKey.KEY_HOME);
-            while (!Raylib.WindowShouldClose())
+            while (!Raylib.WindowShouldClose() && running)
             {
                 MusicController.Update();
                 Debug.FrameStart();
