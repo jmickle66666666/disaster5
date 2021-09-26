@@ -84,6 +84,10 @@ namespace DisasterAPI
                 _anyKeyDown = true;
             }
 
+            if (Raylib.GetGamepadButtonPressed() != -1) {
+                _anyKeyDown = true;
+            }
+
             _inputString = "";
             var c = Raylib.GetCharPressed();
             while (c != 0)
@@ -109,6 +113,38 @@ namespace DisasterAPI
         [FunctionDescription("Check if a key has been released this frame")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
+
+        [JSProperty(Name = "leftThumbstickX")]
+        [PropertyDescription("Left thumbstick X axis value [-1...1]")]
+        public static double leftThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_X); } }
+        [JSProperty(Name = "leftThumbstickY")]
+        [PropertyDescription("Left thumbstick Y axis value [-1...1]")]
+        public static double leftThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_Y); } }
+        [JSProperty(Name = "rightThumbstickX")]
+        [PropertyDescription("Right thumbstick X axis value [-1...1]")]
+        public static double rightThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_X); } }
+        [JSProperty(Name = "rightThumbstickY")]
+        [PropertyDescription("Left thumbstick X axis value [-1...1]")]
+        public static double rightThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_Y); } }
+        [JSProperty(Name = "leftTrigger")]
+        [PropertyDescription("Left trigger value [0...1]")]
+        public static double leftTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_TRIGGER)) + 1 / 2); } }
+        [JSProperty(Name = "rightTrigger")]
+        [PropertyDescription("Left trigger value [0...1]")]
+        public static double rightTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_TRIGGER)) + 1 / 2); } }
+        
+        [JSFunction(Name = "getButton")]
+        [FunctionDescription("Check if a gamepad button is held")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetButton(int button) { return Raylib.IsGamepadButtonDown(0, padCodes[button]); }
+        [JSFunction(Name = "getButtonDown")]
+        [FunctionDescription("Check if a gamepad button has been pressed this frame")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetButtonDown(int button) { return Raylib.IsGamepadButtonPressed(0, padCodes[button]); }
+        [JSFunction(Name = "getButtonUp")]
+        [FunctionDescription("Check if a gamepad button has been released this frame")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetButtonUp(int button) { return Raylib.IsGamepadButtonReleased(0, padCodes[button]); }
 
         [JSProperty(Name = "inputString")]
         [PropertyDescription("Alpha-numeric characters that have been typed this frame.")]
@@ -212,6 +248,30 @@ namespace DisasterAPI
             KeyboardKey.KEY_RIGHT_ALT,
             KeyboardKey.KEY_LEFT_SHIFT,
             KeyboardKey.KEY_RIGHT_SHIFT,
+        };
+
+        public static GamepadButton[] padCodes = new GamepadButton[]
+        {
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_UP,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_DOWN,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_UP,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_DOWN,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_LEFT_TRIGGER_1,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_TRIGGER_1,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_TRIGGER_2,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_TRIGGER_2,
+
+            GamepadButton.GAMEPAD_BUTTON_MIDDLE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_MIDDLE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_LEFT_THUMB,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_THUMB,
         };
 
     }
