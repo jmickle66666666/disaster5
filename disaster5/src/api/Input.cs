@@ -1,6 +1,7 @@
 //using SDL2;
 using Jurassic;
 using Jurassic.Library;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Raylib_cs;
@@ -114,24 +115,25 @@ namespace DisasterAPI
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
 
+        // Jayrude: Use GamepadAxis values - 1 due to a Raylib-cs bug (see Raylib-cs issue #93)
         [JSProperty(Name = "leftThumbstickX")]
         [PropertyDescription("Left thumbstick X axis value [-1...1]")]
-        public static double leftThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_X); } }
+        public static double leftThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_X - 1); } }
         [JSProperty(Name = "leftThumbstickY")]
         [PropertyDescription("Left thumbstick Y axis value [-1...1]")]
-        public static double leftThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_Y); } }
+        public static double leftThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_Y - 1); } }
         [JSProperty(Name = "rightThumbstickX")]
         [PropertyDescription("Right thumbstick X axis value [-1...1]")]
-        public static double rightThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_X); } }
+        public static double rightThumbstickX { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_X - 1); } }
         [JSProperty(Name = "rightThumbstickY")]
         [PropertyDescription("Left thumbstick X axis value [-1...1]")]
-        public static double rightThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_Y); } }
+        public static double rightThumbstickY { get { return (double) Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_Y - 1); } }
         [JSProperty(Name = "leftTrigger")]
         [PropertyDescription("Left trigger value [0...1]")]
-        public static double leftTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_TRIGGER)) + 1 / 2); } }
+        public static double leftTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_LEFT_TRIGGER - 1)) + 1 / 2); } }
         [JSProperty(Name = "rightTrigger")]
         [PropertyDescription("Left trigger value [0...1]")]
-        public static double rightTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_TRIGGER)) + 1 / 2); } }
+        public static double rightTrigger { get { return (double) ((Raylib.GetGamepadAxisMovement(0, GamepadAxis.GAMEPAD_AXIS_RIGHT_TRIGGER - 1)) + 1 / 2); } }
         
         [JSFunction(Name = "getButton")]
         [FunctionDescription("Check if a gamepad button is held")]
