@@ -116,6 +116,15 @@ namespace DisasterAPI
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
 
         // Jayrude: Use GamepadAxis values - 1 due to a Raylib-cs bug (see Raylib-cs issue #93)
+        [JSFunction(Name = "getGamepadAvailable")]
+        [FunctionDescription("Check if a gamepad is available for use")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static bool GetGamepadAvailable(int gamepad) { return Raylib.IsGamepadAvailable(gamepad); }
+        [JSFunction(Name = "getGamepadName")]
+        [FunctionDescription("Internal gamepad name")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static string GetGamepadName(int gamepad) { return Raylib.GetGamepadName(gamepad); }
+
         [JSFunction(Name = "getLeftThumbstickX")]
         [FunctionDescription("Left thumbstick X axis value [-1...1]")]
         [ArgumentDescription("gamepad", "gamepad index")]
