@@ -117,6 +117,7 @@ namespace Disaster {
             engine.SetGlobalValue("Assets", new DisasterAPI.Assets(engine));
             engine.SetGlobalValue("Physics", new DisasterAPI.Physics(engine));
             engine.SetGlobalValue("Key", new DisasterAPI.Key(engine));
+            engine.SetGlobalValue("Gamepad", new DisasterAPI.Gamepad(engine));
         }
 
         void LoadScripts()

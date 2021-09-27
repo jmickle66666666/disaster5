@@ -1,6 +1,7 @@
 //using SDL2;
 using Jurassic;
 using Jurassic.Library;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Raylib_cs;
@@ -84,6 +85,10 @@ namespace DisasterAPI
                 _anyKeyDown = true;
             }
 
+            if (Raylib.GetGamepadButtonPressed() != -1) {
+                _anyKeyDown = true;
+            }
+
             _inputString = "";
             var c = Raylib.GetCharPressed();
             while (c != 0)
@@ -109,6 +114,57 @@ namespace DisasterAPI
         [FunctionDescription("Check if a key has been released this frame")]
         [ArgumentDescription("key", "key code to test (see keycodes.js)")]
         public static bool GetKeyUp(int key) { return Raylib.IsKeyReleased(keyCodes[key]); }
+
+        // Jayrude: Use GamepadAxis values - 1 due to a Raylib-cs bug (see Raylib-cs issue #93)
+        [JSFunction(Name = "getGamepadAvailable")]
+        [FunctionDescription("Check if a gamepad is available for use")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static bool GetGamepadAvailable(int gamepad) { return Raylib.IsGamepadAvailable(gamepad); }
+        [JSFunction(Name = "getGamepadName")]
+        [FunctionDescription("Internal gamepad name")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static string GetGamepadName(int gamepad) { return Raylib.GetGamepadName(gamepad); }
+
+        [JSFunction(Name = "getLeftThumbstickX")]
+        [FunctionDescription("Left thumbstick X axis value [-1...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetLeftThumbstickX(int gamepad) { return (double) Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_LEFT_X - 1); }
+        [JSFunction(Name = "getLeftThumbstickY")]
+        [FunctionDescription("Left thumbstick Y axis value [-1...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetLeftThumbstickY(int gamepad) { return (double) Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_LEFT_Y - 1); }
+        [JSFunction(Name = "getRightThumbstickX")]
+        [FunctionDescription("Right thumbstick X axis value [-1...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetRightThumbstickX(int gamepad) { return (double) Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_RIGHT_X - 1); }
+        [JSFunction(Name = "getRightThumbstickY")]
+        [FunctionDescription("Left thumbstick X axis value [-1...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetRightThumbstickY(int gamepad) { return (double) Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_RIGHT_Y - 1); }
+        [JSFunction(Name = "getLeftTrigger")]
+        [FunctionDescription("Left trigger value [0...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetLeftTrigger(int gamepad) { return (double) ((Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_LEFT_TRIGGER - 1)) + 1 / 2); }
+        [JSFunction(Name = "getRightTrigger")]
+        [FunctionDescription("Left trigger value [0...1]")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        public static double GetRightTrigger(int gamepad) { return (double) ((Raylib.GetGamepadAxisMovement(gamepad, GamepadAxis.GAMEPAD_AXIS_RIGHT_TRIGGER - 1)) + 1 / 2); }
+        
+        [JSFunction(Name = "getGamepadButton")]
+        [FunctionDescription("Check if a gamepad button is held")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetGamepadButton(int gamepad, int button) { return Raylib.IsGamepadButtonDown(gamepad, padCodes[button]); }
+        [JSFunction(Name = "getGamepadButtonDown")]
+        [FunctionDescription("Check if a gamepad button has been pressed this frame")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetGamepadButtonDown(int gamepad, int button) { return Raylib.IsGamepadButtonPressed(gamepad, padCodes[button]); }
+        [JSFunction(Name = "getGamepadButtonUp")]
+        [FunctionDescription("Check if a gamepad button has been released this frame")]
+        [ArgumentDescription("gamepad", "gamepad index")]
+        [ArgumentDescription("button", "button code to test")]
+        public static bool GetGamepadButtonUp(int gamepad, int button) { return Raylib.IsGamepadButtonReleased(gamepad, padCodes[button]); }
 
         [JSProperty(Name = "inputString")]
         [PropertyDescription("Alpha-numeric characters that have been typed this frame.")]
@@ -212,6 +268,30 @@ namespace DisasterAPI
             KeyboardKey.KEY_RIGHT_ALT,
             KeyboardKey.KEY_LEFT_SHIFT,
             KeyboardKey.KEY_RIGHT_SHIFT,
+        };
+
+        public static GamepadButton[] padCodes = new GamepadButton[]
+        {
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_UP,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_DOWN,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_FACE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_UP,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_DOWN,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_FACE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_LEFT_TRIGGER_1,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_TRIGGER_1,
+            GamepadButton.GAMEPAD_BUTTON_LEFT_TRIGGER_2,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_TRIGGER_2,
+
+            GamepadButton.GAMEPAD_BUTTON_MIDDLE_LEFT,
+            GamepadButton.GAMEPAD_BUTTON_MIDDLE_RIGHT,
+
+            GamepadButton.GAMEPAD_BUTTON_LEFT_THUMB,
+            GamepadButton.GAMEPAD_BUTTON_RIGHT_THUMB,
         };
 
     }
