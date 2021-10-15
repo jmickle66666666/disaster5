@@ -48,6 +48,7 @@ namespace Disaster
                 if (!Raylib.IsSoundPlaying(playingSounds[i]))
                 {
                     soundsToRemove.Add(playingSounds[i]);
+                    Raylib.UnloadSound(playingSounds[i]);
                 }
             }
 
@@ -88,6 +89,11 @@ namespace Disaster
             for (var i = 0; i < playingSounds.Count; i++)
             {
                 Raylib.StopSound(playingSounds[i]);
+            }
+
+            for (var i = 0; i < playingSounds.Count; i++)
+            {
+                Raylib.UnloadSound(playingSounds[i]);
             }
             playingSounds.Clear();
         }

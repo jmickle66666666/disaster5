@@ -168,7 +168,15 @@ namespace Disaster
             Dispose();
             if (scripts != null) scripts.Clear();
             if (pixelBuffers != null) pixelBuffers.Clear();
-            if (audio != null) audio.Clear();
+            AudioController.StopAllSound();
+            if (audio != null)
+            {
+                foreach (var a in audio)
+                {
+                    Raylib.UnloadSound(a.Value);
+                }
+                audio.Clear();
+            }
             if (music != null) music.Clear();
             if (texts != null) texts.Clear();
             if (models != null) models.Clear();
