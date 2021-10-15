@@ -187,12 +187,14 @@ namespace Disaster
         public static void Unload(string path)
         {
             path = Reslash(path);
+
             if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (audio == null) audio = new Dictionary<string, Sound>();
             if (music == null) music = new Dictionary<string, Music>();
             if (texts == null) texts = new Dictionary<string, string>();
             if (models == null) models = new Dictionary<string, Model>();
+
             if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
             if (scripts.ContainsKey(path)) { scripts.Remove(path); }
             if (audio.ContainsKey(path)) { audio.Remove(path); }

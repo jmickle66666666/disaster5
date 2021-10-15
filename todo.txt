@@ -8,6 +8,7 @@
 - put palette in c# api
 - change reset hotkey to engine-level, set/disable it from js
 - gamepad support
+- set target FPS
 
 == bugs ==
 - error in the middle of a buffer will crash

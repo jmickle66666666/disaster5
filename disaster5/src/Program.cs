@@ -45,6 +45,7 @@ namespace Disaster
             }
 
             Assets.basePath = basedir;
+
         }
 
         public static ScreenController screen;
@@ -81,8 +82,9 @@ namespace Disaster
 
             //Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ALL);
             Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
-            
+
             Raylib.InitAudioDevice();
+            AudioController.Init();
 
             //Console.WriteLine($"Welcome to disaster engine");
             LoadConfig();
@@ -118,7 +120,7 @@ namespace Disaster
             Raylib.SetExitKey(KeyboardKey.KEY_HOME);
             while (!Raylib.WindowShouldClose() && running)
             {
-                MusicController.Update();
+                AudioController.Update();
                 Debug.FrameStart();
                 js.Update(Raylib.GetFrameTime());
                 Debug.Label("js update");

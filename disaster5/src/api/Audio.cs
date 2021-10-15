@@ -16,7 +16,7 @@ namespace DisasterAPI
         {
             var music = Disaster.Assets.Music(audioPath);
             
-            Disaster.MusicController.PlayMusic(music);
+            Disaster.AudioController.PlayMusic(music);
         }
 
         public static int maxChannels = 64;
@@ -24,9 +24,34 @@ namespace DisasterAPI
         [JSFunction(Name = "playSound")]
         [FunctionDescription("Play a given audio file once")]
         [ArgumentDescription("audioPath", "path to the audio asset to play")]
-        public void PlaySound(string audioPath)
+        [ArgumentDescription("volume", "(optional) volume to play audio at. 1 = default")]
+        [ArgumentDescription("pitch", "(optional) pitch to play audio at. 1 = default")]
+        public void PlaySound(string audioPath, double volume = 1.0, double pitch = 1.0)
         {
-            Raylib.PlaySoundMulti(Disaster.Assets.Audio(audioPath));
+            Disaster.AudioController.PlaySound(audioPath, (float)volume, (float)pitch);
         }
+
+        [JSFunction(Name = "setMainVolume")]
+        [FunctionDescription("Set overall audio volume")]
+        [ArgumentDescription("volume", "volume to set. 1.0 = default")]
+        public void SetMainVolume(double volume)
+        {
+            Raylib.SetMasterVolume((float) volume);
+        }
+
+        [JSFunction(Name = "stopAllSound")]
+        [FunctionDescription("Stop all playing sounds, except music")]
+        public void StopAllSounds()
+        {
+            Disaster.AudioController.StopAllSound();
+        }
+
+        [JSFunction(Name = "stopMusic")]
+        [FunctionDescription("Stop the playing music")]
+        public void StopMusic()
+        {
+            Disaster.AudioController.StopMusic();
+        }
+
     }
 }

@@ -14,33 +14,12 @@
 
   <ItemGroup>
     <PackageReference Include="Jurassic" Version="3.2.4" />
-    <PackageReference Include="Raylib-cs" Version="3.7.0" />
+    <PackageReference Include="Raylib-cs" Version="3.7.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="base\" />
     <Folder Include="lib\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="libmodplug-1.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libogg-0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libopusfile-0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libvorbis-0.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="SDL2.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="SDL2_mixer.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

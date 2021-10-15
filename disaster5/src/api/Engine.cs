@@ -35,7 +35,8 @@ namespace DisasterAPI
             Disaster.Assets.assignedDefaultShader = false;
             Disaster.ScreenController.instance.ReloadShader();
             Raylib.StopSoundMulti();
-            Disaster.MusicController.StopMusic();
+            Disaster.AudioController.StopMusic();
+            Disaster.AudioController.StopAllSound();
             Disaster.JS.instance.Reset();
         }
 
