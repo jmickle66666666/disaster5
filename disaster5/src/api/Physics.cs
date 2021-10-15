@@ -50,13 +50,20 @@ namespace DisasterAPI
         {
             var rayo = Disaster.TypeInterface.Ray(ray);
             var model = Disaster.Assets.Model(modelPath);
+            if (!model.succeeded)
+            {
+                System.Console.WriteLine($"Failed to load model: {modelPath}");
+                return null;
+            }
             var transform = new Disaster.Transformation(Disaster.TypeInterface.Vector3(position), Disaster.TypeInterface.Vector3(rotation), Vector3.One).ToMatrix();
             Matrix4x4.Invert(transform, out Matrix4x4 inverse);
             rayo.position = Vector3.Transform(rayo.position, inverse);
             rayo.direction = Vector3.TransformNormal(rayo.direction, inverse);
             //model.transform = transform;
+
+
             
-            RayHitInfo output = Raylib.GetCollisionRayModel(rayo, model);
+            RayHitInfo output = Raylib.GetCollisionRayModel(rayo, model.model);
             
             //model.transform = Matrix4x4.Identity;
             return Disaster.TypeInterface.Object(output);

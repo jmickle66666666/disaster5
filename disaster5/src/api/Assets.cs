@@ -30,6 +30,10 @@ namespace DisasterAPI
         [ArgumentDescription("path", "path to the asset")]
         public void Unload(string path)
         {
+            if (!Disaster.Assets.PathExists(path))
+            {
+                System.Console.WriteLine($"no path: {path}");
+            }
             Disaster.Assets.Unload(path);
         }
 
@@ -52,7 +56,9 @@ namespace DisasterAPI
         [ArgumentDescription("path", "Path of the asset to read")]
         public string ReadText(string path)
         {
-            return Disaster.Assets.Text(path);
+            var output = Disaster.Assets.Text(path);
+            if (output.succeeded) return output.text;
+            return "";
         }
 
         [JSFunction(Name = "writeText")]
@@ -75,11 +81,25 @@ namespace DisasterAPI
         [ArgumentDescription("path", "Path of the texture")]
         public ObjectInstance GetTextureSize(string path)
         {
+            if (!Disaster.Assets.LoadPath(path, out _))
+            {
+                System.Console.WriteLine($"No texture: {path}");
+                return null;
+            }
             var texture = Disaster.Assets.PixelBuffer(path);
-            var output = Disaster.JS.instance.engine.Object.Construct();
-            output["w"] = texture.width;
-            output["h"] = texture.height;
-            return output;
+            if (texture.succeeded)
+            {
+                var output = Disaster.JS.instance.engine.Object.Construct();
+                output["w"] = texture.pixelBuffer.width;
+                output["h"] = texture.pixelBuffer.height;
+                return output;
+            } else
+            {
+                var output = Disaster.JS.instance.engine.Object.Construct();
+                output["w"] = 0;
+                output["h"] = 0;
+                return output;
+            }
         }
 
         [JSFunction(Name ="getTexture")]
@@ -87,6 +107,11 @@ namespace DisasterAPI
         [ArgumentDescription("path", "Path of the texture")]
         public Texture GetTexture(string path)
         {
+            if (!Disaster.Assets.LoadPath(path, out _))
+            {
+                System.Console.WriteLine($"No texture: {path}");
+                return null;
+            }
             return new Texture(Disaster.JS.instance.engine, path);
         }
 

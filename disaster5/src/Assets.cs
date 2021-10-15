@@ -112,7 +112,7 @@ namespace Disaster
             {
                 if (!assignedDefaultShader)
                 {
-                    _defaultShader = Shader("shaders/model");
+                    _defaultShader = Shader("shaders/model").shader;
                     assignedDefaultShader = true;
                 }
                 return _defaultShader;
@@ -248,7 +248,7 @@ namespace Disaster
             return output;
         }
 
-        public static Shader Shader(string path)
+        public static (bool succeeded, Shader shader) Shader(string path)
         {
             path = Reslash(path);
             if (shaders == null) shaders = new Dictionary<string, Shader>();
@@ -260,16 +260,16 @@ namespace Disaster
                 {
                     if (!vertFound) { Console.WriteLine($"No shader: {path}.vert"); }
                     if (!fragFound) { Console.WriteLine($"No shader: {path}.vert"); }
-                    return _defaultShader;
+                    return (false, _defaultShader);
                 }
 
                 var output = Raylib.LoadShader(vertPath, fragPath);
                 shaders.Add(path, output);
             }
-            return shaders[path];
+            return (true, shaders[path]);
         }
 
-        public static string Text(string path)
+        public static (bool succeeded, string text) Text(string path)
         {
             path = Reslash(path);
             if (texts == null) texts = new Dictionary<string, string>();
@@ -277,16 +277,17 @@ namespace Disaster
             {
                 if (!LoadPath(path, out string textPath))
                 {
-                    return null;
+                    Console.WriteLine($"No file at: {path}");
+                    return (false, "");
                 }
 
                 string output = File.ReadAllText(textPath);
                 texts.Add(path, output);
             }
-            return texts[path];
+            return (true, texts[path]);
         }
 
-        public static PixelBuffer PixelBuffer(string path)
+        public static (bool succeeded, PixelBuffer pixelBuffer) PixelBuffer(string path)
         {
             path = Reslash(path);
             if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
@@ -294,7 +295,7 @@ namespace Disaster
             {
                 if (!LoadPath(path, out string pixelBufferPath))
                 {
-                    return Disaster.PixelBuffer.missing;
+                    return (false, Disaster.PixelBuffer.missing);
                 }
 
                 var image = Raylib.LoadImage(pixelBufferPath);
@@ -319,10 +320,10 @@ namespace Disaster
                 );
                 pixelBuffers.Add(path, pixelBuffer);
             }
-            return pixelBuffers[path];
+            return (true, pixelBuffers[path]);
         }
 
-        public static Model Model(string path)
+        public static (bool succeeded, Model model) Model(string path)
         {
             path = Reslash(path);
             if (models == null) models = new Dictionary<string, Model>();
@@ -331,33 +332,40 @@ namespace Disaster
                 if (!LoadPath(path, out string modelPath))
                 {
                     Program.LoadingMessage($"No model, bud. {modelPath}");
+                    return (false, new Model());
                 }
                 Console.WriteLine($"loading: {modelPath}");
                 var model = Raylib.LoadModel(modelPath);
                 models.Add(path, model);
             }
-            return models[path];
+            return (true, models[path]);
         }
 
-        public static ObjectInstance Script(string path)
+        public static (bool succeeded, ObjectInstance script) Script(string path)
         {
             path = Reslash(path);
             if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (!scripts.ContainsKey(path))
             {
                 var newScript = LoadScript(path);
-                if (newScript != null) scripts.Add(path, newScript);
+                if (newScript.succeeded)
+                {
+                    scripts.Add(path, newScript.script);
+                } else
+                {
+                    return (false, null);
+                }
             }
 
-            return scripts[path];
+            return (true, scripts[path]);
         }
 
-        public static ObjectInstance LoadScript(string path)
+        public static (bool succeeded, ObjectInstance script) LoadScript(string path)
         {
             path = Reslash(path);
             if (!LoadPath(path, out string scriptPath))
             {
-                return null;
+                return (false, null);
             }
 
             if (currentlyLoadingScripts == null) currentlyLoadingScripts = new List<string>();
@@ -365,13 +373,13 @@ namespace Disaster
             if (currentlyLoadingScripts.Contains(scriptPath))
             {
                 Console.WriteLine($"Circular dependency: {scriptPath}");
-                return null;
+                return (false, null);
             }
 
             if (!File.Exists(scriptPath))
             {
                 Console.WriteLine($"Cannot find script: {scriptPath}");
-                return null;
+                return (false, null);
             }
 
             currentlyLoadingScripts.Add(scriptPath);
@@ -382,10 +390,10 @@ namespace Disaster
             
             currentlyLoadingScripts.Remove(scriptPath);
 
-            return newEngine.Global;
+            return (true, newEngine.Global);
         }
 
-        public static Music Music(string path)
+        public static (bool succeeded, Music music) Music(string path)
         {
             path = Reslash(path);
             if (music == null) music = new Dictionary<string, Music>();
@@ -394,14 +402,15 @@ namespace Disaster
                 if (!LoadPath(path, out string audioPath))
                 {
                     Program.LoadingMessage($"No music, bud. {audioPath}");
+                    return (false, new Music());
                 }
                 var newAudio = Raylib.LoadMusicStream(audioPath);
                 music.Add(path, newAudio);
             }
-            return music[path];
+            return (true, music[path]);
         }
 
-        public static Sound Audio(string path)
+        public static (bool succeeded, Sound sound) Audio(string path)
         {
             path = Reslash(path);
             if (audio == null) audio = new Dictionary<string, Sound>();
@@ -410,11 +419,12 @@ namespace Disaster
                 if (!LoadPath(path, out string audioPath))
                 {
                     Program.LoadingMessage($"No sound, bud. {audioPath}");
+                    return (false, new Sound());
                 }
                 var newAudio = Raylib.LoadSound(audioPath);
                 audio.Add(path, newAudio);
             }
-            return audio[path];
+            return (true, audio[path]);
         }
 
         public static void Dispose()

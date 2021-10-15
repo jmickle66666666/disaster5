@@ -183,7 +183,7 @@ namespace Disaster
                         break;
                     case string _:
                         type = ShaderUniformDataType.SHADER_UNIFORM_SAMPLER2D;
-                        property = Assets.PixelBuffer((string)property).texture;
+                        property = Assets.PixelBuffer((string)property).pixelBuffer.texture;
                         break;
                 }
 
@@ -211,6 +211,10 @@ namespace Disaster
             Mesh output = new Mesh();
             
             // necessary stuff
+            if (!input.HasProperty("vertices"))
+            {
+                Console.WriteLine($"Mesh object has no vertices! Cannot create mesh, crash imminent probably. myabe ur lucky tho");
+            }
             var vertices = Vector3Array((ObjectInstance)input.GetPropertyValue("vertices"));
 
             output.vertexCount = vertices.Length;
@@ -242,7 +246,7 @@ namespace Disaster
                     texture = PixelBuffer.missing.texture;
                 } else
                 {
-                    texture = Assets.PixelBuffer((string)texturePath).texture;
+                    texture = Assets.PixelBuffer((string)texturePath).pixelBuffer.texture;
                 }
                 SetMaterialTexture(ref model, 0, MaterialMapIndex.MATERIAL_MAP_DIFFUSE, ref texture);
             } else

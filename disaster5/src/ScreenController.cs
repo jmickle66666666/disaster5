@@ -51,7 +51,7 @@ namespace Disaster
         {
             if (Assets.PathExists("shaders/screen.vert") && Assets.PathExists("shaders/screen.frag"))
             {
-                drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen"));
+                drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             }
             else
             {
@@ -61,7 +61,7 @@ namespace Disaster
 
             if (Assets.PathExists("shaders/postprocess.vert") && Assets.PathExists("shaders/postprocess.frag"))
             {
-                postProcessShader = Assets.Shader("shaders/postprocess");
+                postProcessShader = Assets.Shader("shaders/postprocess").shader;
             }
             else
             {
@@ -83,7 +83,7 @@ namespace Disaster
 
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
-            drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen"));
+            drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             ReloadShader();
         }
 

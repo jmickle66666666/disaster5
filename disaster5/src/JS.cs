@@ -99,12 +99,12 @@ namespace Disaster {
         public static void LoadStandardFunctions(ScriptEngine engine)
         {
             engine.SetGlobalFunction("load", new System.Func<string, object>((string path) => {
-                return Assets.Script(path);
+                return Assets.Script(path).script;
             }));
 
             engine.SetGlobalFunction("create", new Func<string, object>((string path) =>
             {
-                return Assets.LoadScript(path);
+                return Assets.LoadScript(path).script;
             }));
 
             engine.SetGlobalFunction("log", new Action<string>((string message) => { Console.WriteLine(message); }));
@@ -118,6 +118,7 @@ namespace Disaster {
             engine.SetGlobalValue("Physics", new DisasterAPI.Physics(engine));
             engine.SetGlobalValue("Key", new DisasterAPI.Key(engine));
             engine.SetGlobalValue("Gamepad", new DisasterAPI.Gamepad(engine));
+            engine.SetGlobalValue("Color", new DisasterAPI.Color(engine));
         }
 
         void LoadScripts()

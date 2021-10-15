@@ -65,7 +65,12 @@ namespace Disaster
             if (volume == 1.0f && pitch == 1.0f)
             {
                 var sound = Assets.Audio(soundPath);
-                Raylib.PlaySoundMulti(sound);
+                if (!sound.succeeded)
+                {
+                    Console.WriteLine($"failed to load sound {soundPath}");
+                    return;
+                }
+                Raylib.PlaySoundMulti(sound.sound);
             } else
             {
                 var loaded = Assets.LoadPath(soundPath, out string assetPath);

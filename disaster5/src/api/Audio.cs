@@ -15,8 +15,10 @@ namespace DisasterAPI
         public void PlayMusic(string audioPath)
         {
             var music = Disaster.Assets.Music(audioPath);
-            
-            Disaster.AudioController.PlayMusic(music);
+            if (music.succeeded)
+            {
+                Disaster.AudioController.PlayMusic(music.music);
+            }
         }
 
         public static int maxChannels = 64;

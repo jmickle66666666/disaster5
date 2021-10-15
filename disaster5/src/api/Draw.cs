@@ -61,8 +61,8 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the rectangle")]
         [ArgumentDescription("height", "height of the rectangle")]
         [ArgumentDescription("color", "Rectangle color", "{r, g, b, a}")]
-        [ArgumentDescription("filled", "Draw a filled rect (true) or an outline (false)")]
-        public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled)
+        [ArgumentDescription("filled", "(optional) Draw a filled rect (true) or an outline (false, default)")]
+        public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
             if (filled)
             {
@@ -82,8 +82,8 @@ namespace DisasterAPI
         [ArgumentDescription("x3", "x position of the third point")]
         [ArgumentDescription("y3", "y position of the third point")]
         [ArgumentDescription("color", "color for the triangle", "{r, g, b, a}")]
-        [ArgumentDescription("filled", "Draw a filled triangle (true) or an outline (false)")]
-        public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled)
+        [ArgumentDescription("filled", "(optional) Draw a filled triangle (true) or an outline (false, default)")]
+        public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
             if (filled)
@@ -103,8 +103,8 @@ namespace DisasterAPI
         [ArgumentDescription("y", "y position of the center")]
         [ArgumentDescription("radius", "radius of the circle (distance from center to edge)")]
         [ArgumentDescription("color", "color for the triangle", "{r, g, b, a}")]
-        [ArgumentDescription("filled", "Draw a filled circle (true) or an outline (false)")]
-        public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled)
+        [ArgumentDescription("filled", "(optional) Draw a filled circle (true) or an outline (false, default)")]
+        public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
             if (filled)
@@ -118,28 +118,22 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "line")]
-        [FunctionDescription("Draw a 2d line.")]
+        [FunctionDescription("Draw a 2d line, with an optional gradient.")]
         [ArgumentDescription("x1", "starting x position")]
         [ArgumentDescription("y1", "starting y position")]
         [ArgumentDescription("x2", "ending x position")]
         [ArgumentDescription("y2", "ending y position")]
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
-        public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color)
+        [ArgumentDescription("colorEnd", "(optional) line end color. if specified, will blend between the two colors along the line.", "{r, g, b, a}")]
+        public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color, ObjectInstance colorEnd = null)
         {
-            Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
-        }
-
-        [JSFunction(Name = "lineGradient")]
-        [FunctionDescription("Draw a 2d line with a gradient.")]
-        [ArgumentDescription("x1", "starting x position")]
-        [ArgumentDescription("y1", "starting y position")]
-        [ArgumentDescription("x2", "ending x position")]
-        [ArgumentDescription("y2", "ending y position")]
-        [ArgumentDescription("colorStart", "color at the start of the line", "{r, g, b, a}")]
-        [ArgumentDescription("colorEnd", "color at the end of the line", "{r, g, b, a}")]
-        public static void Line(int x1, int y1, int x2, int y2, ObjectInstance colorStart, ObjectInstance colorEnd)
-        {
-            Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(colorStart), Disaster.TypeInterface.Color32(colorEnd));
+            if (colorEnd == null)
+            {
+                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
+            } else
+            {
+                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color), Disaster.TypeInterface.Color32(colorEnd));
+            }
         }
 
         [JSFunction(Name = "line3d")]
@@ -147,13 +141,15 @@ namespace DisasterAPI
         [ArgumentDescription("start", "start position", "{x, y, z}")]
         [ArgumentDescription("end", "end position", "{x, y, z}")]
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
-        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
+        [ArgumentDescription("colorEnd", "(optional) line end color. if specified, will blend between the two colors along the line.", "{r, g, b, a}")]
+        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color, ObjectInstance colorEnd = null)
         {
+            if (colorEnd == null) colorEnd = color;
             Disaster.SoftwareCanvas.Line(
                 Disaster.TypeInterface.Vector3(start),
                 Disaster.TypeInterface.Vector3(end),
                 Disaster.TypeInterface.Color32(color),
-                Disaster.TypeInterface.Color32(color)
+                Disaster.TypeInterface.Color32(colorEnd)
             );
         }
 
@@ -172,39 +168,25 @@ namespace DisasterAPI
 
         [JSFunction(Name = "text")]
         [FunctionDescription("Draw a line of text.")]
+        [ArgumentDescription("text", "the text content to draw")]
         [ArgumentDescription("x", "x position of the text")]
         [ArgumentDescription("y", "x position of the text")]
-        [ArgumentDescription("text", "the text content to draw")]
         [ArgumentDescription("color", "text color", "{r, g, b, a}")]
-        public static void Text(int x, int y, string text, ObjectInstance color)
+        public static void Text(string text, int x, int y, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
-        [JSFunction(Name = "model")]
-        [FunctionDescription("Draw a 3D model.")]
-        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
-        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
-        [ArgumentDescription("modelPath", "Path of the model to draw")]
-        public static void Model(ObjectInstance position, ObjectInstance rotation, string modelPath)
-        {
-            var rot = Disaster.TypeInterface.Vector3(rotation);
-            var pos = Disaster.TypeInterface.Vector3(position);
-            var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-
-            var model = Disaster.Assets.Model(modelPath);
-            Disaster.ModelRenderer.EnqueueRender(model, Disaster.Assets.defaultShader, transform);
-        }
-
         [JSFunction(Name = "wireframe")]
         [FunctionDescription("Draw a 3D wireframe.")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
         [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
         [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
         [ArgumentDescription("color", "Color of the wireframe", "{r, g, b, a}")]
-        [ArgumentDescription("modelPath", "Path of the model to draw")]
-        [ArgumentDescription("backfaceCulling", "Whether to skip triangles that face away from the camera")]
-        [ArgumentDescription("drawDepth", "Whether to render depth on the lines")]
-        public static void Wireframe(ObjectInstance position, ObjectInstance rotation, ObjectInstance color, string modelPath, bool backfaceCulling, bool drawDepth, bool filled)
+        [ArgumentDescription("backfaceCulling", "(optional) Whether to skip triangles that face away from the camera (default: false)")]
+        [ArgumentDescription("drawDepth", "(optional) Whether to render depth on the lines (default: false)")]
+        [ArgumentDescription("filled", "(optional) Whether to draw the triangles filled (default: false)")]
+        public static void Wireframe(string modelPath, ObjectInstance position, ObjectInstance rotation, ObjectInstance color, bool backfaceCulling = false, bool drawDepth = false, bool filled = false)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
@@ -212,55 +194,70 @@ namespace DisasterAPI
             var col = Disaster.TypeInterface.Color32(color);
 
             var model = Disaster.Assets.Model(modelPath);
-
-            unsafe
+            if (model.succeeded)
             {
-                var mesh = ((Raylib_cs.Mesh*)model.meshes.ToPointer())[0];
-                Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
+                unsafe
+                {
+                    var mesh = ((Raylib_cs.Mesh*)model.model.meshes.ToPointer())[0];
+                    Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
+                }
             }
         }
 
-        [JSFunction(Name = "modelShader")]
-        [FunctionDescription("Draw a 3D model with a specified shader.")]
+        [JSFunction(Name = "model")]
+        [FunctionDescription("Draw a 3D model, optionally with a specified shader and parameters to use.")]
+        [ArgumentDescription("modelPath", "Path of the model to draw")]
         [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
         [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
-        [ArgumentDescription("shaderPath", "Path of the shader to use (without extension)")]
-        [ArgumentDescription("modelPath", "Path of the model to draw")]
-        public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, string modelPath)
+        [ArgumentDescription("shaderPath", "(optional) Path of the shader to use (without extension)")]
+        [ArgumentDescription("parameters", "(optional) Object of key/value pairs to send to the shader")]
+        public static void Model(string modelPath, ObjectInstance position, ObjectInstance rotation, string shaderPath = "", ObjectInstance parameters = null)
         {
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
             var model = Disaster.Assets.Model(modelPath);
-            var shader = Disaster.Assets.Shader(shaderPath);
-            Disaster.ModelRenderer.EnqueueRender(model, shader, transform);
-        }
 
-        [JSFunction(Name = "modelShaderParams")]
-        [FunctionDescription("Draw a 3D model with a specified shader and parameters to use.")]
-        [ArgumentDescription("position", "Position to draw at", "{x, y, z}")]
-        [ArgumentDescription("rotation", "Rotation in euler angles", "{x, y, z}")]
-        [ArgumentDescription("shaderPath", "Path of the shader to use (without extension)")]
-        [ArgumentDescription("parameters", "Object of key/value pairs to send to the shader")]
-        [ArgumentDescription("modelPath", "Path of the model to draw")]
-        public static void Model(ObjectInstance position, ObjectInstance rotation, string shaderPath, ObjectInstance parameters, string modelPath)
-        {
-            var rot = Disaster.TypeInterface.Vector3(rotation);
-            var pos = Disaster.TypeInterface.Vector3(position);
-            var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            var model = Disaster.Assets.Model(modelPath);
-            var shader = Disaster.Assets.Shader(shaderPath);
-            var parms = Disaster.TypeInterface.ShaderParameters(parameters);
-            Disaster.ModelRenderer.EnqueueRender(model, shader, transform, parms);
+            if (!model.succeeded)
+            {
+                return;
+            }
+
+            Raylib_cs.Shader shader;
+
+            if (shaderPath == "")
+            {
+                shader = Disaster.Assets.defaultShader;
+            } else
+            {
+                var loadedShader = Disaster.Assets.Shader(shaderPath);
+                if (loadedShader.succeeded)
+                {
+                    shader = loadedShader.shader;
+                } else
+                {
+                    shader = Disaster.Assets.defaultShader;
+                }
+            }
+
+            if (parameters == null)
+            {
+                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform);
+            } 
+            else
+            {
+                var parms = Disaster.TypeInterface.ShaderParameters(parameters);
+                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform, parms);
+            }
         }
 
         [JSFunction(Name = "colorBuffer")]
         [FunctionDescription("Draw a color buffer.")]
+        [ArgumentDescription("colors", "color array defining the image", "{r, g, b, a}[]")]
         [ArgumentDescription("x", "x position to draw at")]
         [ArgumentDescription("y", "y position to draw at")]
-        [ArgumentDescription("colors", "color array defining the image", "{r, g, b, a}[]")]
         [ArgumentDescription("width", "width of the image")]
-        public static void ColorBuffer(int x, int y, ObjectInstance colors, int width)
+        public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
             var pixelBuffer = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width);
             Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
@@ -285,57 +282,24 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "texture")]
-        [FunctionDescription("Draw an image to the software canvas.")]
-        [ArgumentDescription("x", "x position of the image")]
-        [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("texturePath", "path to the image asset")]
-        public static void Texture(int x, int y, string texturePath)
-        {
-            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
-        }
-
-        [JSFunction(Name = "textureTransformed")]
-        [FunctionDescription("Draw an image to the software canvas, with scaling, rotation and origin offset.")]
-        [ArgumentDescription("x", "x position of the image")]
-        [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
-        [ArgumentDescription("texturePath", "path to the image asset")]
-        public static void TextureTransformed(int x, int y, ObjectInstance transformation, string texturePath)
-        {
-            var trans = Disaster.TypeInterface.Transform2d(transformation);
-            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, trans);
-        }
-
-        [JSFunction(Name = "texturePart")]
-        [FunctionDescription("Draw a part of an image to the software canvas")]
-        [ArgumentDescription("x", "x position of the image")]
-        [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
-        [ArgumentDescription("texturePath", "path to the image asset")]
-        public static void TexturePart(int x, int y, ObjectInstance rectangle, string texturePath)
-        {
-            var rect = Disaster.TypeInterface.Rect(rectangle);
-
-            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect);
-        }
-
-        [JSFunction(Name = "texturePartTransformed")]
         [FunctionDescription("Draw a part of an image to the software canvas, with transformations")]
+        [ArgumentDescription("texturePath", "path to the image asset")]
         [ArgumentDescription("x", "x position of the image")]
         [ArgumentDescription("y", "x position of the image")]
-        [ArgumentDescription("rectangle", "rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
-        [ArgumentDescription("transformation", "scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
-        [ArgumentDescription("texturePath", "path to the image asset")]
-        public static void TexturePartTransformed(int x, int y, ObjectInstance rectangle, ObjectInstance transformation, string texturePath)
+        [ArgumentDescription("rectangle", "(optional) rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
+        [ArgumentDescription("transformation", "(optional) scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
+        public static void Texture(string texturePath, int x, int y, ObjectInstance rectangle = null, ObjectInstance transformation = null)
         {
-            var rect = Disaster.TypeInterface.Rect(rectangle);
-            var trans = Disaster.TypeInterface.Transform2d(transformation);
-
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, rect, trans);
+            if (pixelBuffer.succeeded)
+            {
+                var rect = transformation == null ? new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height) : Disaster.TypeInterface.Rect(rectangle);
+                var trans = transformation==null ? Disaster.Transform2D.identity : Disaster.TypeInterface.Transform2d(transformation);
+                Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+            } else
+            {
+                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+            }
         }
 
         [JSFunction(Name = "setCamera")]
@@ -350,7 +314,6 @@ namespace DisasterAPI
             Disaster.ScreenController.camera.position = pos;
             Disaster.ScreenController.camera.target = pos + forward;
         }
-
 
         [JSFunction(Name = "getCameraTransform")]
         [FunctionDescription("Get the 3d camera transformation", "{forward, up, right}")]

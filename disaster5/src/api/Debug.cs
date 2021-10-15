@@ -35,10 +35,15 @@ namespace DisasterAPI
         {
             var options = new Jurassic.Compiler.CompilerOptions();
             options.EnableILAnalysis = true;
-            
-            var script = CompiledScript.Compile(new StringScriptSource(Disaster.Assets.Text(sourcePath)), options);
-            
-            return script.DisassembledIL;
+
+            var text = Disaster.Assets.Text(sourcePath);
+            if (text.succeeded)
+            {
+                var script = CompiledScript.Compile(new StringScriptSource(text.text), options);
+                return script.DisassembledIL;
+            }
+
+            return "";
         }
     }
 }
