@@ -1,26 +1,21 @@
 == features ==
-- sound volume
-- music volume
 - sound panning
-- sound pitch?
-- load new post processing shader
 - potentially move vector stuff to c# api
-- put palette in c# api
 - change reset hotkey to engine-level, set/disable it from js
-- gamepad support
-- set target FPS
+- set target FPS <-- did i do this already
+- load arbitrary data as audio stream
+- console
 
 == bugs ==
 - error in the middle of a buffer will crash
-
 - pass screen size/window size into post processing shader
-
-== load without content ==
-- test this more
-- embed default model shader
-- ignore post processing when not found
+- memory leaky
 
 == 3d editor ==
 - delete part
 - clone part
 - fix selection overlap issue
+
+==web runtime==
+- figure out the embed
+- make it

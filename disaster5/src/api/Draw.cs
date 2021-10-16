@@ -293,8 +293,8 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
-                var rect = transformation == null ? new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height) : Disaster.TypeInterface.Rect(rectangle);
-                var trans = transformation==null ? Disaster.Transform2D.identity : Disaster.TypeInterface.Transform2d(transformation);
+                var rect = rectangle == null ? new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height) : Disaster.TypeInterface.Rect(rectangle);
+                var trans = transformation == null ? Disaster.Transform2D.identity : Disaster.TypeInterface.Transform2d(transformation);
                 Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
             } else
             {
