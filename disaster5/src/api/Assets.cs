@@ -130,6 +130,18 @@ namespace DisasterAPI
             return new Texture(Disaster.JS.instance.engine, path);
         }
 
+        [JSFunction(Name = "createTexture")]
+        [FunctionDescription("Create a new, blank texture object.")]
+        [ArgumentDescription("width", "width of the texture, in pixels")]
+        [ArgumentDescription("height", "height of the texture, in pixels")]
+        public Texture CreateTexture(int width, int height)
+        {
+            Disaster.SoftwareCanvas.StartBuffer(width, height);
+            string asset = Disaster.SoftwareCanvas.CreateAssetFromBuffer();
+            Disaster.SoftwareCanvas.EndBuffer();
+            return GetTexture(asset);
+        }
+
         [JSFunction(Name = "createMesh")]
         [FunctionDescription("Creates a new mesh object and returns a reference for it.")]
         [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices [, indices, uvs, uv2s, normals, tangents, colors, texture]}")]

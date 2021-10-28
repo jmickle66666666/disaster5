@@ -13,11 +13,15 @@ namespace DisasterAPI
             this.SetPropertyValue("assetID", assetID, true);
             this.SetPropertyValue("width", pixelBuffer.width, true);
             this.SetPropertyValue("height", pixelBuffer.height, true);
-            this.assetID = assetID;
+            this._assetID = assetID;
         }
 
-        private string assetID;
+        private string _assetID;
         Disaster.PixelBuffer pixelBuffer;
+
+        [JSProperty(Name = "assetID")]
+        [PropertyDescription("the asset path for the texture object. use this to draw it")]
+        public string ignored { get { return this._assetID; } set { this._assetID = value; } }
 
         [JSFunction(Name="getPixels")]
         [FunctionDescription("Get an array of pixels for the image", "{r, g, b, a}[]")]
@@ -32,7 +36,7 @@ namespace DisasterAPI
         public void SetPixels(ArrayInstance colors)
         {
             pixelBuffer.SetPixels(Disaster.TypeInterface.Color32Array(colors));
-            Disaster.Assets.pixelBuffers[assetID] = pixelBuffer;
+            Disaster.Assets.pixelBuffers[_assetID] = pixelBuffer;
         }
 
         [JSFunction(Name ="startBuffer")]
@@ -48,7 +52,7 @@ namespace DisasterAPI
         {
             pixelBuffer.SetPixels(Disaster.SoftwareCanvas.colorBuffer);
             Disaster.SoftwareCanvas.EndBuffer();
-            Disaster.Assets.pixelBuffers[assetID] = pixelBuffer;
+            Disaster.Assets.pixelBuffers[_assetID] = pixelBuffer;
         }
 
         [JSFunction(Name = "save")]
