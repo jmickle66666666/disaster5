@@ -53,6 +53,7 @@ namespace Disaster
 
         public static bool running = true;
         public static double timescale = 1;
+        public static double scriptTime = 0;
 
         public static void LoadingMessage(string message)
         {
@@ -122,7 +123,9 @@ namespace Disaster
             {
                 AudioController.Update();
                 Debug.FrameStart();
+                var jsTimeStart = DateTime.UtcNow.Ticks;
                 js.Update(Raylib.GetFrameTime());
+                scriptTime = (double) (DateTime.UtcNow.Ticks - jsTimeStart) / TimeSpan.TicksPerSecond;
                 Debug.Label("js update");
                 Debug.DrawGraph();
                 screen.Update();

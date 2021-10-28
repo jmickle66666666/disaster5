@@ -125,6 +125,13 @@ namespace DisasterAPI
         {
             return (double)System.DateTime.Now.Ticks/ (double)System.TimeSpan.TicksPerSecond;
         }
+
+        [JSFunction(Name = "setTargetFPS")]
+        [FunctionDescription("Set target maximum FPS.")]
+        public static void SetTargetFPS(int fps)
+        {
+            Raylib.SetTargetFPS(fps);
+        }
     }
 
 }

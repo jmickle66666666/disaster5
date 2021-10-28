@@ -29,6 +29,10 @@ namespace DisasterAPI
             Console.WriteLine(message);
         }
 
+        [JSProperty(Name = "scriptTime")]
+        [PropertyDescription("Time taken to run all the scripts last frame, in seconds! 0.016s == 60fps")]
+        public static double scriptTime { get { return Disaster.Program.scriptTime;  } }
+
         [JSFunction(Name = "ilAnalysis")]
         [FunctionDescription("Return the disassembled IL of a script after compilation. Useful for debugging hopefully")]
         [ArgumentDescription("sourcePath", "path to the script to analyze")]
