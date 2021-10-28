@@ -5,6 +5,7 @@ using System.Numerics;
 
 namespace DisasterAPI
 {
+    [ClassDescription("Collision related functions")]
     public class Physics : ObjectInstance
     {
         public Physics(ScriptEngine engine) : base(engine)

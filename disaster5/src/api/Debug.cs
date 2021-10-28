@@ -6,6 +6,7 @@ using Jurassic;
 
 namespace DisasterAPI
 {
+    [ClassDescription("Various debugging tools.")]
     class Debug : ObjectInstance
     {
         public Debug(ScriptEngine engine) : base(engine)

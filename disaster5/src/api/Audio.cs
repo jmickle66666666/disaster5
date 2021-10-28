@@ -4,6 +4,7 @@ using Raylib_cs;
 using System;
 namespace DisasterAPI
 {
+    [ClassDescription("Functions for playing sounds! neat")]
     public class Audio : ObjectInstance {
         public Audio(ScriptEngine engine) : base(engine) {
             this.PopulateFunctions();

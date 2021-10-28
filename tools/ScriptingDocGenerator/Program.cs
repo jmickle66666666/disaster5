@@ -13,6 +13,7 @@ namespace ScriptingDocGenerator
     {
         static List<FunctionDefinition> Functions = new List<FunctionDefinition>();
         static List<PropertyDefinition> Properties = new List<PropertyDefinition>();
+        static List<ClassDefinition> Classes = new List<ClassDefinition>();
         static void Main(string[] args)
         {
             Assembly asm = Assembly.LoadFrom("disaster5");
@@ -36,6 +37,12 @@ namespace ScriptingDocGenerator
                     {
                         Properties.Add(new PropertyDefinition(type, property));
                     }
+                }
+
+                Attribute classattr = type.GetCustomAttribute<DisasterAPI.ClassDescriptionAttribute>();
+                if (classattr != null)
+                {
+                    Classes.Add(new ClassDefinition(type));
                 }
             }
 
@@ -63,7 +70,7 @@ namespace ScriptingDocGenerator
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            HTMLOutput.OutputHTML(Functions, Properties);
+            HTMLOutput.OutputHTML(Functions, Properties, Classes);
             MarkdownOutput.OutputHTML(Functions);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
                 

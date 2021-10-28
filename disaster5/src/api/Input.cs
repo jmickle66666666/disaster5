@@ -7,6 +7,7 @@ using System.Numerics;
 using Raylib_cs;
 namespace DisasterAPI
 {
+    [ClassDescription("Is the player doing anything? well now u can find out")]
     public class Input : ObjectInstance
     {
         public Input(ScriptEngine engine) : base (engine)

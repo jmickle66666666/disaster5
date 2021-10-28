@@ -4,6 +4,7 @@ using Raylib_cs;
 
 namespace DisasterAPI
 {
+    [ClassDescription("Functions for engine-level functionality.")]
     class Engine : ObjectInstance
     {
         public Engine(ScriptEngine engine) : base(engine)

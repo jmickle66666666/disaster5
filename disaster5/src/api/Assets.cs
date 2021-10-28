@@ -2,6 +2,7 @@
 using Jurassic.Library;
 namespace DisasterAPI
 {
+    [ClassDescription("Functions for managing assets.")]
     public class Assets : ObjectInstance
     {
         public Assets(ScriptEngine engine) : base(engine)

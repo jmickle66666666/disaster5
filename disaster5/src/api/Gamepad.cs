@@ -2,6 +2,7 @@ using Jurassic;
 using Jurassic.Library;
 namespace DisasterAPI
 {
+    [ClassDescription("A list of gamepad values for use with Input.getGamepadButton etc")]
     public class Gamepad : ObjectInstance
     {
         public Gamepad(ScriptEngine engine) : base(engine)

@@ -2,6 +2,7 @@
 using Jurassic.Library;
 namespace DisasterAPI
 {
+    [ClassDescription("All the available keyboard inputs you can check with Input.getKeyDown() etc.")]
     public class Key : ObjectInstance
     {
         public Key(ScriptEngine engine) : base(engine)

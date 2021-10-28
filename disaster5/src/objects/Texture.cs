@@ -3,6 +3,7 @@ using Jurassic.Library;
 
 namespace DisasterAPI
 {
+    [ClassDescription("The object returned by Assets.getTexture(path). Can be used to modify existing assets.")]
     public class Texture : ObjectInstance
     {
         public Texture(ScriptEngine engine, string assetID) : base(engine)

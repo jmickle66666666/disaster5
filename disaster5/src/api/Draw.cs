@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace DisasterAPI
 {
-
+    [ClassDescription("All your favourite ways to draw stuff to the screen!")]
     public class Draw : ObjectInstance {
 
         public Draw(ScriptEngine engine) : base(engine) {

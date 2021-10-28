@@ -2,6 +2,7 @@
 using Jurassic.Library;
 namespace DisasterAPI
 {
+    [ClassDescription("A list of handy colors to use!")]
     public class Color : ObjectInstance
     {
         public Color(ScriptEngine engine) : base(engine)

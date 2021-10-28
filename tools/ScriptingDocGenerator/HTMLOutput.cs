@@ -18,7 +18,7 @@ namespace ScriptingDocGenerator
     }
     class HTMLOutput
     {
-        public static void OutputHTML(List<FunctionDefinition> functions, List<PropertyDefinition> properties)
+        public static void OutputHTML(List<FunctionDefinition> functions, List<PropertyDefinition> properties, List<ClassDefinition> classes)
         {
             var classLists = new Dictionary<string, ClassList>();
 
@@ -42,17 +42,20 @@ namespace ScriptingDocGenerator
 
             List<string> output = new List<string>();
             output.Add("<html><head><link rel=\"stylesheet\" href=\"style.css\"></head><body>");
-            foreach (var className in classLists.Keys)
+            foreach (var classDef in classes)
             {
-                output.Add($"<div class=\"class\"><div class=\"classname\">{className}</div>");
-                var funcList = classLists[className].functions;
+                if (!classLists.ContainsKey(classDef.Name)) {
+                    continue;
+                }
+                output.Add($"<div class=\"class\"><div class=\"classname\">{classDef.Name}</div><div class=\"classdescription\">{classDef.Description}</div>");
+                var funcList = classLists[classDef.Name].functions;
                 foreach (var function in funcList)
                 {
                     if (function.Name == "toLocaleString") continue;
                     if (function.Name == "valueOf") continue;
                     output.Add(WriteFunction(function));
                 }
-                var propList = classLists[className].properties;
+                var propList = classLists[classDef.Name].properties;
                 foreach (var property in propList)
                 {
                     //if (function.Name == "toLocaleString") continue;
