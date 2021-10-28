@@ -122,7 +122,7 @@ namespace DisasterAPI
         [ArgumentDescription("path", "Path of the texture")]
         public Texture GetTexture(string path)
         {
-            if (!Disaster.Assets.LoadPath(path, out _))
+            if (!Disaster.Assets.pixelBuffers.ContainsKey(path))
             {
                 System.Console.WriteLine($"No texture: {path}");
                 return null;

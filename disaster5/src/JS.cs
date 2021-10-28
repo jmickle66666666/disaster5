@@ -67,6 +67,10 @@ namespace Disaster {
             }
             catch (JavaScriptException e)
             {
+                if (SoftwareCanvas.inBuffer)
+                {
+                    SoftwareCanvas.EndBuffer();
+                }
                 ShowException(e);
             }
             

@@ -39,6 +39,8 @@ namespace Disaster
         static int[] overdrawBuffer;
         static int maxOverdraw = 0;
 
+        public static bool inBuffer = false;
+
         public static int MaxTextLength()
         {
             return (textureWidth / fontWidth);
@@ -977,6 +979,8 @@ namespace Disaster
 
             colorBuffer = new Color32[width * height];
             overdrawBuffer = new int[width * height];
+
+            inBuffer = true;
         }
 
         public static void StartBuffer(PixelBuffer pixelBuffer)
@@ -990,6 +994,8 @@ namespace Disaster
 
             colorBuffer = pixelBuffer.pixels;
             overdrawBuffer = new int[textureWidth * textureHeight];
+
+            inBuffer = true;
         }
 
         public static string CreateAssetFromBuffer()
@@ -1012,6 +1018,8 @@ namespace Disaster
             textureWidth = tempWidth;
             textureHeight = tempHeight;
             overdrawBuffer = new int[textureWidth * textureHeight];
+
+            inBuffer = false;
         }
     }
 }
