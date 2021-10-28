@@ -712,13 +712,13 @@ namespace Disaster
         static Color32 Mix(Color32 A, Color32 B)
         {
             byte r, g, b;
-            float a = B.a / 256f;
-            float ba = A.a / 256f;
-            float ia = 1f - a;
-            r = (byte)MathF.Floor((A.r * ia) + (B.r * a));
-            g = (byte)MathF.Floor((A.g * ia) + (B.g * a));
-            b = (byte)MathF.Floor((A.b * ia) + (B.b * a));
-            return new Color32(r, g, b, (byte)MathF.Floor(a * ba * 255f));
+            float srcAlpha = B.a / 256f;
+            float destAlpha = A.a / 256f;
+            float oneMinusSrcAlpha = 1f - srcAlpha;
+            r = (byte)MathF.Floor((B.r) + (A.r * oneMinusSrcAlpha));
+            g = (byte)MathF.Floor((B.g) + (A.g * oneMinusSrcAlpha));
+            b = (byte)MathF.Floor((B.b) + (A.b * oneMinusSrcAlpha));
+            return new Color32(r, g, b, (byte)MathF.Floor((srcAlpha + destAlpha * oneMinusSrcAlpha) * 255f));
         }
 
         public static void Path(Vector2[] path, Color32 color, bool closed = true)

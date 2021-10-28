@@ -26,6 +26,13 @@ namespace DisasterAPI
             return Disaster.Assets.Loaded(path);
         }
 
+        [JSFunction(Name = "loadedAssetCount")]
+        [FunctionDescription("Get the number of loaded assets")]
+        public int LoadedAssetCount()
+        {
+            return Disaster.Assets.TotalLoaded();
+        }
+
         [JSFunction(Name = "unload")]
         [FunctionDescription("Unload an asset")]
         [ArgumentDescription("path", "path to the asset")]

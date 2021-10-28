@@ -119,6 +119,19 @@ namespace Disaster
             }
         }
 
+        public static int TotalLoaded()
+        {
+            int count = 0;
+            if (scripts != null) count += scripts.Count;
+            if (pixelBuffers != null) count += pixelBuffers.Count;
+            if (models != null) count += models.Count;
+            if (audio != null) count += audio.Count;
+            if (music != null) count += music.Count;
+            if (shaders != null) count += shaders.Count;
+            if (texts != null) count += texts.Count;
+            return count;
+        }
+
         public static bool PathExists(string path)
         {
             path = Path.Combine(basePath, Reslash(path));
@@ -361,6 +374,7 @@ namespace Disaster
                 var newScript = LoadScript(path);
                 if (newScript.succeeded)
                 {
+                    newScript.script.SetPropertyValue("path", path, false);
                     scripts.Add(path, newScript.script);
                 } else
                 {
