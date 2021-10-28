@@ -5,11 +5,14 @@
 - set target FPS <-- did i do this already
 - load arbitrary data as audio stream
 - console
+- add good performance display
+- add class descriptions to docs
 
 == bugs ==
 - error in the middle of a buffer will crash
 - pass screen size/window size into post processing shader
 - memory leaky
+- fix Texture api
 
 == 3d editor ==
 - delete part

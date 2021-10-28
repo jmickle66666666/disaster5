@@ -243,7 +243,18 @@ namespace Disaster
             int len = basePath.Length + 1;
             for (int i = 0; i < output.Length; i++)
             {
-                output[i] = output[i].Substring(len);
+                output[i] = "\\"+output[i].Substring(len);
+            }
+            return output;
+        }
+
+        public static string[] ListDir(string path, bool subdirectories)
+        {
+            string[] output = Directory.GetFiles(basePath + path, "*.*", subdirectories?SearchOption.AllDirectories:SearchOption.TopDirectoryOnly);
+            int len = basePath.Length + 1;
+            for (int i = 0; i < output.Length; i++)
+            {
+                output[i] = "\\" + output[i].Substring(len);
             }
             return output;
         }

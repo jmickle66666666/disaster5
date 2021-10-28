@@ -39,6 +39,14 @@ namespace DisasterAPI
             Disaster.JS.instance.Reset();
         }
 
+        [JSFunction(Name = "setResetHotkey")]
+        [FunctionDescription("Set a global hotkey for resetting the engine, default F2.")]
+        [ArgumentDescription("keyCode", "The keycode to set the hotkey to. Check Key documentation for options.")]
+        public static void SetResetHotkey(int keyCode)
+        {
+            Disaster.JS.resetKey = Input.keyCodes[keyCode];
+        }
+
         [JSFunction(Name ="reloadShaders")]
         [FunctionDescription("Reload all shaders without resetting the engine.")]
         public static void ReloadShaders()
@@ -111,6 +119,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "getTime")]
+        [FunctionDescription("Return current system time.")]
         public static double GetTime()
         {
             return (double)System.DateTime.Now.Ticks/ (double)System.TimeSpan.TicksPerSecond;

@@ -15,7 +15,8 @@ namespace Disaster {
         public Dictionary<string, Jurassic.Library.GlobalObject> cachedScripts;
         public List<string> currentlyLoadingScripts;
         Jurassic.Library.FunctionInstance updateFunction;
-        
+
+        public static KeyboardKey resetKey = KeyboardKey.KEY_F2;
         public JS()
         {
             instance = this;
@@ -48,11 +49,20 @@ namespace Disaster {
 
             try
             {
-                DisasterAPI.Input.Update();
-                
-                if (updateFunction != null)
+                if (Raylib.IsKeyPressed(resetKey))
                 {
-                    updateFunction.Call(engine.Global, deltaTime);
+                    Assets.UnloadAll();
+                    Assets.assignedDefaultShader = false;
+                    ScreenController.instance.ReloadShader();
+                    Reset();
+                } else
+                {
+                    DisasterAPI.Input.Update();
+                
+                    if (updateFunction != null)
+                    {
+                        updateFunction.Call(engine.Global, deltaTime);
+                    }
                 }
             }
             catch (JavaScriptException e)
