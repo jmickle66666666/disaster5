@@ -65,12 +65,13 @@ namespace Disaster {
                     }
                 }
             }
-            catch (JavaScriptException e)
+            catch (Exception e)
             {
                 if (SoftwareCanvas.inBuffer)
                 {
                     SoftwareCanvas.EndBuffer();
                 }
+
                 ShowException(e);
             }
             
@@ -79,6 +80,10 @@ namespace Disaster {
         void ShowException(Exception e)
         {
             SoftwareCanvas.LoadDefaultFont();
+
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+            Console.WriteLine(e.Source);
 
             string message = $"{e.Message}\nPress R to restart";
             if (e is JavaScriptException)

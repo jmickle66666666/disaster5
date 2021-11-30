@@ -41,6 +41,16 @@ namespace Disaster
 
         public static bool inBuffer = false;
 
+        public enum BlendMode
+        {
+            Normal,
+            Add,
+            Noise,
+            Dither
+        }
+
+        public static BlendMode blendMode = BlendMode.Normal;
+
         public static int MaxTextLength()
         {
             return (textureWidth / fontWidth);
@@ -198,13 +208,7 @@ namespace Disaster
 
                     // Draw to screen
                     int index = ((j + y) * textureWidth) + (i + x);
-                    if (tcol.a == 255)
-                    {
-                        colorBuffer[index] = tcol;
-                    } else
-                    {
-                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], tcol, tcol.a);
-                    }
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -269,18 +273,12 @@ namespace Disaster
                     int sourceY = ((int)((j - sy) / transform.scale.Y)) + sy;
 
                     Color32 tcol = texture.pixels[(sourceY * twidth) + sourceX];
+                    tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
                     if (tcol.a == 0) continue;
 
                     // Draw to screen
-                    int index = ((targetY + y) * textureWidth) + (targetX + x);
-                    if (tcol.a == 255)
-                    {
-                        colorBuffer[index] = tcol;
-                    }
-                    else
-                    {
-                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], tcol, tcol.a);
-                    }
+                    int index = (int) (targetY + y) * textureWidth + targetX + x;
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, targetX + x, targetY + y);
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -398,14 +396,7 @@ namespace Disaster
                         int index = j * textureWidth + i;
                         if (index >= 0 && index < colorBuffer.Length)
                         {
-                            if (color.a == 255)
-                            {
-                                colorBuffer[index] = color;
-                            }
-                            else
-                            {
-                                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                            }
+                            colorBuffer[index] = Mix(colorBuffer[index], color, i, j);
                             overdrawBuffer[index] += 1;
                             maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                             SlowDraw();
@@ -441,14 +432,7 @@ namespace Disaster
                 int index = j * textureWidth + i;
                 if (index >= 0 && index < colorBuffer.Length)
                 {
-                    if (color.a == 255)
-                    {
-                        colorBuffer[index] = color;
-                    }
-                    else
-                    {
-                        colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                    }
+                    colorBuffer[index] = Mix(colorBuffer[index], color, i, j);
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
@@ -480,14 +464,7 @@ namespace Disaster
                             int index = j * textureWidth + i;
                             if (index >= 0 && index < colorBuffer.Length)
                             {
-                                if (color.a == 255)
-                                {
-                                    colorBuffer[index] = color;
-                                }
-                                else
-                                {
-                                    colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                                }
+                                colorBuffer[index] = Mix(colorBuffer[index], color, i, j);
                                 overdrawBuffer[index] += 1;
                                 maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                                 SlowDraw();
@@ -567,14 +544,7 @@ namespace Disaster
                     int index = y0 * textureWidth + x0;
                     if (index >= 0 && index < colorBuffer.Length)
                     {
-                        if (color.a == 255)
-                        {
-                            colorBuffer[index] = color;
-                        }
-                        else
-                        {
-                            colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                        }
+                        colorBuffer[index] = Mix(colorBuffer[index], color, x0, y0);
                         overdrawBuffer[index] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                         SlowDraw();
@@ -609,14 +579,7 @@ namespace Disaster
                     if (index >= 0 && index < colorBuffer.Length)
                     {
                         var color = Color32.Lerp(color1, color0, t);
-                        if (color.a == 255)
-                        {
-                            colorBuffer[index] = color;
-                        }
-                        else
-                        {
-                            colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                        }
+                        colorBuffer[index] = Mix(colorBuffer[index], color, x0, y0);
                         overdrawBuffer[index] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                         SlowDraw();
@@ -665,7 +628,10 @@ namespace Disaster
             Vector2 start2d = WorldToScreenPoint(start);
             Vector2 end2d = WorldToScreenPoint(end);
 
-            Line(start2d, end2d, dotStart > 0 ? Colors.red : Colors.slimegreen, dotEnd > 0 ? Colors.red : Colors.slimegreen);
+            if (start2d.LengthSquared() > 10000000) return;
+            if (end2d.LengthSquared() > 10000000) return;
+
+            Line(start2d, end2d, colorStart, colorEnd);
         }
 
         public static void FillRect(int x, int y, int width, int height, Color32 color)
@@ -695,7 +661,7 @@ namespace Disaster
                     int yoff = j * textureWidth;
                     if (color.a != 255)
                     {
-                        colorBuffer[i + yoff] = Mix(colorBuffer[i + yoff], color);
+                        colorBuffer[i + yoff] = Mix(colorBuffer[i + yoff], color, i, j);
                         overdrawBuffer[i + yoff] += 1;
                         maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[i + yoff]);
                         SlowDraw();
@@ -711,16 +677,52 @@ namespace Disaster
             }
         }
 
-        static Color32 Mix(Color32 A, Color32 B)
+        static int[] bayer = new[] { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
+        static Random randomGenerator;
+        static Color32 Mix(Color32 A, Color32 B, int x, int y)
         {
             byte r, g, b;
-            float srcAlpha = B.a / 256f;
-            float destAlpha = A.a / 256f;
-            float oneMinusSrcAlpha = 1f - srcAlpha;
-            r = (byte)MathF.Floor((B.r) + (A.r * oneMinusSrcAlpha));
-            g = (byte)MathF.Floor((B.g) + (A.g * oneMinusSrcAlpha));
-            b = (byte)MathF.Floor((B.b) + (A.b * oneMinusSrcAlpha));
-            return new Color32(r, g, b, (byte)MathF.Floor((srcAlpha + destAlpha * oneMinusSrcAlpha) * 255f));
+            float srcAlpha, destAlpha;
+            switch(blendMode)
+            {
+                case BlendMode.Dither:
+                    int index = x % 4 + (y % 4) * 4;
+                    float alpha = MathF.Round(B.a / 16f);
+                    if (alpha <= bayer[index])
+                    {
+                        return A;
+                    } else
+                    {
+                        return new Color32(B.r, B.g, B.b, 255);
+                    }
+                  
+                case BlendMode.Noise:
+                    if (randomGenerator == null) randomGenerator = new Random();
+                    if (randomGenerator.NextDouble() < B.a/256f)
+                    {
+                        return new Color32(B, 255);
+                    } else
+                    {
+                        return new Color32(A, 255);
+                    }
+                case BlendMode.Add:
+                    srcAlpha = B.a / 256f;
+                    destAlpha = A.a / 256f;
+                    r = (byte)MathF.Min(MathF.Floor((B.r * srcAlpha) + (A.r * destAlpha)), 255);
+                    g = (byte)MathF.Min(MathF.Floor((B.g * srcAlpha) + (A.g * destAlpha)), 255);
+                    b = (byte)MathF.Min(MathF.Floor((B.b * srcAlpha) + (A.b * destAlpha)), 255);
+                    return new Color32(r, g, b, (byte)MathF.Min(MathF.Floor((srcAlpha + destAlpha) * 255f), 255));
+                default:
+                case BlendMode.Normal:
+                    srcAlpha = B.a / 256f;
+                    destAlpha = A.a / 256f;
+                    float oneMinusSrcAlpha = 1f - srcAlpha;
+                    r = (byte)MathF.Min(MathF.Floor((B.r * srcAlpha) + (A.r * oneMinusSrcAlpha)), 255);
+                    g = (byte)MathF.Min(MathF.Floor((B.g * srcAlpha) + (A.g * oneMinusSrcAlpha)), 255);
+                    b = (byte)MathF.Min(MathF.Floor((B.b * srcAlpha) + (A.b * oneMinusSrcAlpha)), 255);
+                    return new Color32(r, g, b, (byte)MathF.Min(MathF.Floor((srcAlpha + destAlpha * oneMinusSrcAlpha) * 255f), 255));
+
+            }
         }
 
         public static void Path(Vector2[] path, Color32 color, bool closed = true)
@@ -869,6 +871,115 @@ namespace Disaster
             }
         }
 
+        static Color32[] rainbowColors = new Color32[] { Colors.red, Colors.meat, Colors.orange, Colors.yellow, Colors.slimegreen, Colors.skyblue };
+        public static void TextStyled(int x, int y, string text)
+        {
+            Color32 color = Colors.white;
+            bool bold = false;
+            bool wave = false;
+            bool shadow = false;
+            bool rainbow = false;
+            int charOffset = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char nextChar = text[i];
+                if (nextChar == '$')
+                {
+                    if (i == text.Length - 1) return;
+                    char control = text[i + 1];
+                    switch (control)
+                    {
+                        case 'c':
+                            if (i == text.Length - 2) return;
+                            char colorChar = text[i + 2];
+                            switch (colorChar) {
+                                case '0': color = Colors.palette[0]; break;
+                                case '1': color = Colors.palette[1]; break;
+                                case '2': color = Colors.palette[2]; break;
+                                case '3': color = Colors.palette[3]; break;
+                                case '4': color = Colors.palette[4]; break;
+                                case '5': color = Colors.palette[5]; break;
+                                case '6': color = Colors.palette[6]; break;
+                                case '7': color = Colors.palette[7]; break;
+                                case '8': color = Colors.palette[8]; break;
+                                case '9': color = Colors.palette[9]; break;
+                                case 'A': color = Colors.palette[10]; break;
+                                case 'B': color = Colors.palette[11]; break;
+                                case 'C': color = Colors.palette[12]; break;
+                                case 'D': color = Colors.palette[13]; break;
+                                case 'E': color = Colors.palette[14]; break;
+                                case 'F': color = Colors.palette[15]; break;
+                            }
+                            i += 2;
+                            charOffset -= 3;
+                            break;
+                        case 'r':
+                            rainbow = true;
+                            i += 1;
+                            charOffset -= 2;
+                            break;
+                        case 'b':
+                            bold = true;
+                            i += 1;
+                            charOffset -= 2;
+                            break;
+                        case 'w':
+                            wave = true;
+                            i += 1;
+                            charOffset -= 2;
+                            break;
+                        case 's':
+                            shadow = true;
+                            i += 1;
+                            charOffset -= 2;
+                            break;
+                        case 'n':
+                            bold = false;
+                            wave = false;
+                            shadow = false;
+                            rainbow = false;
+                            i += 1;
+                            charOffset -= 2;
+                            break;
+                    }
+                } else
+                {
+                    int yPos = y;
+                    if (wave)
+                    {
+                        yPos += (int) (Math.Sin((-i + charOffset) + DisasterAPI.Engine.GetTime() * 6f) * 2f); 
+                    }
+                    if (shadow)
+                    {
+                        Character(x + ((i+charOffset) * fontWidth), yPos+1, text[i], Colors.black);
+                        if (bold)
+                        {
+                            Character(1 + x + ((i + charOffset) * fontWidth), yPos+1, text[i], Colors.black);
+                        }
+                    }
+
+                    var tcol = color;
+                    if (rainbow)
+                    {
+                        
+                        double colorIndex = Math.Floor(i + DisasterAPI.Engine.GetTime() * 8f);
+                        colorIndex = ((colorIndex % rainbowColors.Length) + rainbowColors.Length) % rainbowColors.Length;
+                        //Console.WriteLine(colorIndex);
+                        color = rainbowColors[(int) colorIndex];
+                    }
+
+                    Character(x + ((i + charOffset) * fontWidth), yPos, text[i], color);
+                    if (bold)
+                    {
+                        Character(1 + x + ((i + charOffset) * fontWidth), yPos, text[i], color);
+                    }
+
+                    color = tcol;
+                }
+
+            }
+        }
+
         public static void Text(int x, int y, Color32 color, string text)
         {
             for (int i = 0; i < text.Length; i++)
@@ -899,14 +1010,7 @@ namespace Disaster
                         int index = PointToBufferIndex(x + i, y + j);
                         if (index >= 0 && index < colorBuffer.Length)
                         {
-                            if (color.a == 255)
-                            {
-                                colorBuffer[index] = color;
-                            }
-                            else
-                            {
-                                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-                            }
+                            colorBuffer[index] = Mix(colorBuffer[index], color, x + i, y + j);
                             overdrawBuffer[index] += 1;
                             maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                             SlowDraw();
@@ -922,14 +1026,7 @@ namespace Disaster
             y += offset.y;
             int index = PointToBufferIndex(x, y);
 
-            if (color.a == 255)
-            {
-                colorBuffer[index] = color;
-            }
-            else
-            {
-                colorBuffer[index] = Color32.Lerp(colorBuffer[index], color, color.a);
-            }
+            colorBuffer[index] = Mix(colorBuffer[index], color, x, y);
             
             overdrawBuffer[index] += 1;
             maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
@@ -1002,7 +1099,6 @@ namespace Disaster
         {
             var output = new PixelBuffer(colorBuffer, textureWidth);
             var hashnum = output.GetHashCode();
-            if (Assets.pixelBuffers == null) Assets.pixelBuffers = new Dictionary<string, PixelBuffer>();
             while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
             {
                 hashnum += 1;

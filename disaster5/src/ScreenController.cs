@@ -10,7 +10,7 @@ namespace Disaster
 {
     public class ScreenController
     {
-        SoftwareCanvasRenderer drawScreen;
+        SoftwareCanvasRenderer softwareCanvasRenderer;
         public static ScreenController instance;
         Shader postProcessShader;
 
@@ -51,12 +51,12 @@ namespace Disaster
         {
             if (Assets.PathExists("shaders/screen.vert") && Assets.PathExists("shaders/screen.frag"))
             {
-                drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
+                softwareCanvasRenderer = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             }
             else
             {
                 Console.WriteLine("loading backup software shader");
-                drawScreen = new SoftwareCanvasRenderer(Raylib.LoadMaterialDefault().shader);
+                softwareCanvasRenderer = new SoftwareCanvasRenderer(Raylib.LoadMaterialDefault().shader);
             }
 
             if (Assets.PathExists("shaders/postprocess.vert") && Assets.PathExists("shaders/postprocess.frag"))
@@ -83,13 +83,13 @@ namespace Disaster
 
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
-            drawScreen = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
+            softwareCanvasRenderer = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             ReloadShader();
         }
 
         public void Update()
         {
-            drawScreen.Update();
+            softwareCanvasRenderer.Update();
 
             Raylib.BeginDrawing();
             
@@ -105,6 +105,8 @@ namespace Disaster
             
             Raylib.BeginShaderMode(postProcessShader);
             Raylib.SetShaderValueTexture(postProcessShader, Raylib.GetShaderLocation(postProcessShader, "depthTexture"), renderTexture.depth);
+            var t = (float)Raylib.GetTime();
+            Raylib.SetShaderValue(postProcessShader, Raylib.GetShaderLocation(postProcessShader, "time"), ref t, ShaderUniformDataType.SHADER_UNIFORM_FLOAT);
             unsafe
             {
                 Vector4 screenDims = new Vector4(screenWidth, screenHeight, windowWidth, windowHeight);
@@ -126,7 +128,7 @@ namespace Disaster
                 Color.WHITE
             );
             Raylib.EndShaderMode();
-            drawScreen.Render();
+            softwareCanvasRenderer.Render();
             Rlgl.rlDrawRenderBatchActive();
 
             Raylib.EndDrawing();
@@ -136,7 +138,7 @@ namespace Disaster
 
         public void Done()
         {
-            drawScreen.Dispose();
+            softwareCanvasRenderer.Dispose();
             Raylib.CloseWindow();
             Raylib.UnloadRenderTexture(renderTexture);
         }

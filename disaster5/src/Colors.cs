@@ -22,5 +22,8 @@ namespace Disaster
         public static Color32 seablue = new Color32(0x00, 0x57, 0x84, 0xff);
         public static Color32 skyblue = new Color32(0x31, 0xA2, 0xF2, 0xff);
         public static Color32 cloudblue = new Color32(0xB2, 0xDC, 0xEF, 0xff);
+        public static Color32[] palette = new Color32[] {
+            black, gray, white, red, meat, darkbrown, brown, orange, yellow, darkgreen, green, slimegreen, nightblue, seablue, skyblue, cloudblue
+        };
     }
 }

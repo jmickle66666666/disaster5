@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "disaster5": {
+      "commandName": "Project"
+    },
+    "runbase": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\GitHub\\disaster_test"
+    }
+  }
+}

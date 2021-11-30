@@ -119,16 +119,29 @@ namespace Disaster
             }
         }
 
+        public static void InitDictionaries()
+        {
+            scripts = new Dictionary<string, ObjectInstance>();
+            textures = new Dictionary<string, Texture2D>();
+            pixelBuffers = new Dictionary<string, PixelBuffer>();
+            models = new Dictionary<string, Model>();
+            audio = new Dictionary<string, Sound>();
+            music = new Dictionary<string, Music>();
+            shaders = new Dictionary<string, Shader>();
+            texts = new Dictionary<string, string>();
+            currentlyLoadingScripts = new List<string>();
+        }
+
         public static int TotalLoaded()
         {
             int count = 0;
-            if (scripts != null) count += scripts.Count;
-            if (pixelBuffers != null) count += pixelBuffers.Count;
-            if (models != null) count += models.Count;
-            if (audio != null) count += audio.Count;
-            if (music != null) count += music.Count;
-            if (shaders != null) count += shaders.Count;
-            if (texts != null) count += texts.Count;
+            count += scripts.Count;
+            count += pixelBuffers.Count;
+            count += models.Count;
+            count += audio.Count;
+            count += music.Count;
+            count += shaders.Count;
+            count += texts.Count;
             return count;
         }
 
@@ -168,40 +181,38 @@ namespace Disaster
 
         public static bool Loaded(string path)
         {
-            if (scripts != null && scripts.ContainsKey(path)) return true;
-            if (pixelBuffers != null && pixelBuffers.ContainsKey(path)) return true;
-            if (audio != null && audio.ContainsKey(path)) return true;
-            if (music != null && music.ContainsKey(path)) return true;
-            if (texts != null && texts.ContainsKey(path)) return true;
+            if (scripts.ContainsKey(path)) return true;
+            if (pixelBuffers.ContainsKey(path)) return true;
+            if (audio.ContainsKey(path)) return true;
+            if (music.ContainsKey(path)) return true;
+            if (texts.ContainsKey(path)) return true;
             return false;
         }
 
         public static void UnloadAll()
         {
             Dispose();
-            if (scripts != null) scripts.Clear();
-            if (pixelBuffers != null) pixelBuffers.Clear();
+            scripts.Clear();
+            pixelBuffers.Clear();
+            
             AudioController.StopAllSound();
-            if (audio != null)
+            foreach (var a in audio)
             {
-                foreach (var a in audio)
-                {
-                    Raylib.UnloadSound(a.Value);
-                }
-                audio.Clear();
+                Raylib.UnloadSound(a.Value);
             }
-            if (music != null) music.Clear();
-            if (texts != null) texts.Clear();
-            if (models != null) models.Clear();
 
-            if (shaders != null)
-            {
-                foreach (var s in shaders)
-                {
-                    Raylib.UnloadShader(s.Value);
-                }
-                shaders.Clear();
-            }
+            audio.Clear();
+            music.Clear();
+            texts.Clear();
+            models.Clear();
+
+            //foreach (var s in shaders)
+            //{
+            //    Raylib.UnloadShader(s.Value);
+            //}
+            shaders.Clear();
+            //assignedDefaultShader = false;
+
             GC.Collect();
         }
 
@@ -209,20 +220,13 @@ namespace Disaster
         {
             path = Reslash(path);
 
-            if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
-            if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
-            if (audio == null) audio = new Dictionary<string, Sound>();
-            if (music == null) music = new Dictionary<string, Music>();
-            if (texts == null) texts = new Dictionary<string, string>();
-            if (models == null) models = new Dictionary<string, Model>();
-
             if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
             if (scripts.ContainsKey(path)) { scripts.Remove(path); }
             if (audio.ContainsKey(path)) { audio.Remove(path); }
             if (music.ContainsKey(path)) { music.Remove(path); }
             if (texts.ContainsKey(path)) { texts.Remove(path); }
             if (shaders.ContainsKey(path)) { Raylib.UnloadShader(shaders[path]); shaders.Remove(path); }
-            if (models.ContainsKey(path)) { models.Remove(path); }
+            if (models.ContainsKey(path)) { Raylib.UnloadModel(models[path]); models.Remove(path); }
         }
 
         public static void Preload(string path)
@@ -275,7 +279,6 @@ namespace Disaster
         public static (bool succeeded, Shader shader) Shader(string path)
         {
             path = Reslash(path);
-            if (shaders == null) shaders = new Dictionary<string, Shader>();
             if (!shaders.ContainsKey(path))
             {
                 var vertFound = LoadPath(path + ".vert", out string vertPath);
@@ -296,7 +299,6 @@ namespace Disaster
         public static (bool succeeded, string text) Text(string path)
         {
             path = Reslash(path);
-            if (texts == null) texts = new Dictionary<string, string>();
             if (!texts.ContainsKey(path))
             {
                 if (!LoadPath(path, out string textPath))
@@ -314,7 +316,6 @@ namespace Disaster
         public static (bool succeeded, PixelBuffer pixelBuffer) PixelBuffer(string path)
         {
             path = Reslash(path);
-            if (pixelBuffers == null) pixelBuffers = new Dictionary<string, PixelBuffer>();
             if (!pixelBuffers.ContainsKey(path))
             {
                 if (!LoadPath(path, out string pixelBufferPath))
@@ -350,7 +351,6 @@ namespace Disaster
         public static (bool succeeded, Model model) Model(string path)
         {
             path = Reslash(path);
-            if (models == null) models = new Dictionary<string, Model>();
             if (!models.ContainsKey(path))
             {
                 if (!LoadPath(path, out string modelPath))
@@ -368,7 +368,6 @@ namespace Disaster
         public static (bool succeeded, ObjectInstance script) Script(string path)
         {
             path = Reslash(path);
-            if (scripts == null) scripts = new Dictionary<string, ObjectInstance>();
             if (!scripts.ContainsKey(path))
             {
                 var newScript = LoadScript(path);
@@ -392,8 +391,6 @@ namespace Disaster
             {
                 return (false, null);
             }
-
-            if (currentlyLoadingScripts == null) currentlyLoadingScripts = new List<string>();
 
             if (currentlyLoadingScripts.Contains(scriptPath))
             {
@@ -421,7 +418,6 @@ namespace Disaster
         public static (bool succeeded, Music music) Music(string path)
         {
             path = Reslash(path);
-            if (music == null) music = new Dictionary<string, Music>();
             if (!music.ContainsKey(path))
             {
                 if (!LoadPath(path, out string audioPath))
@@ -438,7 +434,6 @@ namespace Disaster
         public static (bool succeeded, Sound sound) Audio(string path)
         {
             path = Reslash(path);
-            if (audio == null) audio = new Dictionary<string, Sound>();
             if (!audio.ContainsKey(path))
             {
                 if (!LoadPath(path, out string audioPath))

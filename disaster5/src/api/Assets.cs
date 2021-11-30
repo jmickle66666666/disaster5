@@ -38,10 +38,6 @@ namespace DisasterAPI
         [ArgumentDescription("path", "path to the asset")]
         public void Unload(string path)
         {
-            if (!Disaster.Assets.PathExists(path))
-            {
-                System.Console.WriteLine($"no path: {path}");
-            }
             Disaster.Assets.Unload(path);
         }
 
@@ -96,11 +92,6 @@ namespace DisasterAPI
         [ArgumentDescription("path", "Path of the texture")]
         public ObjectInstance GetTextureSize(string path)
         {
-            if (!Disaster.Assets.LoadPath(path, out _))
-            {
-                System.Console.WriteLine($"No texture: {path}");
-                return null;
-            }
             var texture = Disaster.Assets.PixelBuffer(path);
             if (texture.succeeded)
             {
@@ -110,6 +101,7 @@ namespace DisasterAPI
                 return output;
             } else
             {
+                System.Console.WriteLine($"No texture: {path}");
                 var output = Disaster.JS.instance.engine.Object.Construct();
                 output["w"] = 0;
                 output["h"] = 0;
@@ -121,8 +113,8 @@ namespace DisasterAPI
         [FunctionDescription("Returns a Texture object from the given asset path. The Texture section below outlines the texture API")]
         [ArgumentDescription("path", "Path of the texture")]
         public Texture GetTexture(string path)
-        {
-            if (!Disaster.Assets.pixelBuffers.ContainsKey(path))
+        {   
+            if (!Disaster.Assets.PixelBuffer(path).succeeded)
             {
                 System.Console.WriteLine($"No texture: {path}");
                 return null;
@@ -150,14 +142,30 @@ namespace DisasterAPI
             Raylib_cs.Model model = Disaster.TypeInterface.Model(meshData);
             
             int hash = model.GetHashCode();
-            if (Disaster.Assets.models == null)
-            {
-                Disaster.Assets.models = new System.Collections.Generic.Dictionary<string, Raylib_cs.Model>();
-            }
             while (Disaster.Assets.models.ContainsKey(hash.ToString())) {
                 hash += 1;
             }
             Disaster.Assets.models.Add(hash.ToString(), model);
+            return hash.ToString();
+        }
+
+        [JSFunction(Name = "createVoxelMesh")]
+        public string CreateVoxelMesh(ObjectInstance chunkSize, string texturePath, ObjectInstance textureSize, ObjectInstance data, ObjectInstance multiTextures)
+        {
+            var voxelModel = Disaster.VoxelMeshGenerator.Generate(
+                (Disaster.Vector3Int)Disaster.TypeInterface.Vector3(chunkSize),
+                Disaster.Assets.PixelBuffer(texturePath).pixelBuffer.texture,
+                (Disaster.Vector2Int)Disaster.TypeInterface.Vector2(textureSize),
+                Disaster.TypeInterface.IntArray(data),
+                new Disaster.MultiTextureVoxel[] { }
+            );
+
+            int hash = voxelModel.GetHashCode();
+            while (Disaster.Assets.models.ContainsKey(hash.ToString()))
+            {
+                hash += 1;
+            }
+            Disaster.Assets.models.Add(hash.ToString(), voxelModel);
             return hash.ToString();
         }
 

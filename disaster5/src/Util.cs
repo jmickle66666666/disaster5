@@ -184,6 +184,14 @@ namespace Disaster
             this.b = b;
         }
 
+        public Color32(Color32 color, byte alpha)
+        {
+            this.r = color.r;
+            this.g = color.g;
+            this.b = color.b;
+            this.a = alpha;
+        }
+
         public static Color32 Lerp(Color32 a, Color32 b, float t)
         {
             if (t < 0f) t = 0f;
@@ -272,18 +280,22 @@ namespace Disaster
         public Vector2 origin;
         public Vector2 scale;
         public float rotation;
-        public Transform2D(Vector2 origin, Vector2 scale, float rotation)
+        public float alpha;
+
+        public Transform2D(Vector2 origin, Vector2 scale, float rotation, float alpha = 1.0f)
         {
             this.origin = origin;
             this.scale = scale;
             this.rotation = rotation;
+            this.alpha = alpha;
         }
 
-        public Transform2D(float originX, float originY, float scaleX, float scaleY, float rotation)
+        public Transform2D(float originX, float originY, float scaleX, float scaleY, float rotation, float alpha = 1.0f)
         {
             this.origin = new Vector2(originX, originY);
             this.scale = new Vector2(scaleX, scaleY);
             this.rotation = rotation;
+            this.alpha = alpha;
         }
 
         public static Transform2D identity
@@ -306,5 +318,22 @@ namespace Disaster
         public static Vector2Int operator +(Vector2Int a, Vector2Int b) => new Vector2Int(a.x + b.x, a.y + b.y);
         public static Vector2Int operator -(Vector2Int a, Vector2Int b) => new Vector2Int(a.x - b.x, a.y - b.y);
         public static Vector2Int operator /(Vector2Int a, int b) => new Vector2Int(a.x / b, a.y / b);
+        public static explicit operator Vector2Int(Vector2 vector) => new Vector2Int((int)vector.X, (int)vector.Y);
+    }
+
+    public struct Vector3Int
+    {
+        public int x;
+        public int y;
+        public int z;
+        public Vector3Int(int x, int y, int z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+        public static Vector3Int operator +(Vector3Int a, Vector3Int b) => new Vector3Int(a.x + b.x, a.y + b.y, a.z + b.z);
+        public static Vector3Int operator -(Vector3Int a, Vector3Int b) => new Vector3Int(a.x - b.x, a.y - b.y, a.z + b.z);
+        public static explicit operator Vector3Int(Vector3 vector) => new Vector3Int((int) vector.X, (int) vector.Y, (int) vector.Z);
     }
 }

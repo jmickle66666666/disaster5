@@ -146,14 +146,18 @@ namespace Disaster
             Vector2 origin = new Vector2(0, 0);
             Vector2 scale = new Vector2(1, 1);
             float rotation = 0f;
+            float alpha = 1f;
 
             if (input.TryGetPropertyValue("originX", out object ox)) { origin.X = GetFloat(ox); };
             if (input.TryGetPropertyValue("originY", out object oy)) { origin.Y = GetFloat(oy); };
             if (input.TryGetPropertyValue("scaleX", out object sx)) { scale.X = GetFloat(sx); };
             if (input.TryGetPropertyValue("scaleY", out object sy)) { scale.Y = GetFloat(sy); };
             if (input.TryGetPropertyValue("rotation", out object rot)) { rotation = GetFloat(rot); };
+            if (input.TryGetPropertyValue("alpha", out object alph)) { alpha = GetFloat(alph); };
 
-            return new Transform2D(origin, scale, rotation);
+            if (alpha < 0f) alpha = 0f;
+
+            return new Transform2D(origin, scale, rotation, alpha);
         }
 
         public static ShaderParameter[] ShaderParameters(ObjectInstance input)
@@ -205,6 +209,32 @@ namespace Disaster
             //output.SetPropertyValue("direction", Object(model.direction), true);
             //return output;
         //}
+
+        public static bool Ensure<T>(ObjectInstance input)
+        {
+            if (typeof(T) == typeof(Raylib_cs.Model))
+            {
+                return input.HasProperty("vertices");
+            }
+
+            if (typeof(T) == typeof(Color32))
+            {
+                return input.HasProperty("r");
+            }
+
+            if (typeof(T) == typeof(Vector3))
+            {
+                return input.HasProperty("x");
+            }
+
+            if (typeof(T) == typeof(Plane))
+            {
+                return input.HasProperty("normal");
+            }
+
+            Console.WriteLine($"Can't check type: {typeof(T)}");
+            return true;
+        }
 
         public static Model Model(ObjectInstance input)
         {
@@ -290,10 +320,11 @@ namespace Disaster
 
         public static int[] IntArray(ObjectInstance input)
         {
-            int[] output = new int[(uint) input.GetPropertyValue("length")];
-            for (var i = 0; i < output.Length; i++)
+            var length = (uint)input.GetPropertyValue("length");
+            int[] output = new int[length];
+            for (int i = 0; i < output.Length; i++)
             {
-                output[i] = (int) input.GetPropertyValue((uint) i);
+                output[i] = GetInt(input.GetPropertyValue((uint) i));
             }
             return output;
         }

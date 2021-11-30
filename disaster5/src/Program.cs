@@ -98,6 +98,8 @@ namespace Disaster
                 Assets.basePath = args[0];
             }
 
+            Assets.InitDictionaries();
+
             // software renderer initialisation
             SoftwareCanvas.InitTexture(320, 240);
             // TODO: bake in a default font! so you can't end up with no font at all

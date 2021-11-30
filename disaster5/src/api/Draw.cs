@@ -177,6 +177,16 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
+        [JSFunction(Name = "textStyled")]
+        [FunctionDescription("Draw a line of text with styling options")]
+        [ArgumentDescription("text", "the text to draw. $b for bold, $w for wavey, $s for drop shadow, $c for color, 0-F (e.g $c5hello $cAthere), $n to reset styling")]
+        [ArgumentDescription("x", "x position of the text")]
+        [ArgumentDescription("y", "x position of the text")]
+        public static void TextStyled(string text, int x, int y)
+        {
+            Disaster.SoftwareCanvas.TextStyled(x, y, text);
+        }
+
         [JSFunction(Name = "wireframe")]
         [FunctionDescription("Draw a 3D wireframe.")]
         [ArgumentDescription("modelPath", "Path of the model to draw")]
@@ -287,7 +297,7 @@ namespace DisasterAPI
         [ArgumentDescription("x", "x position of the image")]
         [ArgumentDescription("y", "x position of the image")]
         [ArgumentDescription("rectangle", "(optional) rectangle defining the portion of the image to draw", "{ x, y, w, h }")]
-        [ArgumentDescription("transformation", "(optional) scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY }")]
+        [ArgumentDescription("transformation", "(optional) scaling, rotation and origin properties", "{ originX, originY, rotation, scaleX, scaleY, alpha }")]
         public static void Texture(string texturePath, int x, int y, ObjectInstance rectangle = null, ObjectInstance transformation = null)
         {
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
@@ -295,7 +305,19 @@ namespace DisasterAPI
             {
                 var rect = rectangle == null ? new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height) : Disaster.TypeInterface.Rect(rectangle);
                 var trans = transformation == null ? Disaster.Transform2D.identity : Disaster.TypeInterface.Transform2d(transformation);
-                Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+                if (trans.rotation % 90 != 0)
+                {
+                    // AWFUL HACK BECAUSE ROTATION SUCKS RN
+                    trans.rotation -= 2;
+                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+                    trans.rotation += 7;
+                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+                    trans.rotation -= 5;
+                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+                } else
+                {
+                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
+                }
             } else
             {
                 System.Console.WriteLine($"Failed to draw texture: {texturePath}");
@@ -315,6 +337,13 @@ namespace DisasterAPI
             Disaster.ScreenController.camera.target = pos + forward;
         }
 
+        [JSFunction(Name = "setFOV")]
+        public static void SetFOV(double fov)
+        {
+            System.Console.WriteLine($"current fov: {Disaster.ScreenController.camera.fovy}");
+            Disaster.ScreenController.camera.fovy = (float)fov;
+        }
+
         [JSFunction(Name = "getCameraTransform")]
         [FunctionDescription("Get the 3d camera transformation", "{forward, up, right}")]
         public static ObjectInstance GetCameraTransform()
@@ -324,6 +353,30 @@ namespace DisasterAPI
             output["up"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.up);
             output["right"] = Disaster.TypeInterface.Object(Vector3.Cross(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position, Disaster.ScreenController.camera.up));
             return output;
+        }
+
+        [JSFunction(Name ="setBlendMode")]
+        [FunctionDescription("Set the blending mode for future draw operations. normal, noise, add")]
+        public static void SetBlendMode(string blendMode)
+        {
+            switch (blendMode)
+            {
+                case "normal":
+                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Normal;
+                    break;
+                case "noise":
+                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Noise;
+                    break;
+                case "add":
+                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Add;
+                    break;
+                case "dither":
+                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Dither;
+                    break;
+                default:
+                    System.Console.WriteLine($"Unknown blendmode: {blendMode}");
+                    break;
+            }
         }
 
     }
