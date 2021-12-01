@@ -257,10 +257,9 @@ namespace Disaster
         public static string[] GetAllPaths()
         {
             string[] output = Directory.GetFiles(basePath, "*.*", SearchOption.AllDirectories);
-            int len = basePath.Length + 1;
             for (int i = 0; i < output.Length; i++)
             {
-                output[i] = "\\"+output[i].Substring(len);
+                output[i] = Path.GetRelativePath(basePath, output[i]);
             }
             return output;
         }
