@@ -150,7 +150,13 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "createVoxelMesh")]
-        public string CreateVoxelMesh(ObjectInstance chunkSize, string texturePath, ObjectInstance textureSize, ObjectInstance data, ObjectInstance multiTextures)
+        [FunctionDescription("Creates a new mesh object from voxel data returns a reference for it.")]
+        [ArgumentDescription("chunkSize", "Dimensions of voxel area", "{x, y, z}")]
+        [ArgumentDescription("texturePath", "Texture to use for the voxels. This should be a map of smaller textures, like a tileset.")]
+        [ArgumentDescription("textureSize", "How many individual textures along each axis of your texture map", "{x, y}")]
+        [ArgumentDescription("data", "Integer array defining the voxels. -1 means empty, any other number specifies a texture in the texture map", "int[]")]
+        
+        public string CreateVoxelMesh(ObjectInstance chunkSize, string texturePath, ObjectInstance textureSize, ObjectInstance data)
         {
             var voxelModel = Disaster.VoxelMeshGenerator.Generate(
                 (Disaster.Vector3Int)Disaster.TypeInterface.Vector3(chunkSize),

@@ -338,6 +338,8 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "setFOV")]
+        [FunctionDescription("Set the field of view of the camera")]
+        [ArgumentDescription("fov", "field of view")]
         public static void SetFOV(double fov)
         {
             System.Console.WriteLine($"current fov: {Disaster.ScreenController.camera.fovy}");
