@@ -1,3 +1,12 @@
+== NEXT/IN PROGRESS ==
+- voxel workflow
+- voxel editor
+- file browser
+- improve/fix tilemap editor
+- console improvements
+- web runtime
+- 3d editor
+
 == features ==
 - sound panning
 - potentially move vector stuff to c# api
@@ -7,13 +16,10 @@
 
 == bugs ==
 - memory leaky
-- console darkens asset file browser
-- asset browser just straight up broken
 - make circles consistent
 - fix platform inconsistencies in shaders
 - script weirdness after some exceptions (after compile errors?) -- can replicate, no idea whats happening yet
 - prevent bad arguments causing crashes -- causes a TypeError, maybe try to handle that
-- pass screen size/window size into post processing shader
 
 == 3d editor ==
 - delete part

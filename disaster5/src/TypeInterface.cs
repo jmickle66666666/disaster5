@@ -370,6 +370,16 @@ namespace Disaster
             return output;
         }
 
+        public static ObjectInstance Object(string[] input)
+        {
+            var output = JS.instance.engine.Array.Construct();
+            for (var i = 0; i < input.Length; i++)
+            {
+                output.Push(input[i]);
+            }
+            return output;
+        }
+
         static byte GetByte(object value) {
             IConvertible val = (IConvertible) value;
             byte cast = val.ToByte(null);

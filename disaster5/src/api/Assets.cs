@@ -49,17 +49,10 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "list")]
-        [FunctionDescription("Returns a list of the paths to all assets, delimited with a comma `,`")]
-        [ArgumentDescription("directory", "(optional) provide a directory to list")]
-        public string List(string directory = "", bool subdirectories = false)
+        [FunctionDescription("Returns a list of the paths to all assets")]
+        public ObjectInstance List()
         {
-            if (directory == "")
-            {
-                return string.Join(',', Disaster.Assets.GetAllPaths());
-            } else
-            {
-                return string.Join(',', Disaster.Assets.ListDir(directory, subdirectories));
-            }
+            return Disaster.TypeInterface.Object(Disaster.Assets.GetAllPaths());
         }
 
         [JSFunction(Name = "readText")]

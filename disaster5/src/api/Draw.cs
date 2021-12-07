@@ -375,6 +375,9 @@ namespace DisasterAPI
                 case "dither":
                     Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Dither;
                     break;
+                case "subtract":
+                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Subtract;
+                    break;
                 default:
                     System.Console.WriteLine($"Unknown blendmode: {blendMode}");
                     break;

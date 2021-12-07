@@ -46,7 +46,8 @@ namespace Disaster
             Normal,
             Add,
             Noise,
-            Dither
+            Dither,
+            Subtract
         }
 
         public static BlendMode blendMode = BlendMode.Normal;
@@ -679,6 +680,7 @@ namespace Disaster
 
         static int[] bayer = new[] { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
         static Random randomGenerator;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Color32 Mix(Color32 A, Color32 B, int x, int y)
         {
             byte r, g, b;
@@ -712,8 +714,17 @@ namespace Disaster
                     g = (byte)MathF.Min(MathF.Floor((B.g * srcAlpha) + (A.g * destAlpha)), 255);
                     b = (byte)MathF.Min(MathF.Floor((B.b * srcAlpha) + (A.b * destAlpha)), 255);
                     return new Color32(r, g, b, (byte)MathF.Min(MathF.Floor((srcAlpha + destAlpha) * 255f), 255));
+                case BlendMode.Subtract:
+                    srcAlpha = B.a / 256f;
+                    destAlpha = A.a / 256f;
+                    r = (byte)MathF.Min(MathF.Floor((B.r * srcAlpha) - (A.r * destAlpha)), 255);
+                    g = (byte)MathF.Min(MathF.Floor((B.g * srcAlpha) - (A.g * destAlpha)), 255);
+                    b = (byte)MathF.Min(MathF.Floor((B.b * srcAlpha) - (A.b * destAlpha)), 255);
+                    return new Color32(r, g, b, (byte)MathF.Min(MathF.Floor((srcAlpha + destAlpha) * 255f), 255));
                 default:
                 case BlendMode.Normal:
+                    if (B.a == 255) return B;
+                    if (B.a == 0) return A;
                     srcAlpha = B.a / 256f;
                     destAlpha = A.a / 256f;
                     float oneMinusSrcAlpha = 1f - srcAlpha;
