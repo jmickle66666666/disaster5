@@ -259,7 +259,7 @@ namespace Disaster
             string[] output = Directory.GetFiles(basePath, "*.*", SearchOption.AllDirectories);
             for (int i = 0; i < output.Length; i++)
             {
-                output[i] = Path.GetRelativePath(basePath, output[i]);
+                output[i] = Reslash(Path.GetRelativePath(basePath, output[i]));
             }
             return output;
         }

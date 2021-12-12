@@ -188,7 +188,7 @@ var ymov = 1;
 var speed = 35;
 Draw.clear();
 function update(dt) {
-    Draw.text(x, y, 'no data loaded!', {r:Math.floor(Math.random()*255), g:Math.floor(Math.random()*255), b:Math.floor(Math.random()*255)});
+    Draw.text('no data loaded!', x, y, {r:Math.floor(Math.random()*255), g:Math.floor(Math.random()*255), b:Math.floor(Math.random()*255)});
     x += dt * speed * xmov;
     y += dt * speed * ymov;
 if (x > 232) xmov = -1;

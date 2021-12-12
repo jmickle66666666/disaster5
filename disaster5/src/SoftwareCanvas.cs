@@ -217,6 +217,58 @@ namespace Disaster
             }
         }
 
+        public static void NineSlice(PixelBuffer texture, Rect center, Rect area)
+        {
+            int x = (int)area.x;
+            int y = (int)area.y;
+            x += offset.x;
+            y += offset.y;
+
+            var right = area.width - (texture.width - center.x2);
+            var bottom = area.height - (texture.height - center.y2);
+
+            for (int i = 0; i < area.width; i++)
+            {
+                for (int j = 0; j < area.height; j++)
+                {
+                    var sx = i;
+                    var sy = j;
+                    if (i > center.x && i < right)
+                    {
+                        sx = (int) (((i - center.x) % center.width) + center.x);
+                        //sx = (int)center.x;
+                    }
+
+                    if (i >= right)
+                    {
+                        sx = (int) ((i - right) + center.x2);
+                    }
+
+                    if (j > center.y && j < bottom)
+                    {
+                        sy = (int)(((j - center.y) % center.height) + center.y);
+                        //sx = (int)center.y;
+                    }
+
+                    if (j >= bottom)
+                    {
+                        sy = (int)((j - bottom) + center.y2);
+                    }
+
+                    int index = ((j + y) * textureWidth) + i + x;
+
+                    //Console.WriteLine($"{sx} {sy}");
+                    Color32 tcol = texture.pixels[(sy * texture.width) + sx];
+                    if (tcol.a == 0) continue;
+
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
+                    overdrawBuffer[index] += 1;
+                    maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
+                    SlowDraw();
+                }
+            }
+        }
+
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
         {
             PixelBuffer(texture, x, y, new Rect(0, 0, texture.width, texture.height), transform);

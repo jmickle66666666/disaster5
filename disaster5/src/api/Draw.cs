@@ -324,6 +324,28 @@ namespace DisasterAPI
             }
         }
 
+        [JSFunction(Name = "nineSlice")]
+        [FunctionDescription("Draw a 9-sliceds sprite. Tiles the center and edges of a sprite over a given area. (look up 9-slice!)")]
+        [ArgumentDescription("texturePath", "Texture to draw")]
+        [ArgumentDescription("nineSliceArea", "A rectangle defining the center region of the 9-slide", "{x, y, w, h}")]
+        [ArgumentDescription("x", "x position to draw to")]
+        [ArgumentDescription("y", "y position to draw to")]
+        [ArgumentDescription("width", "width of the area to draw to")]
+        [ArgumentDescription("height", "height of the area to draw to")]
+        public static void NineSlice(string texturePath, ObjectInstance nineSliceArea, int x, int y, int width, int height)
+        {
+            var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
+            if (pixelBuffer.succeeded)
+            {
+                var rect = Disaster.TypeInterface.Rect(nineSliceArea);
+                Disaster.SoftwareCanvas.NineSlice(pixelBuffer.pixelBuffer, rect, new Disaster.Rect(x, y, width, height));
+            }
+            else
+            {
+                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+            }
+        }
+
         [JSFunction(Name = "setCamera")]
         [FunctionDescription("Set the 3d camera position and rotation")]
         [ArgumentDescription("position", "position to set the camera to", "{x, y, z}")]

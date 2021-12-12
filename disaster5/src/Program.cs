@@ -17,7 +17,7 @@ namespace Disaster
 
         static void LoadConfig()
         {
-            string basedir = "";
+            string basedir = "data";
             string[] lines = new string[] { };
             if (File.Exists("settings.cfg"))
             {
