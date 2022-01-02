@@ -348,8 +348,8 @@ namespace Disaster
                     if (rscalex < 0) sourceX = texture.width - sourceX - 1;
                     if (rscaley < 0) sourceY = texture.height - sourceY - 1;
 
-                    if (sourceX < 0 || sourceX >= texture.width) continue;
-                    if (sourceY < 0 || sourceY >= texture.height) continue;
+                    if (sourceX < Math.Max(sx, 0) || sourceX >= Math.Min(sw, texture.width)) continue;
+                    if (sourceY < Math.Max(sx, 0) || sourceY >= Math.Min(sh, texture.height)) continue;
 
                     Color32 tcol = texture.pixels[(sourceY * texture.width) + sourceX];
                     tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
