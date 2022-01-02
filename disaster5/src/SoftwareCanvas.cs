@@ -276,9 +276,8 @@ namespace Disaster
 
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
         {
-            int twidth = texture.width;
-            transform.rotation %= 360;
-            double radians = transform.rotation * 0.0174532925199;
+            // Ensure rotation is in 0-360 range just in case
+            double radians = ((transform.rotation + 360) % 360) * 0.0174532925199;
 
             // Raw and absolute scale factors
             float rscalex = transform.scale.X;
@@ -310,8 +309,8 @@ namespace Disaster
             int startY = sy;
             int endY = sy + (int)(sh * ascaley);
 
-            // Rotate bounding box
-            if (transform.rotation != 0)
+            // Adjust the bounding box if the texture has rotation
+            if (radians != 0)
             {
                 int tlX = (int)(ox + (startX - ox) * c - (startY - oy) * s);
                 int tlY = (int)(oy + (startX - ox) * s + (startY - oy) * c);
@@ -352,7 +351,7 @@ namespace Disaster
                     if (sourceX < 0 || sourceX >= texture.width) continue;
                     if (sourceY < 0 || sourceY >= texture.height) continue;
 
-                    Color32 tcol = texture.pixels[(sourceY * twidth) + sourceX];
+                    Color32 tcol = texture.pixels[(sourceY * texture.width) + sourceX];
                     tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
                     if (tcol.a == 0) continue;
 
@@ -364,8 +363,6 @@ namespace Disaster
                     SlowDraw();
                 }
             }
-            // DrawRect(x - (int)(ox * transform.scale.X), y - (int)(oy * transform.scale.Y), (int)(sw * transform.scale.X), (int)(sh * transform.scale.Y), new Color32(0xff, 0xff, 0xff));
-            // DrawRect(x - (int)(ox * transform.scale.X + (ew - sw * transform.scale.X) / 2), y - (int)(oy * transform.scale.Y + (eh - sh * transform.scale.Y) / 2), ew, eh, new Color32(0xff, 0xff, 0xff));
         }
 
         // public static void DrawTextureTiled(Texture2D texture, int x, int y, int width, int height)
