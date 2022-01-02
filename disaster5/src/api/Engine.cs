@@ -109,6 +109,14 @@ namespace DisasterAPI
             }
         }
 
+        [JSFunction(Name = "setTitle")]
+        [FunctionDescription("Set the window title")]
+        [ArgumentDescription("title", "The new title for the window")]
+        public static void SetTitle(string title)
+        {
+            Raylib.SetWindowTitle(title);
+        }
+
         [JSFunction(Name = "setResolution")]
         [FunctionDescription("Set the screen resolution")]
         [ArgumentDescription("width", "sometimes i don't know what to write in here cause the variable name says everything already")]
