@@ -280,6 +280,12 @@ namespace Disaster
             transform.rotation %= 360;
             double radians = transform.rotation * 0.0174532925199;
 
+            // Raw and absolute scale factors
+            float rscalex = transform.scale.X;
+            float rscaley = transform.scale.Y;
+            float ascalex = Math.Abs(rscalex);
+            float ascaley = Math.Abs(rscaley);
+
             rect.x = Math.Clamp(rect.x, 0, texture.width);
             rect.y = Math.Clamp(rect.y, 0, texture.height);
             rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
@@ -300,9 +306,9 @@ namespace Disaster
             double s = Math.Sin(radians);
 
             int startX = sx;
-            int endX = sx + (int)(sw * transform.scale.X);
+            int endX = sx + (int)(sw * ascalex);
             int startY = sy;
-            int endY = sy + (int)(sh * transform.scale.Y);
+            int endY = sy + (int)(sh * ascaley);
 
             // Rotate bounding box
             if (transform.rotation != 0)
@@ -330,15 +336,18 @@ namespace Disaster
                 for (int j = 0; j < eh; j++)
                 {
                     // Translate to screen coords
-                    int targetX = x + i - (int)(ox * transform.scale.X + (ew - sw * transform.scale.X) / 2);
-                    int targetY = y + j - (int)(oy * transform.scale.Y + (eh - sh * transform.scale.Y) / 2);
+                    int targetX = x + i - (int)(ox * ascalex + (ew - sw * ascalex) / 2);
+                    int targetY = y + j - (int)(oy * ascaley + (eh - sh * ascaley) / 2);
 
                     if (targetX < 0 || targetX >= textureWidth) continue;
                     if (targetY < 0 || targetY >= textureHeight) continue;
                     
                     // Translate to source texture coords
-                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / transform.scale.X);
-                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / transform.scale.Y);
+                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / rscalex);
+                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / rscaley);
+
+                    if (rscalex < 0) sourceX = texture.width + sourceX - 1;
+                    if (rscaley < 0) sourceY = texture.height + sourceY - 1;
 
                     if (sourceX < 0 || sourceX >= texture.width) continue;
                     if (sourceY < 0 || sourceY >= texture.height) continue;
