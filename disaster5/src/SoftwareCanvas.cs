@@ -343,11 +343,11 @@ namespace Disaster
                     if (targetY < 0 || targetY >= textureHeight) continue;
                     
                     // Translate to source texture coords
-                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / rscalex);
-                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / rscaley);
+                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / ascalex);
+                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / ascaley);
 
-                    if (rscalex < 0) sourceX = texture.width + sourceX - 1;
-                    if (rscaley < 0) sourceY = texture.height + sourceY - 1;
+                    if (rscalex < 0) sourceX = texture.width - sourceX - 1;
+                    if (rscaley < 0) sourceY = texture.height - sourceY - 1;
 
                     if (sourceX < 0 || sourceX >= texture.width) continue;
                     if (sourceY < 0 || sourceY >= texture.height) continue;
