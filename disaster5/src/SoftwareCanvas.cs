@@ -336,8 +336,8 @@ namespace Disaster
                     if (targetY < 0 || targetY >= textureHeight) continue;
                     
                     // Translate to source texture coords
-                    int sourceX = ((int)((ox + (startX + i - ox) * c + (startY + j - oy) * s) / transform.scale.X));
-                    int sourceY = ((int)((oy - (startX + i - ox) * s + (startY + j - oy) * c) / transform.scale.Y));
+                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / transform.scale.X);
+                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / transform.scale.Y);
 
                     if (sourceX < 0 || sourceX >= texture.width) continue;
                     if (sourceY < 0 || sourceY >= texture.height) continue;
