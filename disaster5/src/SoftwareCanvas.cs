@@ -292,51 +292,70 @@ namespace Disaster
             int sw = (int)rect.width;
             int sh = (int)rect.height;
 
-            x -= sx;
-            y -= sy;
-
+            int ox = (int)transform.origin.X;
+            int oy = (int)transform.origin.Y;
 
             double c = Math.Cos(radians);
             double s = Math.Sin(radians);
 
-            for (int i = sx; i < sx + sw * transform.scale.X; i++)
+            int startX = sx;
+            int endX = sx + (int)(sw * transform.scale.X);
+            int startY = sy;
+            int endY = sy + (int)(sh * transform.scale.Y);
+
+            // Rotate bounding box
+            if (transform.rotation != 0)
             {
-                for (int j = sy; j < sy + sh * transform.scale.Y; j++)
+                int tlX = (int)(ox + (startX - ox) * c - (startY - oy) * s);
+                int tlY = (int)(oy + (startX - ox) * s + (startY - oy) * c);
+                int trX = (int)(ox + (endX - ox) * c - (startY - oy) * s);
+                int trY = (int)(oy + (endX - ox) * s + (startY - oy) * c);
+                int blX = (int)(ox + (startX - ox) * c - (endY - oy) * s);
+                int blY = (int)(oy + (startX - ox) * s + (endY - oy) * c);
+                int brX = (int)(ox + (endX - ox) * c - (endY - oy) * s);
+                int brY = (int)(oy + (endX - ox) * s + (endY - oy) * c);
+
+                startX = Math.Min(Math.Min(Math.Min(brX, blX), trX), tlX);
+                startY = Math.Min(Math.Min(Math.Min(brY, blY), trY), tlY);
+                endX = Math.Max(Math.Max(Math.Max(brX, blX), trX), tlX);
+                endY = Math.Max(Math.Max(Math.Max(brY, blY), trY), tlY);
+            }
+            
+            int ew = endX - startX;
+            int eh = endY - startY;
+
+            for (int i = 0; i < ew; i++)
+            {
+                for (int j = 0; j < eh; j++)
                 {
-                    // Figure out the target x and y position
-                    int targetX = i - (int)(transform.origin.X * transform.scale.X);
-                    int targetY = j - (int)(transform.origin.Y * transform.scale.Y);
+                    // Translate to screen coords
+                    int targetX = x + i - (int)(ox * transform.scale.X + (ew - sw * transform.scale.X) / 2);
+                    int targetY = y + j - (int)(oy * transform.scale.Y + (eh - sh * transform.scale.Y) / 2);
 
-                    // Don't bother with the math if we aren't rotating
-                    if (transform.rotation != 0)
-                    {
-                        // Determine offset
-                        int ii = i - (int)(transform.origin.X * transform.scale.X) - sx;
-                        int jj = j - (int)(transform.origin.Y * transform.scale.Y) - sy;
+                    if (targetX < 0 || targetX >= textureWidth) continue;
+                    if (targetY < 0 || targetY >= textureHeight) continue;
+                    
+                    // Translate to source texture coords
+                    int sourceX = ((int)((ox + (startX + i - ox) * c + (startY + j - oy) * s) / transform.scale.X));
+                    int sourceY = ((int)((oy - (startX + i - ox) * s + (startY + j - oy) * c) / transform.scale.Y));
 
-                        targetX = (int)(ii * c - jj * s) + sx;
-                        targetY = (int)(jj * c + ii * s) + sy;
-                    }
-
-                    if (targetX + x < 0 || targetX + x >= textureWidth) continue;
-                    if (targetY + y < 0 || targetY + y >= textureHeight) continue;
-
-                    // Determine the pixel from the source texture to be used
-                    int sourceX = ((int)((i - sx) / transform.scale.X)) + sx;
-                    int sourceY = ((int)((j - sy) / transform.scale.Y)) + sy;
+                    if (sourceX < 0 || sourceX >= texture.width) continue;
+                    if (sourceY < 0 || sourceY >= texture.height) continue;
 
                     Color32 tcol = texture.pixels[(sourceY * twidth) + sourceX];
                     tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
                     if (tcol.a == 0) continue;
 
                     // Draw to screen
-                    int index = (int) (targetY + y) * textureWidth + targetX + x;
-                    colorBuffer[index] = Mix(colorBuffer[index], tcol, targetX + x, targetY + y);
+                    int index = (int) (targetY) * textureWidth + targetX;
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, targetX, targetY);
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();
                 }
             }
+            // DrawRect(x - (int)(ox * transform.scale.X), y - (int)(oy * transform.scale.Y), (int)(sw * transform.scale.X), (int)(sh * transform.scale.Y), new Color32(0xff, 0xff, 0xff));
+            // DrawRect(x - (int)(ox * transform.scale.X + (ew - sw * transform.scale.X) / 2), y - (int)(oy * transform.scale.Y + (eh - sh * transform.scale.Y) / 2), ew, eh, new Color32(0xff, 0xff, 0xff));
         }
 
         // public static void DrawTextureTiled(Texture2D texture, int x, int y, int width, int height)
