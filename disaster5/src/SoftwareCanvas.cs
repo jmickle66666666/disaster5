@@ -277,6 +277,7 @@ namespace Disaster
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
         {
             int twidth = texture.width;
+            transform.rotation %= 360;
             double radians = transform.rotation * 0.0174532925199;
 
             rect.x = Math.Clamp(rect.x, 0, texture.width);
