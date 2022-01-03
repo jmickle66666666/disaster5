@@ -298,16 +298,16 @@ namespace Disaster
             int sw = (int)rect.width;
             int sh = (int)rect.height;
 
-            int ox = (int)transform.origin.X;
-            int oy = (int)transform.origin.Y;
+            int ox = (int)((sx + transform.origin.X) * ascalex);
+            int oy = (int)((sy + transform.origin.Y) * ascaley);
 
             double c = Math.Cos(radians);
             double s = Math.Sin(radians);
 
-            int startX = sx;
-            int endX = sx + (int)(sw * ascalex);
-            int startY = sy;
-            int endY = sy + (int)(sh * ascaley);
+            int startX = (int)(sx * ascalex);
+            int endX = (int)((sx + sw) * ascalex);
+            int startY = (int)(sy * ascaley);
+            int endY = (int)((sy + sh) * ascaley);
 
             // Adjust the bounding box if the texture has rotation
             if (radians != 0)
@@ -335,8 +335,8 @@ namespace Disaster
                 for (int j = 0; j < eh; j++)
                 {
                     // Translate to screen coords
-                    int targetX = x + i - (int)(ox * ascalex + (ew - sw * ascalex) / 2);
-                    int targetY = y + j - (int)(oy * ascaley + (eh - sh * ascaley) / 2);
+                    int targetX = x + i + startX - ox;
+                    int targetY = y + j + startY - oy;
 
                     if (targetX < 0 || targetX >= textureWidth) continue;
                     if (targetY < 0 || targetY >= textureHeight) continue;
@@ -345,11 +345,11 @@ namespace Disaster
                     int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / ascalex);
                     int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / ascaley);
 
-                    if (rscalex < 0) sourceX = texture.width - sourceX - 1;
-                    if (rscaley < 0) sourceY = texture.height - sourceY - 1;
+                    if (rscalex < 0) sourceX = 2 * sx + sw - sourceX - 1;
+                    if (rscaley < 0) sourceY = 2 * sy + sh - sourceY - 1;
 
-                    if (sourceX < Math.Max(sx, 0) || sourceX >= Math.Min(sw, texture.width)) continue;
-                    if (sourceY < Math.Max(sx, 0) || sourceY >= Math.Min(sh, texture.height)) continue;
+                    if (sourceX < Math.Max(sx, 0) || sourceX >= Math.Min(sx + sw, texture.width)) continue;
+                    if (sourceY < Math.Max(sy, 0) || sourceY >= Math.Min(sy + sh, texture.height)) continue;
 
                     Color32 tcol = texture.pixels[(sourceY * texture.width) + sourceX];
                     tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
