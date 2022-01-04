@@ -276,8 +276,14 @@ namespace Disaster
 
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect, Transform2D transform)
         {
-            int twidth = texture.width;
-            double radians = transform.rotation * 0.0174532925199;
+            // Ensure rotation is in 0-360 range just in case
+            double radians = ((transform.rotation + 360) % 360) * 0.0174532925199;
+
+            // Raw and absolute scale factors
+            float rscalex = transform.scale.X;
+            float rscaley = transform.scale.Y;
+            float ascalex = Math.Abs(rscalex);
+            float ascaley = Math.Abs(rscaley);
 
             rect.x = Math.Clamp(rect.x, 0, texture.width);
             rect.y = Math.Clamp(rect.y, 0, texture.height);
@@ -292,46 +298,66 @@ namespace Disaster
             int sw = (int)rect.width;
             int sh = (int)rect.height;
 
-            x -= sx;
-            y -= sy;
-
+            int ox = (int)((sx + transform.origin.X) * ascalex);
+            int oy = (int)((sy + transform.origin.Y) * ascaley);
 
             double c = Math.Cos(radians);
             double s = Math.Sin(radians);
 
-            for (int i = sx; i < sx + sw * transform.scale.X; i++)
+            int startX = (int)(sx * ascalex);
+            int endX = (int)((sx + sw) * ascalex);
+            int startY = (int)(sy * ascaley);
+            int endY = (int)((sy + sh) * ascaley);
+
+            // Adjust the bounding box if the texture has rotation
+            if (radians != 0)
             {
-                for (int j = sy; j < sy + sh * transform.scale.Y; j++)
+                int tlX = (int)(ox + (startX - ox) * c - (startY - oy) * s);
+                int tlY = (int)(oy + (startX - ox) * s + (startY - oy) * c);
+                int trX = (int)(ox + (endX - ox) * c - (startY - oy) * s);
+                int trY = (int)(oy + (endX - ox) * s + (startY - oy) * c);
+                int blX = (int)(ox + (startX - ox) * c - (endY - oy) * s);
+                int blY = (int)(oy + (startX - ox) * s + (endY - oy) * c);
+                int brX = (int)(ox + (endX - ox) * c - (endY - oy) * s);
+                int brY = (int)(oy + (endX - ox) * s + (endY - oy) * c);
+
+                startX = Math.Min(Math.Min(Math.Min(brX, blX), trX), tlX);
+                startY = Math.Min(Math.Min(Math.Min(brY, blY), trY), tlY);
+                endX = Math.Max(Math.Max(Math.Max(brX, blX), trX), tlX);
+                endY = Math.Max(Math.Max(Math.Max(brY, blY), trY), tlY);
+            }
+            
+            int ew = endX - startX;
+            int eh = endY - startY;
+
+            for (int i = 0; i < ew; i++)
+            {
+                for (int j = 0; j < eh; j++)
                 {
-                    // Figure out the target x and y position
-                    int targetX = i - (int)(transform.origin.X * transform.scale.X);
-                    int targetY = j - (int)(transform.origin.Y * transform.scale.Y);
+                    // Translate to screen coords
+                    int targetX = x + i + startX - ox;
+                    int targetY = y + j + startY - oy;
 
-                    // Don't bother with the math if we aren't rotating
-                    if (transform.rotation != 0)
-                    {
-                        // Determine offset
-                        int ii = i - (int)(transform.origin.X * transform.scale.X) - sx;
-                        int jj = j - (int)(transform.origin.Y * transform.scale.Y) - sy;
+                    if (targetX < 0 || targetX >= textureWidth) continue;
+                    if (targetY < 0 || targetY >= textureHeight) continue;
+                    
+                    // Translate to source texture coords
+                    int sourceX = (int)Math.Floor((ox + (startX + i - ox) * c + (startY + j - oy) * s) / ascalex);
+                    int sourceY = (int)Math.Floor((oy - (startX + i - ox) * s + (startY + j - oy) * c) / ascaley);
 
-                        targetX = (int)(ii * c - jj * s) + sx;
-                        targetY = (int)(jj * c + ii * s) + sy;
-                    }
+                    if (rscalex < 0) sourceX = 2 * sx + sw - sourceX - 1;
+                    if (rscaley < 0) sourceY = 2 * sy + sh - sourceY - 1;
 
-                    if (targetX + x < 0 || targetX + x >= textureWidth) continue;
-                    if (targetY + y < 0 || targetY + y >= textureHeight) continue;
+                    if (sourceX < Math.Max(sx, 0) || sourceX >= Math.Min(sx + sw, texture.width)) continue;
+                    if (sourceY < Math.Max(sy, 0) || sourceY >= Math.Min(sy + sh, texture.height)) continue;
 
-                    // Determine the pixel from the source texture to be used
-                    int sourceX = ((int)((i - sx) / transform.scale.X)) + sx;
-                    int sourceY = ((int)((j - sy) / transform.scale.Y)) + sy;
-
-                    Color32 tcol = texture.pixels[(sourceY * twidth) + sourceX];
+                    Color32 tcol = texture.pixels[(sourceY * texture.width) + sourceX];
                     tcol.a = (byte) Math.Floor(tcol.a * transform.alpha);
                     if (tcol.a == 0) continue;
 
                     // Draw to screen
-                    int index = (int) (targetY + y) * textureWidth + targetX + x;
-                    colorBuffer[index] = Mix(colorBuffer[index], tcol, targetX + x, targetY + y);
+                    int index = (int) (targetY) * textureWidth + targetX;
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, targetX, targetY);
                     overdrawBuffer[index] += 1;
                     maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
                     SlowDraw();

@@ -305,19 +305,7 @@ namespace DisasterAPI
             {
                 var rect = rectangle == null ? new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height) : Disaster.TypeInterface.Rect(rectangle);
                 var trans = transformation == null ? Disaster.Transform2D.identity : Disaster.TypeInterface.Transform2d(transformation);
-                if (trans.rotation % 90 != 0)
-                {
-                    // AWFUL HACK BECAUSE ROTATION SUCKS RN
-                    trans.rotation -= 2;
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
-                    trans.rotation += 7;
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
-                    trans.rotation -= 5;
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
-                } else
-                {
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
-                }
+                Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y, rect, trans);
             } else
             {
                 System.Console.WriteLine($"Failed to draw texture: {texturePath}");
