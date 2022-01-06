@@ -7,10 +7,11 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/disaster5.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "${workspaceFolder}/disaster5/disaster5.csproj",
+                "-c", "${input:buildConfig}",
+                "-r", "${input:buildRuntime}",
             ],
+            "group": "build",
             "problemMatcher": "$msCompile"
         },
         {
@@ -19,24 +20,41 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/disaster5.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "${workspaceFolder}/disaster5/disaster5.csproj",
+                "-c", "${input:buildConfig}",
+                "-r", "${input:buildRuntime}",
             ],
+            "group": "build",
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "watch",
+            "label": "run",
             "command": "dotnet",
             "type": "process",
             "args": [
-                "watch",
                 "run",
-                "${workspaceFolder}/disaster5.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--project", "${workspaceFolder}/disaster5/disaster5.csproj",
+                "-c", "${input:buildConfig}",
+                "-r", "${input:buildRuntime}",
+                "--", "${fileWorkspaceFolder}",
             ],
+            "group": "build",
             "problemMatcher": "$msCompile"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildConfig",
+            "type": "pickString",
+            "description": "Configuration",
+            "options": ["Debug", "Release"],
+            "default": "Release"
+        },
+        {
+            "id": "buildRuntime",
+            "type": "pickString",
+            "description": "Runtime",
+            "options": ["win-x64", "linux-x64"],
         }
     ]
 }
