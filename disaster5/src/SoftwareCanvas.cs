@@ -217,6 +217,34 @@ namespace Disaster
             }
         }
 
+        public static void PixelBuffer(PixelBuffer texture, int x, int y)
+        {
+            int twidth = texture.width;
+
+            x += offset.x;
+            y += offset.y;
+
+            for (int i = 0; i < texture.width; i++)
+            {
+                for (int j = 0; j < texture.height; j++)
+                {
+                    if (i + x < 0 || i + x >= textureWidth) continue;
+                    if (j + y < 0 || j + y >= textureHeight) continue;
+                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.height) continue;
+
+                    Color32 tcol = texture.pixels[(j * twidth) + i];
+                    if (tcol.a == 0) continue;
+
+                    // Draw to screen
+                    int index = ((j + y) * textureWidth) + (i + x);
+                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
+                    overdrawBuffer[index] += 1;
+                    maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
+                    SlowDraw();
+                }
+            }
+        }
+
         public static void NineSlice(PixelBuffer texture, Rect center, Rect area)
         {
             int x = (int)area.x;
@@ -364,31 +392,6 @@ namespace Disaster
                 }
             }
         }
-
-        // public static void DrawTextureTiled(Texture2D texture, int x, int y, int width, int height)
-        // {
-        //     Color32[] texColors = texture.GetPixels32();
-        //     int twidth = texture.width;
-        //     int theight = texture.height;
-
-
-        //     for (int i = x; i < x + width; i++) {
-        //         for (int j = y; j < y + height; j++) {
-
-        //             if (i < 0) continue;
-        //             if (j < 0) continue;
-        //             if (i >= textureWidth) continue;
-        //             if (j >= textureHeight) continue;
-
-        //             int tx = (i - x) % twidth;
-        //             int ty = (j - y) % theight;
-        //             Color32 tcol = texColors[(ty * twidth) + tx];
-        //             if (tcol.a == 0) continue;
-
-        //             colorBuffer[(j * textureWidth) + i] = tcol;
-        //         }
-        //     }
-        // }
         
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, Color32 color)
         {
@@ -495,14 +498,14 @@ namespace Disaster
             {
                 int j = (int) MathF.Sqrt(MathF.Abs((i * i) - r2));
 
-                PutPixel(x + i, y + j, color);
-                PutPixel(x + j, y + i, color);
-                PutPixel(x - i, y - j, color);
-                PutPixel(x - j, y - i, color);
+                Pixel(x + i, y + j, color);
+                Pixel(x + j, y + i, color);
+                Pixel(x - i, y - j, color);
+                Pixel(x - j, y - i, color);
             }
         }
 
-        static void PutPixel(int i, int j, Color32 color)
+        public static void Pixel(int i, int j, Color32 color)
         {
             i += offset.x;
             j += offset.y;
@@ -561,29 +564,6 @@ namespace Disaster
             Line(x1 + width - 1, y1 + height - 1, x1, y1 + height - 1, color);
             Line(x1, y1 + height - 1, x1, y1, color);
         }
-
-        // public static void DrawLine(Vector3 p1, Vector3 p2, Color32 color, int steps = 2)
-        // {
-        //     var a = WorldToScreenPoint2(p1);
-        //     var b = WorldToScreenPoint2(p2);
-        //     if (a.broke && b.broke) return;
-        //     if (steps <= 0) return;
-        //     // if (Vector3.Distance(p1, p2) < .001f) return;
-
-        //     if (a.broke) {
-        //         var diff = p2 - p1;
-        //         DrawLine(p1, p1 + (diff/2), color, steps - 1);
-        //         return;
-        //     }
-
-        //     if (b.broke) {
-        //         var diff = p1 - p2;
-        //         DrawLine(p2, p2 + (diff/2), color, steps - 1);
-        //         return;
-        //     }
-
-        //     DrawLine(a.point, b.point, color);
-        // }
 
         public static void Line(Vector2 p1, Vector2 p2, Color32 color)
         {
@@ -761,6 +741,7 @@ namespace Disaster
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Color32 Mix(Color32 A, Color32 B, int x, int y)
         {
+            
             byte r, g, b;
             float srcAlpha, destAlpha;
             switch(blendMode)
@@ -855,25 +836,6 @@ namespace Disaster
                 );
             }
         }
-
-        // public static void DrawPath(Vector3[] path, Color32 color, bool closed = true)
-        // {
-        //     for (int i = 0; i < path.Length-1; i++) {
-        //         DrawLine(
-        //             WorldToScreenPoint(path[i]),
-        //             WorldToScreenPoint(path[i+1]),
-        //             color
-        //         );
-        //     }
-
-        //     if (closed) {
-        //         DrawLine(
-        //             WorldToScreenPoint(path[path.Length-1]),
-        //             WorldToScreenPoint(path[0]),
-        //             color
-        //         );
-        //     }
-        // }
 
         public static unsafe void Wireframe(Mesh mesh, Matrix4x4 matrix, Color32 color, bool backfaceCulling, bool depth, bool filled)
         {
@@ -1109,19 +1071,7 @@ namespace Disaster
             }
         }
 
-        public static void Pixel(int x, int y, Color32 color)
-        {
-            x += offset.x;
-            y += offset.y;
-            int index = PointToBufferIndex(x, y);
-
-            colorBuffer[index] = Mix(colorBuffer[index], color, x, y);
-            
-            overdrawBuffer[index] += 1;
-            maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-            SlowDraw();
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static void SlowDraw()
         {
             if (slowDraw)
@@ -1138,7 +1088,6 @@ namespace Disaster
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int PointToBufferIndex(int x, int y)
         {
-            // if (x < 0 || x >= textureWidth || y < 0 || y >= textureHeight) return -1;
             return (y * textureWidth) + x;
         }
 

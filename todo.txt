@@ -13,6 +13,10 @@
 - load arbitrary data as audio stream
 - console
 - cancel slowdraw
+- AABB vs Model collision
+- Sphere vs Model collision
+- Cylinder vs Model collision
+- bake model animations to vertex-offset texture
 
 == bugs ==
 - memory leaky
