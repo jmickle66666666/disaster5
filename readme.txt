@@ -27,6 +27,17 @@ building:
 * create `settings.cfg` with `basedir data` inside
 * run that dang executable
 
+running from source (vscode):
+* install dotnet core
+* open this repo in vscode
+* add your games `basedir` to workspace (File -> Add Folder to Workspace...)
+* press `Ctrl+Shift+B` and select run (basedir is set to the root folder of currently opened file)
+
+running from source otherwise:
+* install dotnet core
+* navigate to the disaster5/ folder
+* run `dotnet run -c {Release | Debug} -r {win-x64 | linux-x64} -- path/to/basedir`
+
 contributors:
 Luna 'Ryuko' Zaremba -- https://lunaryuko.space/
 Yali 'Sciman' Izzo -- https://sciman.info/
