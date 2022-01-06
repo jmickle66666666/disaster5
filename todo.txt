@@ -1,21 +1,19 @@
 == NEXT/IN PROGRESS ==
+- improve/fix tilemap editor
+- actual console for the console?
+- web runtime
 - voxel workflow
 - voxel editor
-- file browser
-- improve/fix tilemap editor
-- console improvements
-- web runtime
 - 3d editor
 
 == features ==
-- sound panning
-- potentially move vector stuff to c# api
-- load arbitrary data as audio stream
-- console
-- cancel slowdraw
 - AABB vs Model collision
 - Sphere vs Model collision
 - Cylinder vs Model collision
+- sound panning
+- potentially move vector stuff to c# api
+- load arbitrary data as audio stream
+- cancel slowdraw
 - bake model animations to vertex-offset texture
 
 == bugs ==
