@@ -21,6 +21,7 @@
 - make circles consistent
 - fix platform inconsistencies in shaders
 - script weirdness after some exceptions (after compile errors?) -- can replicate, no idea whats happening yet
+  --- i think this is circular dependencies
 - prevent bad arguments causing crashes -- causes a TypeError, maybe try to handle that
 
 == 3d editor ==

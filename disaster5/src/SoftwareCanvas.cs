@@ -594,7 +594,7 @@ namespace Disaster
 
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-            if (dx > 1000 || dy > 1000) return;
+            //if (dx > 1000 || dy > 1000) return;
             int err = (dx > dy ? dx : -dy) / 2, e2;
             for (; ; )
             {
@@ -627,7 +627,7 @@ namespace Disaster
 
             int dx = (int)MathF.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
             int dy = (int)MathF.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
-            if (dx > 1000 || dy > 1000) return;
+            //if (dx > 1000 || dy > 1000) return;
             int err = (dx > dy ? dx : -dy) / 2, e2;
             for (; ; )
             {
@@ -667,21 +667,29 @@ namespace Disaster
 
             if (dotStart < 0f && dotEnd < 0f) return;
 
+            //if (dotStart <0f ^ dotEnd <0f)
+            //{
+            //    colorStart = Colors.cloudblue;
+            //    colorEnd = Colors.cloudblue;
+            //}
+
             if (Util.IntersectSegmentPlane(
-                start, 
-                end, 
+                start,
+                end,
                 Util.CreatePlaneFromPositionNormal(ScreenController.camera.position, cameraNormal),
                 out float _,
                 out Vector3 intersection))
             {
-                Console.WriteLine("gotit");
                 if (dotStart < 0f)
                 {
-                    end = intersection;
-                } else
-                {
-                    start = intersection;
+                    start = intersection + cameraNormal;
                 }
+                else
+                {
+                    end = intersection + cameraNormal; 
+                }
+                
+                
             }
 
             Vector2 start2d = WorldToScreenPoint(start);
@@ -841,12 +849,24 @@ namespace Disaster
         {
             var verts = (Vector3*)mesh.vertices;
             var tris = (short*)mesh.indices;
+
             //Matrix4x4.Invert(matrix, out matrix);
             for (int i = 0; i < mesh.triangleCount * 3; i += 3)
             {
-                var v1 = Vector3.Transform(verts[tris[i + 0]], matrix);
-                var v2 = Vector3.Transform(verts[tris[i + 1]], matrix);
-                var v3 = Vector3.Transform(verts[tris[i + 2]], matrix);
+                Vector3 v1, v2, v3;
+                
+                // check if mesh uses indices
+                if (mesh.indices != IntPtr.Zero)
+                {
+                    v1 = Vector3.Transform(verts[tris[i + 0]], matrix);
+                    v2 = Vector3.Transform(verts[tris[i + 1]], matrix);
+                    v3 = Vector3.Transform(verts[tris[i + 2]], matrix);
+                } else
+                {
+                    v1 = Vector3.Transform(verts[i + 0], matrix);
+                    v2 = Vector3.Transform(verts[i + 1], matrix);
+                    v3 = Vector3.Transform(verts[i + 2], matrix);
+                }
 
                 if (backfaceCulling)
                 {
@@ -878,9 +898,9 @@ namespace Disaster
                         Triangle((int)p1.X, (int)p1.Y, (int)p2.X, (int)p2.Y, (int)p3.X, (int)p3.Y, color);
                     } else
                     {
-                        Line(p1, p2, color);
-                        Line(p2, p3, color);
-                        Line(p3, p1, color);
+                        Line(v1, v2, color, color);
+                        Line(v2, v3, color, color);
+                        Line(v3, v1, color, color);
                     }
                 }
 

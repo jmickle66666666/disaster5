@@ -24,7 +24,10 @@ namespace Disaster
                 lines = File.ReadAllLines("settings.cfg");
             } else
             {
-                Console.WriteLine("Can't find settings.cfg");
+                if (Assets.basePath == "")
+                {
+                    Console.WriteLine("Can't find settings.cfg");
+                }
                 //Console.WriteLine("working path: " + Directory.GetCurrentDirectory());
             }
 
@@ -81,6 +84,7 @@ namespace Disaster
                 return;
             }
 
+            // add a flag to change this? maybe a commandline/config thing?
             //Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ALL);
             Raylib.SetTraceLogLevel(TraceLogLevel.LOG_ERROR);
 

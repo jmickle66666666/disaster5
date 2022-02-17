@@ -25,6 +25,13 @@ namespace Disaster {
 
         public void Reset()
         {
+            Assets.UnloadAll();
+            Assets.assignedDefaultShader = false;
+            ScreenController.instance.ReloadShader();
+            ScreenController.camera.position = System.Numerics.Vector3.Zero;
+            ScreenController.camera.target = -System.Numerics.Vector3.UnitZ;
+            AudioController.StopMusic();
+            AudioController.StopAllSound();
             currentlyLoadingScripts.Clear();
             cachedScripts.Clear();
             LoadScripts();
@@ -38,9 +45,6 @@ namespace Disaster {
             {
                 if (Raylib.IsKeyPressed(KeyboardKey.KEY_R))
                 {
-                    Assets.UnloadAll();
-                    Assets.assignedDefaultShader = false;
-                    ScreenController.instance.ReloadShader();
                     Reset();
                     stopped = false;
                 }
@@ -138,6 +142,7 @@ namespace Disaster {
             engine.SetGlobalValue("Key", new DisasterAPI.Key(engine));
             engine.SetGlobalValue("Gamepad", new DisasterAPI.Gamepad(engine));
             engine.SetGlobalValue("Color", new DisasterAPI.Color(engine));
+            engine.SetGlobalValue("VMath", new DisasterAPI.VMath(engine));
         }
 
         void LoadScripts()

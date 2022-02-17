@@ -32,11 +32,6 @@ namespace DisasterAPI
         [FunctionDescription("Unload all assets and reset the engine.")]
         public static void Reset()
         {
-            Disaster.Assets.UnloadAll();
-            Disaster.Assets.assignedDefaultShader = false;
-            Disaster.ScreenController.instance.ReloadShader();
-            Disaster.AudioController.StopMusic();
-            Disaster.AudioController.StopAllSound();
             Disaster.JS.instance.Reset();
         }
 

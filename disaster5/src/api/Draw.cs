@@ -141,16 +141,24 @@ namespace DisasterAPI
         [ArgumentDescription("start", "start position", "{x, y, z}")]
         [ArgumentDescription("end", "end position", "{x, y, z}")]
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
-        [ArgumentDescription("colorEnd", "(optional) line end color. if specified, will blend between the two colors along the line.", "{r, g, b, a}")]
-        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color, ObjectInstance colorEnd = null)
+        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
         {
-            if (colorEnd == null) colorEnd = color;
-            Disaster.SoftwareCanvas.Line(
-                Disaster.TypeInterface.Vector3(start),
-                Disaster.TypeInterface.Vector3(end),
-                Disaster.TypeInterface.Color32(color),
-                Disaster.TypeInterface.Color32(colorEnd)
+            //if (colorEnd == null) colorEnd = color;
+            Disaster.ShapeRenderer.EnqueueRender(
+                () => {
+                    Raylib_cs.Raylib.DrawLine3D(
+                        Disaster.TypeInterface.Vector3(start),
+                        Disaster.TypeInterface.Vector3(end),
+                        Disaster.TypeInterface.Color32(color)
+                    );
+                }
             );
+            //Disaster.SoftwareCanvas.Line(
+            //    Disaster.TypeInterface.Vector3(start),
+            //    Disaster.TypeInterface.Vector3(end),
+            //    Disaster.TypeInterface.Color32(color),
+            //    Disaster.TypeInterface.Color32(colorEnd)
+            //);
         }
 
         [JSFunction(Name = "worldToScreenPoint")]
@@ -379,18 +387,19 @@ namespace DisasterAPI
         [ArgumentDescription("fov", "field of view")]
         public static void SetFOV(double fov)
         {
-            System.Console.WriteLine($"current fov: {Disaster.ScreenController.camera.fovy}");
             Disaster.ScreenController.camera.fovy = (float)fov;
         }
 
         [JSFunction(Name = "getCameraTransform")]
-        [FunctionDescription("Get the 3d camera transformation", "{forward, up, right}")]
+        [FunctionDescription("Get the 3d camera transformation", "{forward, up, right, position, rotation}")]
         public static ObjectInstance GetCameraTransform()
         {
             var output = Disaster.JS.instance.engine.Object.Construct();
             output["forward"] = Disaster.TypeInterface.Object(Vector3.Normalize(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position));
             output["up"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.up);
             output["right"] = Disaster.TypeInterface.Object(Vector3.Cross(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position, Disaster.ScreenController.camera.up));
+            output["position"] = Disaster.TypeInterface.Object(Disaster.ScreenController.camera.position);
+            output["rotation"] = Disaster.TypeInterface.Object(Disaster.Util.ForwardToEuler(Disaster.ScreenController.camera.target - Disaster.ScreenController.camera.position));
             return output;
         }
 

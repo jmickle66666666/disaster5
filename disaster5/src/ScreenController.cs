@@ -92,7 +92,7 @@ namespace Disaster
             softwareCanvasRenderer.Update();
 
             Raylib.BeginDrawing();
-            
+
             Raylib.BeginTextureMode(renderTexture);
             Raylib.ClearBackground(Color.BLACK);
             Raylib.BeginMode3D(camera);
@@ -100,9 +100,15 @@ namespace Disaster
             Raylib.EndMode3D();
             Raylib.EndTextureMode();
 
+            Raylib.BeginTextureMode(renderTexture);
+            Raylib.BeginMode3D(camera);
+            ShapeRenderer.RenderQueue();
+            Raylib.EndMode3D();
+            Raylib.EndTextureMode();
+
             Raylib.ClearBackground(Color.BLACK);
             //Console.WriteLine(renderTexture.depth.id);
-            
+
             Raylib.BeginShaderMode(postProcessShader);
             Raylib.SetShaderValueTexture(postProcessShader, Raylib.GetShaderLocation(postProcessShader, "depthTexture"), renderTexture.depth);
             var t = (float)Raylib.GetTime();

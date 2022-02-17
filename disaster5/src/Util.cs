@@ -27,6 +27,16 @@ namespace Disaster
             );
         }
 
+        public static Vector3 ForwardToEuler(Vector3 forward)
+        {
+            forward = Vector3.Normalize(forward);
+            return new Vector3(
+                MathF.Asin(-forward.Y) * 180f / MathF.PI,
+                MathF.Atan2(forward.X, forward.Z) * 180f / MathF.PI,
+                0f
+            );
+        }
+
         public static (Vector3 axis, float rotation) EulerToAxisAngle(Vector3 eulers)
         {
             if (eulers.X >= 360f) eulers.X %= 360f;
@@ -203,6 +213,11 @@ namespace Disaster
                 (byte) ((a.a * (1f - t)) + b.a * t)
             );
         }
+
+        public static implicit operator Color(Color32 color)
+        {
+            return new Color(color.r, color.g, color.b, color.a);
+        }
     }
 
     public struct Rect
@@ -256,6 +271,7 @@ namespace Disaster
         public Vector3 position;
         public Vector3 scale;
         public Vector3 rotationAxis;
+        public Vector3 eulers;
         public float rotationAngle;
 
         public Transformation(Vector3 position, Vector3 eulers, Vector3 scale)
@@ -265,13 +281,19 @@ namespace Disaster
             var angleAxis = Util.EulerToAxisAngle(eulers);
             this.rotationAxis = angleAxis.axis;
             this.rotationAngle = angleAxis.rotation * (180f/MathF.PI);
+            this.eulers = eulers;
         }
 
         public Matrix4x4 ToMatrix()
         {
-            var rot = Matrix4x4.CreateFromAxisAngle(rotationAxis, rotationAngle);
+            var rot = Matrix4x4.CreateFromYawPitchRoll(
+                (float)(eulers.Y * Math.PI / 180F),
+                (float)(eulers.X * Math.PI / 180F),
+                (float)(eulers.Z * Math.PI / 180F)
+            );
+            //var rot = Matrix4x4.CreateFromAxisAngle(rotationAxis, rotationAngle);
             var pos = Matrix4x4.CreateTranslation(position);
-            return pos * rot;
+            return rot * pos;
         }
     }
 

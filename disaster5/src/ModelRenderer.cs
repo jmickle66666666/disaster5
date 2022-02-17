@@ -1,5 +1,3 @@
-// renderer for obj files
-
 using System;
 using System.Runtime.InteropServices;
 using System.Numerics;
