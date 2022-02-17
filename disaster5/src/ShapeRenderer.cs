@@ -15,6 +15,7 @@ namespace Disaster
 
         public static void RenderQueue()
         {
+            if (drawQueue == null) drawQueue = new List<Action>();
             for (var i = 0; i < drawQueue.Count; i++)
             {
                 drawQueue[i].Invoke();
