@@ -95,15 +95,8 @@ namespace Disaster
 
             Raylib.BeginTextureMode(renderTexture);
             Raylib.ClearBackground(Color.BLACK);
-            Raylib.BeginMode3D(camera);
             ModelRenderer.RenderQueue();
-            Raylib.EndMode3D();
-            Raylib.EndTextureMode();
-
-            Raylib.BeginTextureMode(renderTexture);
-            Raylib.BeginMode3D(camera);
             ShapeRenderer.RenderQueue();
-            Raylib.EndMode3D();
             Raylib.EndTextureMode();
 
             Raylib.ClearBackground(Color.BLACK);

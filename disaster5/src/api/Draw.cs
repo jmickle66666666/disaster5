@@ -1,6 +1,6 @@
-//using OpenGL;
 using Jurassic;
 using Jurassic.Library;
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -64,13 +64,19 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled rect (true) or an outline (false, default)")]
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
-            if (filled)
-            {
-                Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-            } else
-            {
-                Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-            }
+            var col = Disaster.TypeInterface.Color32(color);
+            Disaster.ShapeRenderer.EnqueueRender(
+                () => {
+                    if (filled)
+                    {
+                        Raylib_cs.Raylib.DrawRectangle(x, y, width, height, col);
+                    } else
+                    {
+                        Raylib_cs.Raylib.DrawRectangleLines(x, y, width, height, col);
+                    }
+                }
+            );
+            
         }
 
         [JSFunction(Name = "triangle")]
@@ -85,16 +91,34 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled triangle (true) or an outline (false, default)")]
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled = false)
         {
+            Vector2[] points = new Vector2[]
+            {
+                new Vector2(x1, y1),
+                new Vector2(x2, y2),
+                new Vector2(x3, y3)
+            };
+
+            Array.Sort(
+                points, 
+                (a, b) =>
+                {
+                    return Math.Sign(a.Y - b.Y);
+                }
+            );
+
             var col = Disaster.TypeInterface.Color32(color);
-            if (filled)
-            {
-                Disaster.SoftwareCanvas.Triangle(x1, y1, x2, y2, x3, y3, col);
-            } else
-            {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
-                Disaster.SoftwareCanvas.Line(x3, y3, x2, y2, col);
-                Disaster.SoftwareCanvas.Line(x1, y1, x3, y3, col);
-            }
+            Disaster.ShapeRenderer.EnqueueRender(
+                () => {
+                    if (filled)
+                    {
+                        // TODO: This doesn't work for some reason?
+                        Raylib_cs.Raylib.DrawTriangle(points[0], points[1], points[2], col);
+                    } else
+                    {
+                        Raylib_cs.Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
+                    }
+                }
+            );
         }
 
         [JSFunction(Name = "circle")]
@@ -107,14 +131,18 @@ namespace DisasterAPI
         public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            if (filled)
-            {
-                Disaster.SoftwareCanvas.CircleFilled(x, y, (float)radius, col);
-            }
-            else
-            {
-                Disaster.SoftwareCanvas.Circle(x, y, (float)radius, col);
-            }
+            Disaster.ShapeRenderer.EnqueueRender(
+                () => {
+                    if (filled)
+                    {
+                        Raylib_cs.Raylib.DrawCircle(x, y, (float)radius, col);
+                    }
+                    else
+                    {
+                        Raylib_cs.Raylib.DrawCircleLines(x, y, (float)radius, col);
+                    }
+                }
+            );
         }
 
         [JSFunction(Name = "line")]
@@ -146,11 +174,13 @@ namespace DisasterAPI
             //if (colorEnd == null) colorEnd = color;
             Disaster.ShapeRenderer.EnqueueRender(
                 () => {
+                    Raylib_cs.Raylib.BeginMode3D(Disaster.ScreenController.camera);
                     Raylib_cs.Raylib.DrawLine3D(
                         Disaster.TypeInterface.Vector3(start),
                         Disaster.TypeInterface.Vector3(end),
                         Disaster.TypeInterface.Color32(color)
                     );
+                    Raylib_cs.Raylib.EndMode3D();
                 }
             );
             //Disaster.SoftwareCanvas.Line(

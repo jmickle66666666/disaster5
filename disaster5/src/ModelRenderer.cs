@@ -74,6 +74,7 @@ namespace Disaster
 
         public static void RenderQueue()
         {
+            Raylib.BeginMode3D(ScreenController.camera);
             for (int i = 0; i < renderQueueLength; i++)
             {
                 var t = (float) Raylib.GetTime();
@@ -114,6 +115,7 @@ namespace Disaster
             }
             //Raylib.EndShaderMode();
             renderQueueLength = 0;
+            Raylib.EndMode3D();
         }
         
         public void Dispose()
