@@ -74,18 +74,25 @@ namespace DisasterAPI
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            Disaster.ShapeRenderer.EnqueueRender(
-                () => {
-                    if (filled)
-                    {
-                        Raylib_cs.Raylib.DrawRectangle(x, y, width, height, col);
-                    } else
-                    {
-                        Raylib_cs.Raylib.DrawRectangleLines(x, y, width, height, col);
+            if (Disaster.SoftwareCanvas.inBuffer)
+            {
+                if (filled)
+                    Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+                else
+                    Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+            } else 
+            {
+                x += Disaster.SoftwareCanvas.offset.x;
+                y += Disaster.SoftwareCanvas.offset.y;
+                Disaster.ShapeRenderer.EnqueueRender(
+                    () => {
+                        if (filled)
+                            Raylib_cs.Raylib.DrawRectangle(x, y, width, height, col);
+                        else
+                            Raylib_cs.Raylib.DrawRectangleLines(x, y, width, height, col);
                     }
-                }
-            );
-            
+                );
+            }            
         }
 
         [JSFunction(Name = "triangle")]
@@ -100,34 +107,44 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled triangle (true) or an outline (false, default)")]
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled = false)
         {
-            Vector2[] points = new Vector2[]
-            {
-                new Vector2(x1, y1),
-                new Vector2(x2, y2),
-                new Vector2(x3, y3)
-            };
-
-            Array.Sort(
-                points, 
-                (a, b) =>
-                {
-                    return Math.Sign(a.Y - b.Y);
-                }
-            );
-
             var col = Disaster.TypeInterface.Color32(color);
-            Disaster.ShapeRenderer.EnqueueRender(
-                () => {
-                    if (filled)
-                    {
-                        // TODO: This doesn't work for some reason?
-                        Raylib_cs.Raylib.DrawTriangle(points[0], points[1], points[2], col);
-                    } else
-                    {
-                        Raylib_cs.Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
-                    }
+            if (Disaster.SoftwareCanvas.inBuffer)
+            {
+                if (filled)
+                    Disaster.SoftwareCanvas.Triangle(x1, y1, x2, y2, x3, y3, col);
+                else
+                {
+                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
+                    Disaster.SoftwareCanvas.Line(x3, y3, x2, y2, col);
+                    Disaster.SoftwareCanvas.Line(x1, y1, x3, y3, col);
                 }
-            );
+            } else 
+            {
+                // TODO: This sorting doesn't properly give ccw point order
+                Vector2[] points = new Vector2[]
+                {
+                    new Vector2(x1, y1),
+                    new Vector2(x2, y2),
+                    new Vector2(x3, y3)
+                };
+
+                Array.Sort(
+                    points, 
+                    (a, b) =>
+                    {
+                        return Math.Sign(a.Y - b.Y);
+                    }
+                );
+
+                Disaster.ShapeRenderer.EnqueueRender(
+                    () => {
+                        if (filled)
+                            Raylib_cs.Raylib.DrawTriangle(points[0], points[1], points[2], col);
+                        else
+                            Raylib_cs.Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
+                    }
+                );
+            }
         }
 
         [JSFunction(Name = "circle")]
@@ -140,18 +157,24 @@ namespace DisasterAPI
         public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            Disaster.ShapeRenderer.EnqueueRender(
-                () => {
-                    if (filled)
-                    {
-                        Raylib_cs.Raylib.DrawCircle(x, y, (float)radius, col);
+            var radius_f = (float)radius;
+            if (Disaster.SoftwareCanvas.inBuffer)
+            {
+                if (filled)
+                    Disaster.SoftwareCanvas.CircleFilled(x, y, radius_f, col);
+                else
+                    Disaster.SoftwareCanvas.Circle(x, y, radius_f, col);
+            } else 
+            {
+                Disaster.ShapeRenderer.EnqueueRender(
+                    () => {
+                        if (filled)
+                            Raylib_cs.Raylib.DrawCircle(x, y, radius_f, col);
+                        else
+                            Raylib_cs.Raylib.DrawCircleLines(x, y, radius_f, col);
                     }
-                    else
-                    {
-                        Raylib_cs.Raylib.DrawCircleLines(x, y, (float)radius, col);
-                    }
-                }
-            );
+                );
+            }
         }
 
         [JSFunction(Name = "line")]
@@ -164,12 +187,21 @@ namespace DisasterAPI
         [ArgumentDescription("colorEnd", "(optional) line end color. if specified, will blend between the two colors along the line.", "{r, g, b, a}")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color, ObjectInstance colorEnd = null)
         {
-            if (colorEnd == null)
+            var col = Disaster.TypeInterface.Color32(color);
+            if (Disaster.SoftwareCanvas.inBuffer)
             {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
+                if (colorEnd == null)
+                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
+                else
+                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col, Disaster.TypeInterface.Color32(colorEnd));
             } else
             {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color), Disaster.TypeInterface.Color32(colorEnd));
+            // TODO: Find a way to do gradient lines with raylib
+                Disaster.ShapeRenderer.EnqueueRender(
+                    () => {
+                        Raylib_cs.Raylib.DrawLine(x1, y1, x2, y2, col);
+                    }
+                );
             }
         }
 
@@ -245,6 +277,7 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Whether to draw the triangles filled (default: false)")]
         public static void Wireframe(string modelPath, ObjectInstance position, ObjectInstance rotation, ObjectInstance color, bool backfaceCulling = false, bool drawDepth = false, bool filled = false)
         {
+            // TODO: Replace software rendering
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
