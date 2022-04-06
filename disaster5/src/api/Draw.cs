@@ -341,36 +341,65 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
-                if (rectangle == null && transformation == null)
+                if (Disaster.SoftwareCanvas.inBuffer)
+                // if (true)
                 {
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y);
-                } else
-                {
-                    if (transformation == null)
+                    if (rectangle == null && transformation == null)
                     {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer, 
-                            x, y, 
-                            Disaster.TypeInterface.Rect(rectangle)
-                        );
-                    } else if (rectangle == null)
-                    {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer, 
-                            x, y, 
-                            new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height), 
-                            Disaster.TypeInterface.Transform2d(transformation)
-                        );
+                        Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y);
                     } else
                     {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer,
-                            x, y,
-                            Disaster.TypeInterface.Rect(rectangle),
-                            Disaster.TypeInterface.Transform2d(transformation)
-                        );
+                        if (transformation == null)
+                        {
+                            Disaster.SoftwareCanvas.PixelBuffer(
+                                pixelBuffer.pixelBuffer, 
+                                x, y, 
+                                Disaster.TypeInterface.Rect(rectangle)
+                            );
+                        } else if (rectangle == null)
+                        {
+                            Disaster.SoftwareCanvas.PixelBuffer(
+                                pixelBuffer.pixelBuffer, 
+                                x, y, 
+                                new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height), 
+                                Disaster.TypeInterface.Transform2d(transformation)
+                            );
+                        } else
+                        {
+                            Disaster.SoftwareCanvas.PixelBuffer(
+                                pixelBuffer.pixelBuffer,
+                                x, y,
+                                Disaster.TypeInterface.Rect(rectangle),
+                                Disaster.TypeInterface.Transform2d(transformation)
+                            );
+                        }
                     }
                 }
+                else
+                {
+                    Disaster.ShapeRenderer.EnqueueRender(
+                        () => {
+                            var texture = pixelBuffer.pixelBuffer.texture;
+                            Disaster.Rect rect;
+                            if (rectangle != null)
+                                rect = Disaster.TypeInterface.Rect(rectangle);
+                            else
+                                rect = new Disaster.Rect(0, 0, texture.width, texture.height);
+
+                            
+                            Disaster.Transform2D trans;
+                            if (transformation != null)
+                                trans = Disaster.TypeInterface.Transform2d(transformation);
+                            else
+                                trans = new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
+                            
+                            var source_rect = new Raylib_cs.Rectangle(rect.x, rect.y, rect.width, rect.height);
+                        
+                            var dest_rect = new Raylib_cs.Rectangle(x, y, rect.width * trans.scale.X, rect.height * trans.scale.Y);
+                            Raylib_cs.Raylib.DrawTexturePro(texture, source_rect, dest_rect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
+                        }
+                    );
+                }               
             } else
             {
                 System.Console.WriteLine($"Failed to draw texture: {texturePath}");
