@@ -28,6 +28,15 @@ namespace DisasterAPI
         [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
             Disaster.SoftwareCanvas.Clear();
+            // TODO: This also clears the 3D canvas
+            if (!Disaster.SoftwareCanvas.inBuffer)
+            {
+                Disaster.ShapeRenderer.EnqueueRender(
+                    () => {
+                        Raylib_cs.Raylib.ClearBackground(Raylib_cs.Color.BLACK);
+                    }
+                );
+            }
         }
 
         [JSProperty(Name = "fontHeight")] 
@@ -342,7 +351,6 @@ namespace DisasterAPI
             if (pixelBuffer.succeeded)
             {
                 if (Disaster.SoftwareCanvas.inBuffer)
-                // if (true)
                 {
                     if (rectangle == null && transformation == null)
                     {

@@ -94,7 +94,6 @@ namespace Disaster
             Raylib.BeginDrawing();
 
             Raylib.BeginTextureMode(renderTexture);
-            Raylib.ClearBackground(Color.BLACK);
             ModelRenderer.RenderQueue();
             ShapeRenderer.RenderQueue();
             Raylib.EndTextureMode();
