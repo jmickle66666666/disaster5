@@ -137,7 +137,6 @@ namespace DisasterAPI
                 }
             } else 
             {
-                // TODO: This sorting doesn't properly give ccw point order
                 x1 += Disaster.SoftwareCanvas.offset.x;
                 y1 += Disaster.SoftwareCanvas.offset.y;
                 x2 += Disaster.SoftwareCanvas.offset.x;
@@ -145,20 +144,19 @@ namespace DisasterAPI
                 x3 += Disaster.SoftwareCanvas.offset.x;
                 y3 += Disaster.SoftwareCanvas.offset.y;
 
-                Vector2[] points = new Vector2[]
-                {
-                    new Vector2(x1, y1),
-                    new Vector2(x2, y2),
-                    new Vector2(x3, y3)
-                };
+                // Put these points in counter-clockwise order for raylib
+                var a = new Vector2(x1, y1);
+                var b = new Vector2(x2, y2);
+                var c = new Vector2(x3, y3);
+                var ab = b - a;
+                var ac = c - a;
+                var crossz = ab.X * ac.Y - ab.Y * ac.X;
 
-                Array.Sort(
-                    points, 
-                    (a, b) =>
-                    {
-                        return Math.Sign(a.Y - b.Y);
-                    }
-                );
+                Vector2[] points;
+                if (crossz < 0)
+                    points = new Vector2[]{a, b, c};
+                else
+                    points = new Vector2[]{a, c, b};
 
                 Disaster.ShapeRenderer.EnqueueRender(
                     () => {
