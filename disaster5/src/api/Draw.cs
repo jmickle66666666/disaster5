@@ -506,12 +506,68 @@ namespace DisasterAPI
         [ArgumentDescription("height", "height of the area to draw to")]
         public static void NineSlice(string texturePath, ObjectInstance nineSliceArea, int x, int y, int width, int height)
         {
-            // TODO: Replace software rendering
+            if (width <= 0 || height <= 0)
+                return;
+            
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
                 var rect = Disaster.TypeInterface.Rect(nineSliceArea);
-                Disaster.SoftwareCanvas.NineSlice(pixelBuffer.pixelBuffer, rect, new Disaster.Rect(x, y, width, height));
+                if (Disaster.SoftwareCanvas.inBuffer)
+                // if (true)
+                {
+                    Disaster.SoftwareCanvas.NineSlice(pixelBuffer.pixelBuffer, rect, new Disaster.Rect(x, y, width, height));
+                } else
+                {
+                    x += Disaster.SoftwareCanvas.offset.x;
+                    y += Disaster.SoftwareCanvas.offset.y;
+                    var texture = pixelBuffer.pixelBuffer.texture;
+
+                    // We don't use raylibs built in NPatch because it stretches rather than tiles
+                    // void DrawTextureTiled(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, float scale, Color tint);
+                    var xs = new int[]{0, (int)rect.x, (int)(rect.x + rect.width), texture.width};
+                    var ys = new int[]{0, (int)rect.y, (int)(rect.y + rect.height), texture.height};
+
+                    var srcRects = new Raylib_cs.Rectangle[3,3];
+                    for (int i = 0; i < 3; i++)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            srcRects[i, j] = new Raylib_cs.Rectangle(xs[j], ys[i], xs[j+1] - xs[j], ys[i + 1] - ys[i]);
+                        }
+                    }
+
+                    var w1 = (int)(Math.Min(xs[1] - xs[0], width));
+                    var w3 = (int)(Math.Min(xs[3] - xs[2], width - w1));
+                    var w2 = width - w1 - w3;
+                    var ws = new int[]{w1, w2, w3};
+
+                    var h1 = (int)(Math.Min(ys[1] - ys[0], height));
+                    var h3 = (int)(Math.Min(ys[3] - ys[2], height - h1));
+                    var h2 = height - h1 - h3;
+                    var hs = new int[]{h1, h2, h3};
+
+                    Disaster.ShapeRenderer.EnqueueRender(
+                        () => {
+                            int ry = y;
+                            for (int i = 0; i < 3; i++)
+                            {
+                                if (hs[i] <= 0) break;
+
+                                int rx = x;
+                                for (int j = 0; j < 3; j++)
+                                {
+                                    if (ws[j] <= 0) break;
+
+                                    var dstRect = new Raylib_cs.Rectangle(rx, ry, ws[j], hs[i]);
+                                    Raylib_cs.Raylib.DrawTextureTiled(texture, srcRects[i,j], dstRect, Vector2.Zero, 0, 1, Raylib_cs.Color.WHITE);
+                                    rx += ws[j];
+                                }
+                                ry += hs[i];
+                            }
+                        }
+                    );
+                }
             }
             else
             {
@@ -557,6 +613,7 @@ namespace DisasterAPI
         [FunctionDescription("Set the blending mode for future draw operations. normal, noise, add")]
         public static void SetBlendMode(string blendMode)
         {
+            // TODO: Set raylib blendmode
             switch (blendMode)
             {
                 case "normal":
