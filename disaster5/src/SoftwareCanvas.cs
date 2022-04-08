@@ -1061,9 +1061,6 @@ namespace Disaster
 
         static void Character(int x, int y, int character, Color32 color)
         {
-            x += offset.x;
-            y += offset.y;
-
             int charX = (character % 16) * fontWidth;
             int charY = (int)(MathF.Floor(character / 16));
             charY = 8 - charY - 1;
@@ -1074,17 +1071,20 @@ namespace Disaster
                 {
                     if (fontBuffer[charX + i, (charY + fontHeight) - j - 1])
                     {
-                        if (x + i < 0) continue;
-                        if (x + i >= textureWidth) continue;
-                        if (y + j < 0) continue;
-                        if (y + j >= textureHeight) continue;
-                        int index = PointToBufferIndex(x + i, y + j);
-                        if (index >= 0 && index < colorBuffer.Length)
+                        if (inBuffer)
                         {
-                            colorBuffer[index] = Mix(colorBuffer[index], color, x + i, y + j);
-                            overdrawBuffer[index] += 1;
-                            maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-                            SlowDraw();
+                            Pixel(x + i, y + j, color);
+                        } else
+                        {
+                            // This is in the software canvas because it was the quickest
+                            // way to replicate text behaviour
+                            var px = x + i + offset.x;
+                            var py = y + j + offset.y;
+                            Disaster.ShapeRenderer.EnqueueRender(
+                                () => {
+                                    Raylib_cs.Raylib.DrawPixel(px, py, color);
+                                }
+                            );
                         }
                     }
                 }
