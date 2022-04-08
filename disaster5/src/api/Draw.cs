@@ -121,6 +121,13 @@ namespace DisasterAPI
             } else 
             {
                 // TODO: This sorting doesn't properly give ccw point order
+                x1 += Disaster.SoftwareCanvas.offset.x;
+                y1 += Disaster.SoftwareCanvas.offset.y;
+                x2 += Disaster.SoftwareCanvas.offset.x;
+                y2 += Disaster.SoftwareCanvas.offset.y;
+                x3 += Disaster.SoftwareCanvas.offset.x;
+                y3 += Disaster.SoftwareCanvas.offset.y;
+
                 Vector2[] points = new Vector2[]
                 {
                     new Vector2(x1, y1),
@@ -166,6 +173,8 @@ namespace DisasterAPI
                     Disaster.SoftwareCanvas.Circle(x, y, radius_f, col);
             } else 
             {
+                x += Disaster.SoftwareCanvas.offset.x;
+                y += Disaster.SoftwareCanvas.offset.y;
                 Disaster.ShapeRenderer.EnqueueRender(
                     () => {
                         if (filled)
@@ -196,7 +205,11 @@ namespace DisasterAPI
                     Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col, Disaster.TypeInterface.Color32(colorEnd));
             } else
             {
-            // TODO: Find a way to do gradient lines with raylib
+                // TODO: Find a way to do gradient lines with raylib
+                x1 += Disaster.SoftwareCanvas.offset.x;
+                y1 += Disaster.SoftwareCanvas.offset.y;
+                x2 += Disaster.SoftwareCanvas.offset.x;
+                y2 += Disaster.SoftwareCanvas.offset.y;
                 Disaster.ShapeRenderer.EnqueueRender(
                     () => {
                         Raylib_cs.Raylib.DrawLine(x1, y1, x2, y2, col);
@@ -418,6 +431,8 @@ namespace DisasterAPI
                 }
                 else
                 {
+                    x += Disaster.SoftwareCanvas.offset.x;
+                    y += Disaster.SoftwareCanvas.offset.y;
                     Disaster.ShapeRenderer.EnqueueRender(
                         () => {
                             var texture = pixelBuffer.pixelBuffer.texture;
@@ -457,6 +472,7 @@ namespace DisasterAPI
         [ArgumentDescription("height", "height of the area to draw to")]
         public static void NineSlice(string texturePath, ObjectInstance nineSliceArea, int x, int y, int width, int height)
         {
+            // TODO: Replace software rendering
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
