@@ -21,6 +21,7 @@ namespace Disaster
         public static int windowHeight = 480;
 
         static RenderTexture2D renderTexture;
+        public static RenderTexture2D renderTextureTTF;
         static int scale = 2;
         public static Camera3D camera;
 
@@ -35,6 +36,7 @@ namespace Disaster
             instance = this;
             Raylib.InitWindow(windowWidth, windowHeight, "disaster engine 5.0");
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
+            renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
             Raylib.SetTargetFPS(60);
             camera = new Camera3D(
                 new Vector3(0, 0f, 0f),
@@ -77,12 +79,16 @@ namespace Disaster
             windowWidth = width * scale;
             windowHeight = height * scale;
             ScreenController.scale = scale;
-            Raylib.SetWindowSize(width * scale, height * scale);
+            Raylib.SetWindowSize(windowWidth, windowHeight);
 
             SoftwareCanvas.InitTexture(width, height);
 
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
+
+            Raylib.UnloadRenderTexture(renderTextureTTF);
+            renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
+
             softwareCanvasRenderer = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             ReloadShader();
         }
@@ -93,12 +99,17 @@ namespace Disaster
 
             Raylib.BeginDrawing();
 
+            Raylib.ClearBackground(Color.BLACK);
+            
             Raylib.BeginTextureMode(renderTexture);
             ModelRenderer.RenderQueue();
             ShapeRenderer.RenderQueue();
             Raylib.EndTextureMode();
 
-            Raylib.ClearBackground(Color.BLACK);
+            Raylib.BeginTextureMode(renderTextureTTF);
+            NativeResRenderer.RenderQueue();
+            Raylib.EndTextureMode();
+
             //Console.WriteLine(renderTexture.depth.id);
 
             Raylib.BeginShaderMode(postProcessShader);
@@ -120,6 +131,14 @@ namespace Disaster
             Raylib.DrawTexturePro(
                 renderTexture.texture,
                 new Rectangle(0, 0, renderTexture.texture.width, -renderTexture.texture.height),
+                new Rectangle(0, 0, windowWidth, windowHeight),
+                Vector2.Zero,
+                0,
+                Color.WHITE
+            );
+            Raylib.DrawTexturePro(
+                renderTextureTTF.texture,
+                new Rectangle(0, 0, renderTextureTTF.texture.width, -renderTextureTTF.texture.height),
                 new Rectangle(0, 0, windowWidth, windowHeight),
                 Vector2.Zero,
                 0,

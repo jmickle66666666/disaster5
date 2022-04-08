@@ -24,6 +24,18 @@ namespace DisasterAPI
             Disaster.SoftwareCanvas.LoadFont(fontAssetPath);
         }
 
+        [JSFunction(Name = "loadFontTTF")]
+        [FunctionDescription("Load a TTF font. All future Draw.textTTF calls will use the specified font.")]
+        [ArgumentDescription("fontPath", "Path to the font file.")]
+        public static void LoadFontTTF(string fontPath) {
+            if (!Disaster.Assets.LoadPath(fontPath, out string fontAssetPath))
+            {
+                return;
+            }
+            Disaster.Assets.Font(fontPath); // Loads the font if it isn't already loaded
+            Disaster.Assets.currentFont = fontPath;
+        }
+
         [JSFunction(Name = "clear")]
         [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
@@ -34,6 +46,11 @@ namespace DisasterAPI
                 Disaster.ShapeRenderer.EnqueueRender(
                     () => {
                         Raylib_cs.Raylib.ClearBackground(Raylib_cs.Color.BLACK);
+                    }
+                );
+                Disaster.NativeResRenderer.EnqueueRender(
+                    () => {
+                        Raylib_cs.Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0));
                     }
                 );
             }
@@ -267,6 +284,25 @@ namespace DisasterAPI
         public static void Text(string text, int x, int y, ObjectInstance color)
         {
             Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
+        }
+
+        [JSFunction(Name = "textTTF")]
+        [FunctionDescription("Draw a line of text using a TTF font. TTF text is drawn on top of all other draw elements.")]
+        [ArgumentDescription("text", "the text content to draw")]
+        [ArgumentDescription("x", "x position of the text")]
+        [ArgumentDescription("y", "x position of the text")]
+        [ArgumentDescription("color", "text color", "{r, g, b, a}")]
+        public static void TextTTF(string text, int x, int y, ObjectInstance color)
+        {
+            int scale = Disaster.ScreenController.windowHeight / Disaster.ScreenController.screenHeight;
+            var font = Disaster.Assets.Font(Disaster.Assets.currentFont).font;
+            var fontSize = Disaster.SoftwareCanvas.fontHeight * scale;
+            var position = new Vector2(x + Disaster.SoftwareCanvas.offset.x, y + Disaster.SoftwareCanvas.offset.y);
+            Disaster.NativeResRenderer.EnqueueRender(
+                () => {
+                    Raylib_cs.Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
+                }
+            );
         }
 
         [JSFunction(Name = "textStyled")]
