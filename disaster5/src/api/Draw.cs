@@ -482,10 +482,16 @@ namespace DisasterAPI
                                 trans = Disaster.TypeInterface.Transform2d(transformation);
                             else
                                 trans = new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
+
+                            if (trans.scale.X < 0) rect.width *= -1;
+                            if (trans.scale.Y < 0) rect.height *= -1;
                             
                             var source_rect = new Raylib_cs.Rectangle(rect.x, rect.y, rect.width, rect.height);
-                        
                             var dest_rect = new Raylib_cs.Rectangle(x, y, rect.width * trans.scale.X, rect.height * trans.scale.Y);
+
+                            trans.scale.X = Math.Abs(trans.scale.X);
+                            trans.scale.Y = Math.Abs(trans.scale.Y);
+                            
                             Raylib_cs.Raylib.DrawTexturePro(texture, source_rect, dest_rect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
                         }
                     );
