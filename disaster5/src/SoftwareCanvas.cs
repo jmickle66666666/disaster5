@@ -1071,21 +1071,34 @@ namespace Disaster
                 {
                     if (fontBuffer[charX + i, (charY + fontHeight) - j - 1])
                     {
-                        if (inBuffer)
+                        var px = x + i + offset.x;
+                        var py = y + j + offset.y;
+
+                        void RenderAction()
                         {
-                            Pixel(x + i, y + j, color);
-                        } else
-                        {
-                            // This is in the software canvas because it was the quickest
-                            // way to replicate text behaviour
-                            var px = x + i + offset.x;
-                            var py = y + j + offset.y;
-                            Disaster.ShapeRenderer.EnqueueRender(
-                                () => {
-                                    Raylib_cs.Raylib.DrawPixel(px, py, color);
-                                }
-                            );
+                            Raylib.DrawPixel(px, py, color);
                         }
+                        
+                        if (BufferRenderer.inBuffer)
+                            BufferRenderer.Enqueue(RenderAction);
+                        else
+                            ShapeRenderer.EnqueueRender(RenderAction);
+                        
+                        // if (inBuffer)
+                        // {
+                        //     Pixel(x + i, y + j, color);
+                        // } else
+                        // {
+                        //     // This is in the software canvas because it was the quickest
+                        //     // way to replicate text behaviour
+                        //     var px = x + i + offset.x;
+                        //     var py = y + j + offset.y;
+                        //     Disaster.ShapeRenderer.EnqueueRender(
+                        //         () => {
+                        //             Raylib_cs.Raylib.DrawPixel(px, py, color);
+                        //         }
+                        //     );
+                        // }
                     }
                 }
             }

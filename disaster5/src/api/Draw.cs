@@ -3,6 +3,7 @@ using Jurassic.Library;
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Raylib_cs;
 
 namespace DisasterAPI
 {
@@ -10,7 +11,7 @@ namespace DisasterAPI
     public class Draw : ObjectInstance {
 
         public Draw(ScriptEngine engine) : base(engine) {
-            this.PopulateFunctions();
+            PopulateFunctions();
         }
 
         [JSFunction(Name = "loadFont")]
@@ -39,20 +40,15 @@ namespace DisasterAPI
         [JSFunction(Name = "clear")]
         [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
-            Disaster.SoftwareCanvas.Clear();
-            // TODO: This also clears the 3D canvas
-            if (!Disaster.SoftwareCanvas.inBuffer)
+            if (Disaster.BufferRenderer.inBuffer)
             {
-                Disaster.ShapeRenderer.EnqueueRender(
-                    () => {
-                        Raylib_cs.Raylib.ClearBackground(Raylib_cs.Color.BLACK);
-                    }
-                );
-                Disaster.NativeResRenderer.EnqueueRender(
-                    () => {
-                        Raylib_cs.Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0));
-                    }
-                );
+                Disaster.BufferRenderer.Enqueue(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
+            }
+            else
+            {
+                // TODO: This also clears the 3D canvas
+                Disaster.ShapeRenderer.EnqueueRender(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
+                Disaster.NativeResRenderer.EnqueueRender(() => { Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0)); });
             }
         }
 
@@ -90,26 +86,22 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled rect (true) or an outline (false, default)")]
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
+            x += Disaster.SoftwareCanvas.offset.x;
+            y += Disaster.SoftwareCanvas.offset.y;
             var col = Disaster.TypeInterface.Color32(color);
-            if (Disaster.SoftwareCanvas.inBuffer)
+
+            void RenderAction()
             {
                 if (filled)
-                    Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
+                    Raylib.DrawRectangle(x, y, width, height, col);
                 else
-                    Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-            } else 
-            {
-                x += Disaster.SoftwareCanvas.offset.x;
-                y += Disaster.SoftwareCanvas.offset.y;
-                Disaster.ShapeRenderer.EnqueueRender(
-                    () => {
-                        if (filled)
-                            Raylib_cs.Raylib.DrawRectangle(x, y, width, height, col);
-                        else
-                            Raylib_cs.Raylib.DrawRectangleLines(x, y, width, height, col);
-                    }
-                );
-            }            
+                    Raylib.DrawRectangleLines(x, y, width, height, col);
+            }
+
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(RenderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
         }
 
         [JSFunction(Name = "triangle")]
@@ -125,48 +117,35 @@ namespace DisasterAPI
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            if (Disaster.SoftwareCanvas.inBuffer)
+            
+            x1 += Disaster.SoftwareCanvas.offset.x;
+            y1 += Disaster.SoftwareCanvas.offset.y;
+            x2 += Disaster.SoftwareCanvas.offset.x;
+            y2 += Disaster.SoftwareCanvas.offset.y;
+            x3 += Disaster.SoftwareCanvas.offset.x;
+            y3 += Disaster.SoftwareCanvas.offset.y;
+            
+            // Put these points in counter-clockwise order for raylib
+            var a = new Vector2(x1, y1);
+            var b = new Vector2(x2, y2);
+            var c = new Vector2(x3, y3);
+            var ab = b - a;
+            var ac = c - a;
+            var crossz = ab.X * ac.Y - ab.Y * ac.X;
+            Vector2[] points = crossz < 0 ? new[]{a, b, c} : new[]{a, c, b};
+
+            void RenderAction()
             {
                 if (filled)
-                    Disaster.SoftwareCanvas.Triangle(x1, y1, x2, y2, x3, y3, col);
+                    Raylib.DrawTriangle(points[0], points[1], points[2], col);
                 else
-                {
-                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
-                    Disaster.SoftwareCanvas.Line(x3, y3, x2, y2, col);
-                    Disaster.SoftwareCanvas.Line(x1, y1, x3, y3, col);
-                }
-            } else 
-            {
-                x1 += Disaster.SoftwareCanvas.offset.x;
-                y1 += Disaster.SoftwareCanvas.offset.y;
-                x2 += Disaster.SoftwareCanvas.offset.x;
-                y2 += Disaster.SoftwareCanvas.offset.y;
-                x3 += Disaster.SoftwareCanvas.offset.x;
-                y3 += Disaster.SoftwareCanvas.offset.y;
-
-                // Put these points in counter-clockwise order for raylib
-                var a = new Vector2(x1, y1);
-                var b = new Vector2(x2, y2);
-                var c = new Vector2(x3, y3);
-                var ab = b - a;
-                var ac = c - a;
-                var crossz = ab.X * ac.Y - ab.Y * ac.X;
-
-                Vector2[] points;
-                if (crossz < 0)
-                    points = new Vector2[]{a, b, c};
-                else
-                    points = new Vector2[]{a, c, b};
-
-                Disaster.ShapeRenderer.EnqueueRender(
-                    () => {
-                        if (filled)
-                            Raylib_cs.Raylib.DrawTriangle(points[0], points[1], points[2], col);
-                        else
-                            Raylib_cs.Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
-                    }
-                );
+                    Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
             }
+
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(RenderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
         }
 
         [JSFunction(Name = "circle")]
@@ -179,26 +158,22 @@ namespace DisasterAPI
         public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            var radius_f = (float)radius;
-            if (Disaster.SoftwareCanvas.inBuffer)
+            var radiusF = (float)radius;
+            x += Disaster.SoftwareCanvas.offset.x;
+            y += Disaster.SoftwareCanvas.offset.y;
+
+            void RenderAction()
             {
                 if (filled)
-                    Disaster.SoftwareCanvas.CircleFilled(x, y, radius_f, col);
+                    Raylib.DrawCircle(x, y, radiusF, col);
                 else
-                    Disaster.SoftwareCanvas.Circle(x, y, radius_f, col);
-            } else 
-            {
-                x += Disaster.SoftwareCanvas.offset.x;
-                y += Disaster.SoftwareCanvas.offset.y;
-                Disaster.ShapeRenderer.EnqueueRender(
-                    () => {
-                        if (filled)
-                            Raylib_cs.Raylib.DrawCircle(x, y, radius_f, col);
-                        else
-                            Raylib_cs.Raylib.DrawCircleLines(x, y, radius_f, col);
-                    }
-                );
+                    Raylib.DrawCircleLines(x, y, radiusF, col);
             }
+            
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(RenderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
         }
 
         [JSFunction(Name = "line")]
@@ -212,25 +187,22 @@ namespace DisasterAPI
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color, ObjectInstance colorEnd = null)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            if (Disaster.SoftwareCanvas.inBuffer)
+            
+            // TODO: Find a way to do gradient lines with raylib
+            x1 += Disaster.SoftwareCanvas.offset.x;
+            y1 += Disaster.SoftwareCanvas.offset.y;
+            x2 += Disaster.SoftwareCanvas.offset.x;
+            y2 += Disaster.SoftwareCanvas.offset.y;
+
+            void RenderAction()
             {
-                if (colorEnd == null)
-                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
-                else
-                    Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col, Disaster.TypeInterface.Color32(colorEnd));
-            } else
-            {
-                // TODO: Find a way to do gradient lines with raylib
-                x1 += Disaster.SoftwareCanvas.offset.x;
-                y1 += Disaster.SoftwareCanvas.offset.y;
-                x2 += Disaster.SoftwareCanvas.offset.x;
-                y2 += Disaster.SoftwareCanvas.offset.y;
-                Disaster.ShapeRenderer.EnqueueRender(
-                    () => {
-                        Raylib_cs.Raylib.DrawLine(x1, y1, x2, y2, col);
-                    }
-                );
+                Raylib.DrawLine(x1, y1, x2, y2, col);
             }
+            
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(RenderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
         }
 
         [JSFunction(Name = "line3d")]
@@ -240,16 +212,17 @@ namespace DisasterAPI
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
         public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
         {
+            // TODO: Add inBuffer draw
             //if (colorEnd == null) colorEnd = color;
             Disaster.ShapeRenderer.EnqueueRender(
                 () => {
-                    Raylib_cs.Raylib.BeginMode3D(Disaster.ScreenController.camera);
-                    Raylib_cs.Raylib.DrawLine3D(
+                    Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                    Raylib.DrawLine3D(
                         Disaster.TypeInterface.Vector3(start),
                         Disaster.TypeInterface.Vector3(end),
                         Disaster.TypeInterface.Color32(color)
                     );
-                    Raylib_cs.Raylib.EndMode3D();
+                    Raylib.EndMode3D();
                 }
             );
             //Disaster.SoftwareCanvas.Line(
@@ -267,7 +240,7 @@ namespace DisasterAPI
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
             float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
-            var p = Raylib_cs.Raylib.GetWorldToScreen(Disaster.TypeInterface.Vector3(position), Disaster.ScreenController.camera);
+            var p = Raylib.GetWorldToScreen(Disaster.TypeInterface.Vector3(position), Disaster.ScreenController.camera);
             p.X *= ratioW;
             p.Y *= ratioH;
             return Disaster.TypeInterface.Object(p);
@@ -298,7 +271,7 @@ namespace DisasterAPI
             var position = new Vector2(x + Disaster.SoftwareCanvas.offset.x, y + Disaster.SoftwareCanvas.offset.y);
             Disaster.NativeResRenderer.EnqueueRender(
                 () => {
-                    Raylib_cs.Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
+                    Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
                 }
             );
         }
@@ -335,7 +308,7 @@ namespace DisasterAPI
             {
                 unsafe
                 {
-                    var mesh = ((Raylib_cs.Mesh*)model.model.meshes.ToPointer())[0];
+                    var mesh = ((Mesh*)model.model.meshes.ToPointer())[0];
                     Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
                 }
             }
@@ -360,7 +333,7 @@ namespace DisasterAPI
                 return;
             }
 
-            Raylib_cs.Shader shader;
+            Shader shader;
 
             if (shaderPath == "")
             {
@@ -396,6 +369,7 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
+            // TODO: Replace software rendering
             var pixelBuffer = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width);
             Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
         }
@@ -406,16 +380,15 @@ namespace DisasterAPI
         [ArgumentDescription("height", "Height of the new buffer to draw to")]
         public static void StartBuffer(int width, int height)
         {
-            Disaster.SoftwareCanvas.StartBuffer(width, height);
+            if (!Disaster.BufferRenderer.StartBuffer(width, height))
+                Console.WriteLine("In Buffer!!");
         }
 
         [JSFunction(Name = "endBuffer")]
         [FunctionDescription("Finish drawing to a pixel buffer and return a reference to the new texture.")]
         public static string EndBuffer()
         {
-            string output = Disaster.SoftwareCanvas.CreateAssetFromBuffer();
-            Disaster.SoftwareCanvas.EndBuffer();
-            return output;
+            return Disaster.BufferRenderer.EndBuffer();
         }
 
         [JSFunction(Name = "texture")]
@@ -430,75 +403,34 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
-                if (Disaster.SoftwareCanvas.inBuffer)
+                x += Disaster.SoftwareCanvas.offset.x;
+                y += Disaster.SoftwareCanvas.offset.y;
+                var texture = pixelBuffer.pixelBuffer.texture;
+                var rect = rectangle != null ? Disaster.TypeInterface.Rect(rectangle) : new Disaster.Rect(0, 0, texture.width, texture.height);
+                var trans = transformation != null ? Disaster.TypeInterface.Transform2d(transformation) : new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
+
+                if (trans.scale.X < 0) rect.width *= -1;
+                if (trans.scale.Y < 0) rect.height *= -1;
+                            
+                var sourceRect = new Rectangle(rect.x, rect.y, rect.width, rect.height);
+                var destRect = new Rectangle(x, y, rect.width * trans.scale.X, rect.height * trans.scale.Y);
+
+                trans.scale.X = Math.Abs(trans.scale.X);
+                trans.scale.Y = Math.Abs(trans.scale.Y);
+                
+                void RenderAction()
                 {
-                    if (rectangle == null && transformation == null)
-                    {
-                        Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y);
-                    } else
-                    {
-                        if (transformation == null)
-                        {
-                            Disaster.SoftwareCanvas.PixelBuffer(
-                                pixelBuffer.pixelBuffer, 
-                                x, y, 
-                                Disaster.TypeInterface.Rect(rectangle)
-                            );
-                        } else if (rectangle == null)
-                        {
-                            Disaster.SoftwareCanvas.PixelBuffer(
-                                pixelBuffer.pixelBuffer, 
-                                x, y, 
-                                new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height), 
-                                Disaster.TypeInterface.Transform2d(transformation)
-                            );
-                        } else
-                        {
-                            Disaster.SoftwareCanvas.PixelBuffer(
-                                pixelBuffer.pixelBuffer,
-                                x, y,
-                                Disaster.TypeInterface.Rect(rectangle),
-                                Disaster.TypeInterface.Transform2d(transformation)
-                            );
-                        }
-                    }
+                    Raylib.DrawTexturePro(texture, sourceRect, destRect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
                 }
+
+                if (Disaster.BufferRenderer.inBuffer)
+                    Disaster.BufferRenderer.Enqueue(RenderAction);
                 else
-                {
-                    x += Disaster.SoftwareCanvas.offset.x;
-                    y += Disaster.SoftwareCanvas.offset.y;
-                    Disaster.ShapeRenderer.EnqueueRender(
-                        () => {
-                            var texture = pixelBuffer.pixelBuffer.texture;
-                            Disaster.Rect rect;
-                            if (rectangle != null)
-                                rect = Disaster.TypeInterface.Rect(rectangle);
-                            else
-                                rect = new Disaster.Rect(0, 0, texture.width, texture.height);
-
-                            
-                            Disaster.Transform2D trans;
-                            if (transformation != null)
-                                trans = Disaster.TypeInterface.Transform2d(transformation);
-                            else
-                                trans = new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
-
-                            if (trans.scale.X < 0) rect.width *= -1;
-                            if (trans.scale.Y < 0) rect.height *= -1;
-                            
-                            var source_rect = new Raylib_cs.Rectangle(rect.x, rect.y, rect.width, rect.height);
-                            var dest_rect = new Raylib_cs.Rectangle(x, y, rect.width * trans.scale.X, rect.height * trans.scale.Y);
-
-                            trans.scale.X = Math.Abs(trans.scale.X);
-                            trans.scale.Y = Math.Abs(trans.scale.Y);
-                            
-                            Raylib_cs.Raylib.DrawTexturePro(texture, source_rect, dest_rect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
-                        }
-                    );
-                }               
-            } else
+                    Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+            }
+            else
             {
-                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+                Console.WriteLine($"Failed to draw texture: {texturePath}");
             }
         }
 
@@ -518,66 +450,62 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
+                x += Disaster.SoftwareCanvas.offset.x;
+                y += Disaster.SoftwareCanvas.offset.y;
+                var texture = pixelBuffer.pixelBuffer.texture;
                 var rect = Disaster.TypeInterface.Rect(nineSliceArea);
-                if (Disaster.SoftwareCanvas.inBuffer)
-                // if (true)
-                {
-                    Disaster.SoftwareCanvas.NineSlice(pixelBuffer.pixelBuffer, rect, new Disaster.Rect(x, y, width, height));
-                } else
-                {
-                    x += Disaster.SoftwareCanvas.offset.x;
-                    y += Disaster.SoftwareCanvas.offset.y;
-                    var texture = pixelBuffer.pixelBuffer.texture;
 
-                    // We don't use raylibs built in NPatch because it stretches rather than tiles
-                    // void DrawTextureTiled(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, float scale, Color tint);
-                    var xs = new int[]{0, (int)rect.x, (int)(rect.x + rect.width), texture.width};
-                    var ys = new int[]{0, (int)rect.y, (int)(rect.y + rect.height), texture.height};
+                // We don't use raylibs built in NPatch because it stretches rather than tiles
+                var xs = new[]{0, (int)rect.x, (int)(rect.x + rect.width), texture.width};
+                var ys = new[]{0, (int)rect.y, (int)(rect.y + rect.height), texture.height};
 
-                    var srcRects = new Raylib_cs.Rectangle[3,3];
+                var srcRects = new Rectangle[3,3];
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        srcRects[i, j] = new Rectangle(xs[j], ys[i], xs[j+1] - xs[j], ys[i + 1] - ys[i]);
+                    }
+                }
+
+                var w1 = Math.Min(xs[1] - xs[0], width);
+                var w3 = Math.Min(xs[3] - xs[2], width - w1);
+                var w2 = width - w1 - w3;
+                var ws = new[]{w1, w2, w3};
+
+                var h1 = Math.Min(ys[1] - ys[0], height);
+                var h3 = Math.Min(ys[3] - ys[2], height - h1);
+                var h2 = height - h1 - h3;
+                var hs = new[]{h1, h2, h3};
+
+                void RenderAction()
+                {
+                    int ry = y;
                     for (int i = 0; i < 3; i++)
                     {
+                        if (hs[i] <= 0) break;
+
+                        int rx = x;
                         for (int j = 0; j < 3; j++)
                         {
-                            srcRects[i, j] = new Raylib_cs.Rectangle(xs[j], ys[i], xs[j+1] - xs[j], ys[i + 1] - ys[i]);
+                            if (ws[j] <= 0) break;
+
+                            var dstRect = new Rectangle(rx, ry, ws[j], hs[i]);
+                            Raylib.DrawTextureTiled(texture, srcRects[i,j], dstRect, Vector2.Zero, 0, 1, Raylib_cs.Color.WHITE);
+                            rx += ws[j];
                         }
+                        ry += hs[i];
                     }
-
-                    var w1 = (int)(Math.Min(xs[1] - xs[0], width));
-                    var w3 = (int)(Math.Min(xs[3] - xs[2], width - w1));
-                    var w2 = width - w1 - w3;
-                    var ws = new int[]{w1, w2, w3};
-
-                    var h1 = (int)(Math.Min(ys[1] - ys[0], height));
-                    var h3 = (int)(Math.Min(ys[3] - ys[2], height - h1));
-                    var h2 = height - h1 - h3;
-                    var hs = new int[]{h1, h2, h3};
-
-                    Disaster.ShapeRenderer.EnqueueRender(
-                        () => {
-                            int ry = y;
-                            for (int i = 0; i < 3; i++)
-                            {
-                                if (hs[i] <= 0) break;
-
-                                int rx = x;
-                                for (int j = 0; j < 3; j++)
-                                {
-                                    if (ws[j] <= 0) break;
-
-                                    var dstRect = new Raylib_cs.Rectangle(rx, ry, ws[j], hs[i]);
-                                    Raylib_cs.Raylib.DrawTextureTiled(texture, srcRects[i,j], dstRect, Vector2.Zero, 0, 1, Raylib_cs.Color.WHITE);
-                                    rx += ws[j];
-                                }
-                                ry += hs[i];
-                            }
-                        }
-                    );
                 }
+                
+                if (Disaster.BufferRenderer.inBuffer)
+                    Disaster.BufferRenderer.Enqueue(RenderAction);
+                else
+                    Disaster.ShapeRenderer.EnqueueRender(RenderAction);
             }
             else
             {
-                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+                Console.WriteLine($"Failed to draw texture: {texturePath}");
             }
         }
 
@@ -638,7 +566,7 @@ namespace DisasterAPI
                     Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Subtract;
                     break;
                 default:
-                    System.Console.WriteLine($"Unknown blendmode: {blendMode}");
+                    Console.WriteLine($"Unknown blendmode: {blendMode}");
                     break;
             }
         }
