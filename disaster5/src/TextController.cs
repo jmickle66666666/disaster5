@@ -276,8 +276,8 @@ namespace Disaster
 
         private static void Character(int x, int y, int character, Color32 color)
         {
-            x += SoftwareCanvas.offset.x;
-            y += SoftwareCanvas.offset.y;
+            x += ScreenController.offset.x;
+            y += ScreenController.offset.y;
             
             int charX = (character % 16) * fontWidth;
             int charY = (int) MathF.Floor(character / 16);

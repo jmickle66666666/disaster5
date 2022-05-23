@@ -65,8 +65,8 @@ namespace DisasterAPI
         [ArgumentDescription("y", "Pixels in the y axis to offset by")]
         public static void Offset(int x, int y)
         {
-            Disaster.SoftwareCanvas.offset.x = x;
-            Disaster.SoftwareCanvas.offset.y = y;
+            Disaster.ScreenController.offset.x = x;
+            Disaster.ScreenController.offset.y = y;
         }
 
 
@@ -80,8 +80,8 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled rect (true) or an outline (false, default)")]
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
-            x += Disaster.SoftwareCanvas.offset.x;
-            y += Disaster.SoftwareCanvas.offset.y;
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
             var col = Disaster.TypeInterface.Color32(color);
 
             if (filled)
@@ -104,12 +104,12 @@ namespace DisasterAPI
         {
             var col = Disaster.TypeInterface.Color32(color);
             
-            x1 += Disaster.SoftwareCanvas.offset.x;
-            y1 += Disaster.SoftwareCanvas.offset.y;
-            x2 += Disaster.SoftwareCanvas.offset.x;
-            y2 += Disaster.SoftwareCanvas.offset.y;
-            x3 += Disaster.SoftwareCanvas.offset.x;
-            y3 += Disaster.SoftwareCanvas.offset.y;
+            x1 += Disaster.ScreenController.offset.x;
+            y1 += Disaster.ScreenController.offset.y;
+            x2 += Disaster.ScreenController.offset.x;
+            y2 += Disaster.ScreenController.offset.y;
+            x3 += Disaster.ScreenController.offset.x;
+            y3 += Disaster.ScreenController.offset.y;
             
             // Put these points in counter-clockwise order for raylib
             var a = new Vector2(x1, y1);
@@ -137,8 +137,8 @@ namespace DisasterAPI
         {
             var col = Disaster.TypeInterface.Color32(color);
             var radiusF = (float)radius;
-            x += Disaster.SoftwareCanvas.offset.x;
-            y += Disaster.SoftwareCanvas.offset.y;
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
             
             if (filled)
                 EnqueueRenderAction(() => { Raylib.DrawCircle(x, y, radiusF, col); });
@@ -159,10 +159,10 @@ namespace DisasterAPI
             var col = Disaster.TypeInterface.Color32(color);
             
             // TODO: Find a way to do gradient lines with raylib
-            x1 += Disaster.SoftwareCanvas.offset.x;
-            y1 += Disaster.SoftwareCanvas.offset.y;
-            x2 += Disaster.SoftwareCanvas.offset.x;
-            y2 += Disaster.SoftwareCanvas.offset.y;
+            x1 += Disaster.ScreenController.offset.x;
+            y1 += Disaster.ScreenController.offset.y;
+            x2 += Disaster.ScreenController.offset.x;
+            y2 += Disaster.ScreenController.offset.y;
             EnqueueRenderAction(() => { Raylib.DrawLine(x1, y1, x2, y2, col); });
         }
 
@@ -219,7 +219,7 @@ namespace DisasterAPI
             int scale = Disaster.ScreenController.windowHeight / Disaster.ScreenController.screenHeight;
             var font = Disaster.Assets.Font(Disaster.Assets.currentFont).font;
             var fontSize = Disaster.TextController.fontHeight * scale;
-            var position = new Vector2(x + Disaster.SoftwareCanvas.offset.x, y + Disaster.SoftwareCanvas.offset.y);
+            var position = new Vector2(x + Disaster.ScreenController.offset.x, y + Disaster.ScreenController.offset.y);
             Disaster.NativeResRenderer.EnqueueRender(
                 () => {
                     Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
@@ -248,21 +248,26 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Whether to draw the triangles filled (default: false)")]
         public static void Wireframe(string modelPath, ObjectInstance position, ObjectInstance rotation, ObjectInstance color, bool backfaceCulling = false, bool drawDepth = false, bool filled = false)
         {
-            // TODO: Replace software rendering
+            // TODO: Support the optional arguments
+            var model = Disaster.Assets.Model(modelPath);
+            if (!model.succeeded) return;
+            
+            var col = Disaster.TypeInterface.Color32(color);
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            var col = Disaster.TypeInterface.Color32(color);
 
-            var model = Disaster.Assets.Model(modelPath);
-            if (model.succeeded)
-            {
-                unsafe
-                {
-                    var mesh = ((Mesh*)model.model.meshes.ToPointer())[0];
-                    Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
-                }
-            }
+            EnqueueRenderAction(() => { 
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Raylib.DrawModelWiresEx(
+                    model.model,
+                    transform.position,
+                    transform.rotationAxis,
+                    transform.rotationAngle,
+                    transform.scale,
+                    col);
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "model")]
@@ -353,8 +358,8 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
-                x += Disaster.SoftwareCanvas.offset.x;
-                y += Disaster.SoftwareCanvas.offset.y;
+                x += Disaster.ScreenController.offset.x;
+                y += Disaster.ScreenController.offset.y;
                 var texture = pixelBuffer.pixelBuffer.texture;
                 var rect = rectangle != null ? Disaster.TypeInterface.Rect(rectangle) : new Disaster.Rect(0, 0, texture.width, texture.height);
                 var trans = transformation != null ? Disaster.TypeInterface.Transform2d(transformation) : new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
@@ -393,62 +398,61 @@ namespace DisasterAPI
                 return;
             
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            if (pixelBuffer.succeeded)
-            {
-                x += Disaster.SoftwareCanvas.offset.x;
-                y += Disaster.SoftwareCanvas.offset.y;
-                var texture = pixelBuffer.pixelBuffer.texture;
-                var rect = Disaster.TypeInterface.Rect(nineSliceArea);
-
-                // We don't use raylibs built in NPatch because it stretches rather than tiles
-                var xs = new[]{0, (int)rect.x, (int)(rect.x + rect.width), texture.width};
-                var ys = new[]{0, (int)rect.y, (int)(rect.y + rect.height), texture.height};
-
-                var srcRects = new Rectangle[3,3];
-                for (int i = 0; i < 3; i++)
-                {
-                    for (int j = 0; j < 3; j++)
-                    {
-                        srcRects[i, j] = new Rectangle(xs[j], ys[i], xs[j+1] - xs[j], ys[i + 1] - ys[i]);
-                    }
-                }
-
-                var w1 = Math.Min(xs[1] - xs[0], width);
-                var w3 = Math.Min(xs[3] - xs[2], width - w1);
-                var w2 = width - w1 - w3;
-                var ws = new[]{w1, w2, w3};
-
-                var h1 = Math.Min(ys[1] - ys[0], height);
-                var h3 = Math.Min(ys[3] - ys[2], height - h1);
-                var h2 = height - h1 - h3;
-                var hs = new[]{h1, h2, h3};
-
-                void RenderAction()
-                {
-                    int ry = y;
-                    for (int i = 0; i < 3; i++)
-                    {
-                        if (hs[i] <= 0) break;
-
-                        int rx = x;
-                        for (int j = 0; j < 3; j++)
-                        {
-                            if (ws[j] <= 0) break;
-
-                            var dstRect = new Rectangle(rx, ry, ws[j], hs[i]);
-                            Raylib.DrawTextureTiled(texture, srcRects[i,j], dstRect, Vector2.Zero, 0, 1, Raylib_cs.Color.WHITE);
-                            rx += ws[j];
-                        }
-                        ry += hs[i];
-                    }
-                }
-                
-                EnqueueRenderAction(RenderAction);
-            }
-            else
+            if (!pixelBuffer.succeeded)
             {
                 Console.WriteLine($"Failed to draw texture: {texturePath}");
+                return;
             }
+
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
+            var texture = pixelBuffer.pixelBuffer.texture;
+            var rect = Disaster.TypeInterface.Rect(nineSliceArea);
+
+            // We don't use raylibs built in NPatch because it stretches rather than tiles
+            var xs = new[] {0, (int) rect.x, (int) (rect.x + rect.width), texture.width};
+            var ys = new[] {0, (int) rect.y, (int) (rect.y + rect.height), texture.height};
+
+            var srcRects = new Rectangle[3, 3];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    srcRects[i, j] = new Rectangle(xs[j], ys[i], xs[j + 1] - xs[j], ys[i + 1] - ys[i]);
+                }
+            }
+
+            var w1 = Math.Min(xs[1] - xs[0], width);
+            var w3 = Math.Min(xs[3] - xs[2], width - w1);
+            var w2 = width - w1 - w3;
+            var ws = new[] {w1, w2, w3};
+
+            var h1 = Math.Min(ys[1] - ys[0], height);
+            var h3 = Math.Min(ys[3] - ys[2], height - h1);
+            var h2 = height - h1 - h3;
+            var hs = new[] {h1, h2, h3};
+            
+            EnqueueRenderAction(() =>
+            {
+                int ry = y;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (hs[i] <= 0) break;
+
+                    int rx = x;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (ws[j] <= 0) break;
+
+                        var dstRect = new Rectangle(rx, ry, ws[j], hs[i]);
+                        Raylib.DrawTextureTiled(texture, srcRects[i, j], dstRect, Vector2.Zero, 0, 1,
+                            Raylib_cs.Color.WHITE);
+                        rx += ws[j];
+                    }
+
+                    ry += hs[i];
+                }
+            });
         }
 
         [JSFunction(Name = "setCamera")]
@@ -489,28 +493,7 @@ namespace DisasterAPI
         [FunctionDescription("Set the blending mode for future draw operations. normal, noise, add")]
         public static void SetBlendMode(string blendMode)
         {
-            // TODO: Set raylib blendmode
-            switch (blendMode)
-            {
-                case "normal":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Normal;
-                    break;
-                case "noise":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Noise;
-                    break;
-                case "add":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Add;
-                    break;
-                case "dither":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Dither;
-                    break;
-                case "subtract":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Subtract;
-                    break;
-                default:
-                    Console.WriteLine($"Unknown blendmode: {blendMode}");
-                    break;
-            }
+            // TODO: Re-add blendmode support
         }
 
         private static void EnqueueRenderAction(Action renderAction)

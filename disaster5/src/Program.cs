@@ -102,9 +102,7 @@ namespace Disaster
 
             Assets.InitDictionaries();
 
-            // software renderer initialisation
-            SoftwareCanvas.InitTexture(320, 240);
-            // TODO: bake in a default font! so you can't end up with no font at all
+            // renderer initialisation
             if (Assets.LoadPath("lib/fontsmall.png", out string fontPath))
             {
                 TextController.LoadFont(fontPath);
@@ -133,7 +131,7 @@ namespace Disaster
                 Debug.Label("js update");
                 Debug.DrawGraph();
                 screen.Update();
-                SoftwareCanvas.slowDraw = false;
+                // TODO: Re-add slowdraw support
                 Debug.FrameEnd();
                 Debug.GetFrameMSData();
             }

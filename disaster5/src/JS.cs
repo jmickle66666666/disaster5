@@ -95,20 +95,23 @@ namespace Disaster {
             int chars = 32;
             int lines = ((message.Length / chars) + message.Count(f => f == '\n')) + 2;
 
-            SoftwareCanvas.FillRect(x - 4, y - 4, chars * TextController.fontWidth + 8, lines * TextController.fontHeight + 8, new Color32(255, 180, 0));
-
-            for (int i = x - 4; i < x + chars * TextController.fontWidth + 4; i++)
+            ShapeRenderer.EnqueueRender(() =>
             {
-                for (int j = y - 4; j < y + lines * TextController.fontHeight + 4; j++)
+                Raylib.DrawRectangle(x - 4, y - 4, chars * TextController.fontWidth + 8, lines * TextController.fontHeight + 8, new Color32(255, 180, 0));
+                
+                for (int i = x - 4; i < x + chars * TextController.fontWidth + 4; i++)
                 {
-                    if ((i + j) % 6 < 3)
+                    for (int j = y - 4; j < y + lines * TextController.fontHeight + 4; j++)
                     {
-                        SoftwareCanvas.Pixel(i, j, new Color32(0, 0, 0));
+                        if ((i + j) % 6 < 3)
+                        {
+                            Raylib.DrawPixel(i, j, Color.BLACK);
+                        }
                     }
                 }
-            }
-
-            SoftwareCanvas.FillRect(x - 1, y - 1, chars * TextController.fontWidth + 2, lines * TextController.fontHeight + 2, new Color32(12, 12, 12));
+                
+                Raylib.DrawRectangle(x - 1, y - 1, chars * TextController.fontWidth + 2, lines * TextController.fontHeight + 2, new Color32(12, 12, 12));
+            });
 
             TextController.Paragraph(x, y, new Color32(255, 50, 0), message, chars);
             stopped = true;

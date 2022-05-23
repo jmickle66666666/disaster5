@@ -79,15 +79,14 @@ namespace DisasterAPI
         [ArgumentDescription("frameSkip", "How many pixels to draw per frame of slow draw")]
         public static void SlowDrawFrame(int frameSkip)
         {
-            Disaster.SoftwareCanvas.slowDrawPixels = frameSkip;
-            Disaster.SoftwareCanvas.slowDraw = true;
+            // TODO: Re-add slowdraw support
         }
 
         [JSFunction(Name = "toggleOverdraw")]
         [FunctionDescription("Toggle overdraw debug visualisation. Brighter pixels are being drawn more times")]
         public static void ToggleOverdraw()
         {
-            Disaster.SoftwareCanvas.overdraw =! Disaster.SoftwareCanvas.overdraw;
+            // TODO: Re-add overdraw support
         }
 
         [JSFunction(Name = "setMouseVisible")]

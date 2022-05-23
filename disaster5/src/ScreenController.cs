@@ -10,9 +10,9 @@ namespace Disaster
 {
     public class ScreenController
     {
-        SoftwareCanvasRenderer softwareCanvasRenderer;
         public static ScreenController instance;
-        Shader postProcessShader;
+        private Shader screenShader;
+        private Shader postProcessShader;
 
         public static int screenWidth = 320;
         public static int screenHeight = 240;
@@ -20,10 +20,11 @@ namespace Disaster
         public static int windowWidth = 640;
         public static int windowHeight = 480;
 
-        static RenderTexture2D renderTexture;
-        public static RenderTexture2D renderTextureTTF;
-        static int scale = 2;
+        public static Vector2Int offset;
         public static Camera3D camera;
+        private static RenderTexture2D renderTexture;
+        private static RenderTexture2D renderTextureTTF;
+        private static int scale = 2;
 
         public ScreenController(int width, int height, int scale)
         {
@@ -53,12 +54,12 @@ namespace Disaster
         {
             if (Assets.PathExists("shaders/screen.vert") && Assets.PathExists("shaders/screen.frag"))
             {
-                softwareCanvasRenderer = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
+                screenShader = Assets.Shader("shaders/screen").shader;
             }
             else
             {
                 Console.WriteLine("loading backup software shader");
-                softwareCanvasRenderer = new SoftwareCanvasRenderer(Raylib.LoadMaterialDefault().shader);
+                screenShader = Raylib.LoadMaterialDefault().shader;
             }
 
             if (Assets.PathExists("shaders/postprocess.vert") && Assets.PathExists("shaders/postprocess.frag"))
@@ -81,29 +82,25 @@ namespace Disaster
             ScreenController.scale = scale;
             Raylib.SetWindowSize(windowWidth, windowHeight);
 
-            SoftwareCanvas.InitTexture(width, height);
-
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
 
             Raylib.UnloadRenderTexture(renderTextureTTF);
             renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
 
-            softwareCanvasRenderer = new SoftwareCanvasRenderer(Assets.Shader("shaders/screen").shader);
             ReloadShader();
         }
 
         public void Update()
         {
-            softwareCanvasRenderer.Update();
-
             Raylib.BeginDrawing();
-
             Raylib.ClearBackground(Color.BLACK);
             
             Raylib.BeginTextureMode(renderTexture);
             ModelRenderer.RenderQueue();
+            Raylib.BeginShaderMode(screenShader);
             ShapeRenderer.RenderQueue();
+            Raylib.EndShaderMode();
             Raylib.EndTextureMode();
 
             Raylib.BeginTextureMode(renderTextureTTF);
@@ -145,7 +142,6 @@ namespace Disaster
                 Color.WHITE
             );
             Raylib.EndShaderMode();
-            softwareCanvasRenderer.Render();
             Rlgl.rlDrawRenderBatchActive();
 
             Raylib.EndDrawing();
@@ -155,7 +151,6 @@ namespace Disaster
 
         public void Done()
         {
-            softwareCanvasRenderer.Dispose();
             Raylib.CloseWindow();
             Raylib.UnloadRenderTexture(renderTexture);
         }
