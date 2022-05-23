@@ -7,6 +7,7 @@ namespace Disaster
     public static class BufferRenderer
     {
         public static bool inBuffer { get; private set; }
+        private static string assetId;
         private static RenderTexture2D renderTexture;
         private static List<Action> drawQueue;
 
@@ -15,9 +16,29 @@ namespace Disaster
             if (inBuffer) return false;
 
             inBuffer = true;
+            assetId = "";
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(width, height);
             Enqueue(() => { Raylib.ClearBackground(Color.BLANK); });
+            return true;
+        }
+
+        public static bool StartBuffer(string assetID)
+        {
+            if (inBuffer) return false;
+
+            var (succeeded, pixelBuffer) = Assets.PixelBuffer(assetID);
+            if (!succeeded) return false;
+            
+            inBuffer = true;
+            assetId = assetID;
+            Raylib.UnloadRenderTexture(renderTexture);
+            renderTexture = Util.LoadRenderTexture(pixelBuffer.width, pixelBuffer.height);
+            Enqueue(() =>
+            {
+                Raylib.ClearBackground(Color.BLANK);
+                Raylib.DrawTexture(pixelBuffer.texture, 0, 0, Color.WHITE);
+            });
             return true;
         }
 
@@ -54,14 +75,25 @@ namespace Disaster
                     pixels[i] = colors[i];
             }
 
-            // Create pixelbuffer and it's id
-            var output = new PixelBuffer(pixels, image.width);
-            var hashnum = output.GetHashCode();
-            while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
-                hashnum += 1;
-            var hash = hashnum.ToString();
-            Assets.pixelBuffers.Add(hash, output);
-            return hash;
+            if (assetId == "")
+            {
+                // Create pixelbuffer and it's id
+                var output = new PixelBuffer(pixels, image.width);
+                var hashnum = output.GetHashCode();
+                while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
+                    hashnum += 1;
+                assetId = hashnum.ToString();
+                Assets.pixelBuffers.Add(assetId, output);
+            }
+            else
+            {
+                // We already have a pixel buffer, just update it's pixels
+                var pixelBuffer = Assets.PixelBuffer(assetId).pixelBuffer;
+                pixelBuffer.SetPixels(pixels);
+                Assets.pixelBuffers[assetId] = pixelBuffer;
+            }
+
+            return assetId;
         }
     }
 }
