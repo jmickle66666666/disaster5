@@ -14,18 +14,12 @@ namespace Disaster
 
     public class SoftwareCanvas
     {
-        //public static IntPtr drawTexture;
         public static int textureWidth;
         public static int textureHeight;
         public static Color32[] colorBuffer;
-        
-        public static Color32[] tempBuffer;
-        public static int tempWidth;
-        public static int tempHeight;
 
         public static int fontWidth;
         public static int fontHeight;
-        //public static IntPtr pixels;
 
         public static Vector2Int offset;
 
@@ -38,8 +32,6 @@ namespace Disaster
         public static bool overdraw = false;
         static int[] overdrawBuffer;
         static int maxOverdraw = 0;
-
-        public static bool inBuffer = false;
 
         public enum BlendMode
         {
@@ -77,8 +69,6 @@ namespace Disaster
             textureWidth = width;
             textureHeight = height;
             
-            //pixels = Marshal.AllocHGlobal(textureWidth * textureHeight * 4);
-
             colorBuffer = new Color32[textureHeight * textureWidth];
             overdrawBuffer = new int[textureHeight * textureWidth];
             Clear();
@@ -168,133 +158,6 @@ namespace Disaster
         {
             new Span<Color32>(colorBuffer).Fill(clear);
             new Span<int>(overdrawBuffer).Fill(0);
-        }
-
-        public static void Clear(Color32 clearColor)
-        {
-            new Span<Color32>(colorBuffer).Fill(clearColor);
-            new Span<int>(overdrawBuffer).Fill(0);
-        }
-
-        public static void PixelBuffer(PixelBuffer texture, int x, int y, Rect rect)
-        {
-            int twidth = texture.width;
-
-            rect.x = Math.Clamp(rect.x, 0, texture.width);
-            rect.y = Math.Clamp(rect.y, 0, texture.height);
-            rect.width = Math.Clamp(rect.width, 0, texture.width - rect.x);
-            rect.height = Math.Clamp(rect.height, 0, texture.height - rect.y);
-
-            x += offset.x;
-            y += offset.y;
-
-            int sx = (int)rect.x;
-            int sy = (int)rect.y;
-            int sw = (int)rect.width;
-            int sh = (int)rect.height;
-
-            x -= sx;
-            y -= sy;
-
-            for (int i = sx; i < sx + sw; i++)
-            {
-                for (int j = sy; j < sy + sh; j++)
-                {
-                    if (i + x < 0 || i + x >= textureWidth) continue;
-                    if (j + y < 0 || j + y >= textureHeight) continue;
-                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.height) continue;
-
-                    Color32 tcol = texture.pixels[(j * twidth) + i];
-                    if (tcol.a == 0) continue;
-
-                    // Draw to screen
-                    int index = ((j + y) * textureWidth) + (i + x);
-                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
-                    overdrawBuffer[index] += 1;
-                    maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-                    SlowDraw();
-                }
-            }
-        }
-
-        public static void PixelBuffer(PixelBuffer texture, int x, int y)
-        {
-            int twidth = texture.width;
-
-            x += offset.x;
-            y += offset.y;
-
-            for (int i = 0; i < texture.width; i++)
-            {
-                for (int j = 0; j < texture.height; j++)
-                {
-                    if (i + x < 0 || i + x >= textureWidth) continue;
-                    if (j + y < 0 || j + y >= textureHeight) continue;
-                    if (i < 0 || j < 0 || i >= texture.width || j >= texture.height) continue;
-
-                    Color32 tcol = texture.pixels[(j * twidth) + i];
-                    if (tcol.a == 0) continue;
-
-                    // Draw to screen
-                    int index = ((j + y) * textureWidth) + (i + x);
-                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
-                    overdrawBuffer[index] += 1;
-                    maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-                    SlowDraw();
-                }
-            }
-        }
-
-        public static void NineSlice(PixelBuffer texture, Rect center, Rect area)
-        {
-            int x = (int)area.x;
-            int y = (int)area.y;
-            x += offset.x;
-            y += offset.y;
-
-            var right = area.width - (texture.width - center.x2);
-            var bottom = area.height - (texture.height - center.y2);
-
-            for (int i = 0; i < area.width; i++)
-            {
-                for (int j = 0; j < area.height; j++)
-                {
-                    var sx = i;
-                    var sy = j;
-                    if (i > center.x && i < right)
-                    {
-                        sx = (int) (((i - center.x) % center.width) + center.x);
-                        //sx = (int)center.x;
-                    }
-
-                    if (i >= right)
-                    {
-                        sx = (int) ((i - right) + center.x2);
-                    }
-
-                    if (j > center.y && j < bottom)
-                    {
-                        sy = (int)(((j - center.y) % center.height) + center.y);
-                        //sx = (int)center.y;
-                    }
-
-                    if (j >= bottom)
-                    {
-                        sy = (int)((j - bottom) + center.y2);
-                    }
-
-                    int index = ((j + y) * textureWidth) + i + x;
-
-                    //Console.WriteLine($"{sx} {sy}");
-                    Color32 tcol = texture.pixels[(sy * texture.width) + sx];
-                    if (tcol.a == 0) continue;
-
-                    colorBuffer[index] = Mix(colorBuffer[index], tcol, i + x, j + y);
-                    overdrawBuffer[index] += 1;
-                    maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-                    SlowDraw();
-                }
-            }
         }
 
         public static void PixelBuffer(PixelBuffer texture, int x, int y, Transform2D transform)
@@ -488,23 +351,6 @@ namespace Disaster
             }
         }
 
-        static float root2 = 1.4142135623730951f;
-
-        public static void Circle(int x, int y, float radius, Color32 color)
-        {
-            int length = (int)(root2 * radius);
-            float r2 = radius * radius;
-            for (int i = -length/2; i <= length/2; i++)
-            {
-                int j = (int) MathF.Sqrt(MathF.Abs((i * i) - r2));
-
-                Pixel(x + i, y + j, color);
-                Pixel(x + j, y + i, color);
-                Pixel(x - i, y - j, color);
-                Pixel(x - j, y - i, color);
-            }
-        }
-
         public static void Pixel(int i, int j, Color32 color)
         {
             i += offset.x;
@@ -520,49 +366,6 @@ namespace Disaster
                     SlowDraw();
                 }
             }
-        }
-
-        public static void CircleFilled(int x, int y, float radius, Color32 color)
-        {
-            x += offset.x;
-            y += offset.y;
-            int r = (int)radius + 1;
-            int minx = x - r;
-            int maxx = x + r;
-            int miny = y - r;
-            int maxy = y + r;
-            float sqrd = radius * radius;
-            for (int i = minx; i < maxx; i++)
-            {
-                for (int j = miny; j < maxy; j++)
-                {
-                    float a = i - x;
-                    float b = j - y;
-                    float sd = (a * a) + (b * b);
-                    if (sd < sqrd)
-                    {
-                        if (j >= 0 && i >= 0 && i < textureWidth && j < textureHeight)
-                        {
-                            int index = j * textureWidth + i;
-                            if (index >= 0 && index < colorBuffer.Length)
-                            {
-                                colorBuffer[index] = Mix(colorBuffer[index], color, i, j);
-                                overdrawBuffer[index] += 1;
-                                maxOverdraw = Math.Max(maxOverdraw, overdrawBuffer[index]);
-                                SlowDraw();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void DrawRect(int x1, int y1, int width, int height, Color32 color)
-        {
-            Line(x1, y1, x1 + width - 1, y1, color);
-            Line(x1 + width - 1, y1, x1 + width - 1, y1 + height - 1, color);
-            Line(x1 + width - 1, y1 + height - 1, x1, y1 + height - 1, color);
-            Line(x1, y1 + height - 1, x1, y1, color);
         }
 
         public static void Line(Vector2 p1, Vector2 p2, Color32 color)
@@ -800,48 +603,6 @@ namespace Disaster
                     b = (byte)MathF.Min(MathF.Floor((B.b * srcAlpha) + (A.b * oneMinusSrcAlpha)), 255);
                     return new Color32(r, g, b, (byte)MathF.Min(MathF.Floor((srcAlpha + destAlpha * oneMinusSrcAlpha) * 255f), 255));
 
-            }
-        }
-
-        public static void Path(Vector2[] path, Color32 color, bool closed = true)
-        {
-            for (int i = 0; i < path.Length - 1; i++)
-            {
-                Line(
-                    path[i],
-                    path[i + 1],
-                    color
-                );
-            }
-
-            if (closed)
-            {
-                Line(
-                    path[path.Length - 1],
-                    path[0],
-                    color
-                );
-            }
-        }
-
-        public static void DrawPath(Vector2Int[] path, Color32 color, bool closed = true)
-        {
-            for (int i = 0; i < path.Length - 1; i++)
-            {
-                Line(
-                    path[i],
-                    path[i + 1],
-                    color
-                );
-            }
-
-            if (closed)
-            {
-                Line(
-                    path[path.Length - 1],
-                    path[0],
-                    color
-                );
             }
         }
 
@@ -1102,12 +863,6 @@ namespace Disaster
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int PointToBufferIndex(int x, int y)
-        {
-            return (y * textureWidth) + x;
-        }
-
         public static Color32[] GetOverdrawColorBuffer()
         {
             Color32[] output = new Color32[overdrawBuffer.Length];
@@ -1118,59 +873,6 @@ namespace Disaster
                 output[i] = new Color32(val, val, val);
             }
             return output;
-        }
-
-        public static void StartBuffer(int width, int height)
-        {
-            tempBuffer = colorBuffer;
-            tempWidth = textureWidth;
-            tempHeight = textureHeight;
-
-            textureWidth = width;
-            textureHeight = height;
-
-            colorBuffer = new Color32[width * height];
-            overdrawBuffer = new int[width * height];
-
-            inBuffer = true;
-        }
-
-        public static void StartBuffer(PixelBuffer pixelBuffer)
-        {
-            tempBuffer = colorBuffer;
-            tempWidth = textureWidth;
-            tempHeight = textureHeight;
-
-            textureWidth = pixelBuffer.width;
-            textureHeight = pixelBuffer.height;
-
-            colorBuffer = pixelBuffer.pixels;
-            overdrawBuffer = new int[textureWidth * textureHeight];
-
-            inBuffer = true;
-        }
-
-        public static string CreateAssetFromBuffer()
-        {
-            var output = new PixelBuffer(colorBuffer, textureWidth);
-            var hashnum = output.GetHashCode();
-            while (Assets.pixelBuffers.ContainsKey(hashnum.ToString()))
-            {
-                hashnum += 1;
-            }
-            var hash = hashnum.ToString();
-            Assets.pixelBuffers.Add(hash, output);
-            return hash;
-        }
-
-        public static void EndBuffer()
-        {
-            colorBuffer = tempBuffer;
-            textureWidth = tempWidth;
-            textureHeight = tempHeight;
-            overdrawBuffer = new int[textureWidth * textureHeight];
-
-            inBuffer = false;
         }
     }
 }

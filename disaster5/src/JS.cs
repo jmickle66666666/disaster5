@@ -71,11 +71,6 @@ namespace Disaster {
             }
             catch (Exception e)
             {
-                if (SoftwareCanvas.inBuffer)
-                {
-                    SoftwareCanvas.EndBuffer();
-                }
-
                 ShowException(e);
             }
             
