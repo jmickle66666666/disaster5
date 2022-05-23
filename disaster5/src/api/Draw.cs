@@ -40,16 +40,10 @@ namespace DisasterAPI
         [JSFunction(Name = "clear")]
         [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
-            if (Disaster.BufferRenderer.inBuffer)
-            {
-                Disaster.BufferRenderer.Enqueue(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
-            }
-            else
-            {
-                // TODO: This also clears the 3D canvas
-                Disaster.ShapeRenderer.EnqueueRender(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
+            // TODO: This also clears the 3D canvas
+            EnqueueRenderAction(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
+            if (!Disaster.BufferRenderer.inBuffer) 
                 Disaster.NativeResRenderer.EnqueueRender(() => { Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0)); });
-            }
         }
 
         [JSProperty(Name = "fontHeight")] 
@@ -90,18 +84,10 @@ namespace DisasterAPI
             y += Disaster.SoftwareCanvas.offset.y;
             var col = Disaster.TypeInterface.Color32(color);
 
-            void RenderAction()
-            {
-                if (filled)
-                    Raylib.DrawRectangle(x, y, width, height, col);
-                else
-                    Raylib.DrawRectangleLines(x, y, width, height, col);
-            }
-
-            if (Disaster.BufferRenderer.inBuffer)
-                Disaster.BufferRenderer.Enqueue(RenderAction);
+            if (filled)
+                EnqueueRenderAction(() => { Raylib.DrawRectangle(x, y, width, height, col); });
             else
-                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+                EnqueueRenderAction(() => { Raylib.DrawRectangleLines(x, y, width, height, col); });
         }
 
         [JSFunction(Name = "triangle")]
@@ -133,19 +119,11 @@ namespace DisasterAPI
             var ac = c - a;
             var crossz = ab.X * ac.Y - ab.Y * ac.X;
             Vector2[] points = crossz < 0 ? new[]{a, b, c} : new[]{a, c, b};
-
-            void RenderAction()
-            {
-                if (filled)
-                    Raylib.DrawTriangle(points[0], points[1], points[2], col);
-                else
-                    Raylib.DrawTriangleLines(points[0], points[1], points[2], col);
-            }
-
-            if (Disaster.BufferRenderer.inBuffer)
-                Disaster.BufferRenderer.Enqueue(RenderAction);
+            
+            if (filled)
+                EnqueueRenderAction(() => { Raylib.DrawTriangle(points[0], points[1], points[2], col); });
             else
-                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+                EnqueueRenderAction(() => { Raylib.DrawTriangleLines(points[0], points[1], points[2], col); });
         }
 
         [JSFunction(Name = "circle")]
@@ -161,19 +139,11 @@ namespace DisasterAPI
             var radiusF = (float)radius;
             x += Disaster.SoftwareCanvas.offset.x;
             y += Disaster.SoftwareCanvas.offset.y;
-
-            void RenderAction()
-            {
-                if (filled)
-                    Raylib.DrawCircle(x, y, radiusF, col);
-                else
-                    Raylib.DrawCircleLines(x, y, radiusF, col);
-            }
             
-            if (Disaster.BufferRenderer.inBuffer)
-                Disaster.BufferRenderer.Enqueue(RenderAction);
+            if (filled)
+                EnqueueRenderAction(() => { Raylib.DrawCircle(x, y, radiusF, col); });
             else
-                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+                EnqueueRenderAction(() => { Raylib.DrawCircleLines(x, y, radiusF, col); });
         }
 
         [JSFunction(Name = "line")]
@@ -193,16 +163,7 @@ namespace DisasterAPI
             y1 += Disaster.SoftwareCanvas.offset.y;
             x2 += Disaster.SoftwareCanvas.offset.x;
             y2 += Disaster.SoftwareCanvas.offset.y;
-
-            void RenderAction()
-            {
-                Raylib.DrawLine(x1, y1, x2, y2, col);
-            }
-            
-            if (Disaster.BufferRenderer.inBuffer)
-                Disaster.BufferRenderer.Enqueue(RenderAction);
-            else
-                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+            EnqueueRenderAction(() => { Raylib.DrawLine(x1, y1, x2, y2, col); });
         }
 
         [JSFunction(Name = "line3d")]
@@ -212,25 +173,15 @@ namespace DisasterAPI
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
         public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
         {
-            // TODO: Add inBuffer draw
-            //if (colorEnd == null) colorEnd = color;
-            Disaster.ShapeRenderer.EnqueueRender(
-                () => {
-                    Raylib.BeginMode3D(Disaster.ScreenController.camera);
-                    Raylib.DrawLine3D(
-                        Disaster.TypeInterface.Vector3(start),
-                        Disaster.TypeInterface.Vector3(end),
-                        Disaster.TypeInterface.Color32(color)
-                    );
-                    Raylib.EndMode3D();
-                }
-            );
-            //Disaster.SoftwareCanvas.Line(
-            //    Disaster.TypeInterface.Vector3(start),
-            //    Disaster.TypeInterface.Vector3(end),
-            //    Disaster.TypeInterface.Color32(color),
-            //    Disaster.TypeInterface.Color32(colorEnd)
-            //);
+            EnqueueRenderAction(() => {
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Raylib.DrawLine3D(
+                    Disaster.TypeInterface.Vector3(start),
+                    Disaster.TypeInterface.Vector3(end),
+                    Disaster.TypeInterface.Color32(color)
+                );
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "worldToScreenPoint")]
@@ -370,16 +321,7 @@ namespace DisasterAPI
         public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
             var texture = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width).texture;
-            
-            void RenderAction()
-            {
-                Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE);
-            }
-            
-            if (Disaster.BufferRenderer.inBuffer)
-                Disaster.BufferRenderer.Enqueue(RenderAction);
-            else
-                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+            EnqueueRenderAction(() => { Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE); });
         }
 
         [JSFunction(Name = "startBuffer")]
@@ -425,16 +367,11 @@ namespace DisasterAPI
 
                 trans.scale.X = Math.Abs(trans.scale.X);
                 trans.scale.Y = Math.Abs(trans.scale.Y);
-                
-                void RenderAction()
+
+                EnqueueRenderAction(() =>
                 {
                     Raylib.DrawTexturePro(texture, sourceRect, destRect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
-                }
-
-                if (Disaster.BufferRenderer.inBuffer)
-                    Disaster.BufferRenderer.Enqueue(RenderAction);
-                else
-                    Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+                });
             }
             else
             {
@@ -506,10 +443,7 @@ namespace DisasterAPI
                     }
                 }
                 
-                if (Disaster.BufferRenderer.inBuffer)
-                    Disaster.BufferRenderer.Enqueue(RenderAction);
-                else
-                    Disaster.ShapeRenderer.EnqueueRender(RenderAction);
+                EnqueueRenderAction(RenderAction);
             }
             else
             {
@@ -579,5 +513,12 @@ namespace DisasterAPI
             }
         }
 
+        private static void EnqueueRenderAction(Action renderAction)
+        {
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(renderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(renderAction);
+        }
     }
 }
