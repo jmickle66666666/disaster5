@@ -121,9 +121,8 @@ namespace DisasterAPI
         [ArgumentDescription("height", "height of the texture, in pixels")]
         public Texture CreateTexture(int width, int height)
         {
-            Disaster.SoftwareCanvas.StartBuffer(width, height);
-            string asset = Disaster.SoftwareCanvas.CreateAssetFromBuffer();
-            Disaster.SoftwareCanvas.EndBuffer();
+            Disaster.BufferRenderer.StartBuffer(width, height);
+            var asset = Disaster.BufferRenderer.EndBuffer();
             return GetTexture(asset);
         }
 
