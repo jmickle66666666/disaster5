@@ -369,9 +369,17 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
-            // TODO: Replace software rendering
-            var pixelBuffer = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
+            var texture = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width).texture;
+            
+            void RenderAction()
+            {
+                Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE);
+            }
+            
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(RenderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(RenderAction);
         }
 
         [JSFunction(Name = "startBuffer")]
