@@ -22,7 +22,7 @@ namespace DisasterAPI
             {
                 return;
             }
-            Disaster.SoftwareCanvas.LoadFont(fontAssetPath);
+            Disaster.TextController.LoadFont(fontAssetPath);
         }
 
         [JSFunction(Name = "loadFontTTF")]
@@ -48,10 +48,10 @@ namespace DisasterAPI
 
         [JSProperty(Name = "fontHeight")] 
         [PropertyDescription("Height, in pixels, of the currently loaded font.")]
-        public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
+        public static int fontHeight { get { return Disaster.TextController.fontHeight; } }
         [JSProperty(Name = "fontWidth")]
         [PropertyDescription("Width, in pixels, of the currently loaded font.")]
-        public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
+        public static int fontWidth { get { return Disaster.TextController.fontWidth; } }
         [JSProperty(Name = "screenWidth")]
         [PropertyDescription("Width, in pixels, of the screen resolution.")] 
         public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
@@ -205,7 +205,7 @@ namespace DisasterAPI
         [ArgumentDescription("color", "text color", "{r, g, b, a}")]
         public static void Text(string text, int x, int y, ObjectInstance color)
         {
-            Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
+            Disaster.TextController.Text(x, y, Disaster.TypeInterface.Color32(color), text);
         }
 
         [JSFunction(Name = "textTTF")]
@@ -218,7 +218,7 @@ namespace DisasterAPI
         {
             int scale = Disaster.ScreenController.windowHeight / Disaster.ScreenController.screenHeight;
             var font = Disaster.Assets.Font(Disaster.Assets.currentFont).font;
-            var fontSize = Disaster.SoftwareCanvas.fontHeight * scale;
+            var fontSize = Disaster.TextController.fontHeight * scale;
             var position = new Vector2(x + Disaster.SoftwareCanvas.offset.x, y + Disaster.SoftwareCanvas.offset.y);
             Disaster.NativeResRenderer.EnqueueRender(
                 () => {
@@ -234,7 +234,7 @@ namespace DisasterAPI
         [ArgumentDescription("y", "x position of the text")]
         public static void TextStyled(string text, int x, int y)
         {
-            Disaster.SoftwareCanvas.TextStyled(x, y, text);
+            Disaster.TextController.TextStyled(x, y, text);
         }
 
         [JSFunction(Name = "wireframe")]

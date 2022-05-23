@@ -11,10 +11,8 @@ using System.Runtime.InteropServices;
 
 namespace Disaster
 {
-    
     class Program
     {
-
         static void LoadConfig()
         {
             string basedir = "data";
@@ -66,12 +64,12 @@ namespace Disaster
         public static void LoadingMessage(string message, Color32 color)
         {
             Console.WriteLine(message);
-            string[] lines = SoftwareCanvas.SplitLineToFitScreen(message);
+            string[] lines = TextController.SplitLineToFitScreen(message);
             foreach (var l in lines)
             {
                 if (l == "") continue;
-                SoftwareCanvas.Text(0, loadingScreenPosition, color, l);
-                loadingScreenPosition += SoftwareCanvas.fontHeight;
+                TextController.Text(0, loadingScreenPosition, color, l);
+                loadingScreenPosition += TextController.fontHeight;
             }
             screen.Update();
         }
@@ -109,11 +107,11 @@ namespace Disaster
             // TODO: bake in a default font! so you can't end up with no font at all
             if (Assets.LoadPath("lib/fontsmall.png", out string fontPath))
             {
-                SoftwareCanvas.LoadFont(fontPath);
+                TextController.LoadFont(fontPath);
             } else
             {
                 Console.WriteLine("load default font here");
-                SoftwareCanvas.LoadDefaultFont();
+                TextController.LoadDefaultFont();
             }
             screen = new ScreenController(320, 240, 2);
 

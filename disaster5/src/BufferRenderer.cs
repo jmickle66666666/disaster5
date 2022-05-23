@@ -58,8 +58,8 @@ namespace Disaster
             Raylib.BeginDrawing();
             Raylib.BeginTextureMode(renderTexture);
             drawQueue ??= new List<Action>();
-            foreach (var t in drawQueue)
-                t.Invoke();
+            foreach (var action in drawQueue)
+                action.Invoke();
             drawQueue.Clear();
             Raylib.EndTextureMode();
             Raylib.EndDrawing();

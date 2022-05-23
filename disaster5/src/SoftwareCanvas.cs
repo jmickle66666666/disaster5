@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System;
 using System.Numerics;
-using System.IO;
-using System.Runtime.InteropServices;
 using Raylib_cs;
 
 namespace Disaster
@@ -17,13 +15,8 @@ namespace Disaster
         public static int textureWidth;
         public static int textureHeight;
         public static Color32[] colorBuffer;
-
-        public static int fontWidth;
-        public static int fontHeight;
-
         public static Vector2Int offset;
-
-        public static Color32 clear = new Color32() { r = 0, g = 0, b = 0, a = 0 };
+        public static Color32 clear = new Color32 { r = 0, g = 0, b = 0, a = 0 };
 
         public static bool slowDraw = false;
         public static int slowDrawPixels = 1;
@@ -44,114 +37,14 @@ namespace Disaster
 
         public static BlendMode blendMode = BlendMode.Normal;
 
-        public static int MaxTextLength()
-        {
-            return (textureWidth / fontWidth);
-        }
-
-        public static string[] SplitLineToFitScreen(string message)
-        {
-            int maxLength = MaxTextLength();
-            int necessaryLines = 1 + (message.Length / maxLength);
-            string[] output = new string[necessaryLines];
-            for (int i = 0; i < necessaryLines; i++)
-            {
-                int end = (int)MathF.Min(message.Length - (i * maxLength), maxLength);
-                output[i] = message.Substring(i * maxLength, end);
-            }
-            return output;
-        }
-
         public static void InitTexture(int width, int height)
         {
-            fontCache = new Dictionary<string, (int width, int height, bool[,] data)>();
-
             textureWidth = width;
             textureHeight = height;
             
             colorBuffer = new Color32[textureHeight * textureWidth];
             overdrawBuffer = new int[textureHeight * textureWidth];
             Clear();
-        }
-
-        static Dictionary<string, (int width, int height, bool[,] data)> fontCache;
-        static bool[,] fontBuffer;
-        public static void LoadFont(string fontPath)
-        {
-            if (fontCache.ContainsKey(fontPath))
-            {
-                var cachedFont = fontCache[fontPath];
-                fontWidth = cachedFont.width;
-                fontHeight = cachedFont.height;
-                fontBuffer = cachedFont.data;
-                return;
-            }
-            var image = Raylib.LoadImage(fontPath);
-
-            fontWidth = image.width;
-            fontHeight = image.height;
-
-            fontBuffer = new bool[fontWidth, fontHeight];
-            unsafe
-            {
-                Color32* colors = (Color32*)image.data;
-
-                for (int i = 0; i < fontWidth; i++)
-                {
-                    for (int j = 0; j < fontHeight; j++)
-                    {
-                        int fontColorBufferIndex = (j * fontWidth) + i;
-                        fontBuffer[i, fontHeight - j - 1] = colors[fontColorBufferIndex].r > 0;
-
-                    }
-                }
-            }
-
-            fontWidth = image.width/ 16;
-            fontHeight = image.height / 8;
-
-            fontCache.Add(fontPath, (fontWidth, fontHeight, fontBuffer));
-        }
-
-        // this outputs the loaded font as base64 and prints it
-        // its hardcoded to work with the actual default font i use
-        public static void OutputFont()
-        {
-            BitArray fontBitArray = new BitArray(fontWidth * fontHeight * 16 * 8);
-            for (int i = 0; i < fontWidth * 16; i++)
-            {
-                for (int j = 0; j < fontHeight * 8; j++)
-                {
-                    fontBitArray[i + (j * fontWidth*16)] = fontBuffer[i, j];
-                }
-            }
-            byte[] fontBytes = new byte[fontBitArray.Length / 8];
-            fontBitArray.CopyTo(fontBytes, 0);
-            string output = Convert.ToBase64String(fontBytes);
-            Console.WriteLine(output);
-        }
-
-        static string DEFAULT_FONT_BASE64 = "AAAAAAAAwAEAAAAAAQYAAAAAAAIAAAAAhxMchkMoifMghAAASRIwQaJURiIQBAEASZIMQRJFRkIQAAEAh3E4RxJFSfIIAAIAAAAAAQAAAAAQBNEAAAAAAQAAAAAghGABAAAAAAAcAGAAAAAAAAAAABAgAJAAAAAAgGMYjhE4iYAUQpQYQJIESTAkiYAUQZQkQJIEyRMkiYAMQZUkgHEYjmE4BwAUwXIYCBAACAAAgYAEAQAABBAACAAAAQAEAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8gZMYhEFEkfE4kAMAQZEkRKJsURIICAIAQZIgRBJVCiIIBAIAR3IYRBJFhEMIBAIASZIERBJFSoIIAqIAh3E4XxJFUfI4gUMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATnIYxxMYyWEkT5QYQ5IkSRAkiZAkQZQk1ZMESRA0iYAUQZQkVXIEyXEEj4AMQdUkk5IkSRAkiYAUwbYkDnMYx/MYyfEkQZQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxvEYiGEEhgEMBCAYiSAkSJIESSIIhmMAiUAgD5IICQIAA8AYiYAQwnEQhiMIhmMgyZAkRBAgSQIABCAkhmAYyOM8hgEAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAEoROYBiAAABEAEAAB8jrYABAEQAAAIAAEoHPEBBgM4gAMIAAEoB2EABqMQAAAQAKF8zvIQBEEAAAAQAKEoxGQQiKAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
-        public static void LoadDefaultFont()
-        {
-            if (fontCache.ContainsKey("default"))
-            {
-                var cachedFont = fontCache["default"];
-                fontWidth = cachedFont.width;
-                fontHeight = cachedFont.height;
-                fontBuffer = cachedFont.data;
-                return;
-            }
-            var bytes = Convert.FromBase64String(DEFAULT_FONT_BASE64);
-            var bitArray = new BitArray(bytes);
-            fontWidth = 6;
-            fontHeight = 8;
-            fontBuffer = new bool[16 * fontWidth, 8 * fontHeight];
-            for (int i = 0; i < bitArray.Length; i++)
-            {
-                fontBuffer[i % (fontWidth * 16), i / (fontWidth * 16)] = bitArray[i];
-            }
-            fontCache.Add("default", (fontWidth, fontHeight, fontBuffer));
         }
 
         public static void Clear()
@@ -580,177 +473,6 @@ namespace Disaster
             p.X *= ratioW;
             p.Y *= ratioH;
             return p;
-        }
-
-        public static void Paragraph(int x, int y, Color32 color, string text, int maxWidth = -1)
-        {
-            string[] lines = text.Split(
-                new[] { "\r\n", "\r", "\n" },
-                StringSplitOptions.None
-            );
-
-            int line = 0;
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (maxWidth != -1)
-                {
-                    for (int j = 0; j < lines[i].Length; j+= maxWidth)
-                    {
-                        Text(x, y + (line * fontHeight), color, lines[i].Substring(j, Math.Min(lines[i].Length-j, maxWidth)));
-                        line += 1;
-                    }
-                } else
-                {
-                    Text(x, y + (i * fontHeight), color, lines[i]);
-                }
-                line += 1;
-            }
-        }
-
-        static Color32[] rainbowColors = new Color32[] { Colors.red, Colors.meat, Colors.orange, Colors.yellow, Colors.slimegreen, Colors.skyblue };
-        public static void TextStyled(int x, int y, string text)
-        {
-            Color32 color = Colors.white;
-            bool bold = false;
-            bool wave = false;
-            bool shadow = false;
-            bool rainbow = false;
-            int charOffset = 0;
-            for (int i = 0; i < text.Length; i++)
-            {
-                char nextChar = text[i];
-                if (nextChar == '$')
-                {
-                    if (i == text.Length - 1) return;
-                    char control = text[i + 1];
-                    switch (control)
-                    {
-                        case 'c':
-                            if (i == text.Length - 2) return;
-                            char colorChar = text[i + 2];
-                            switch (colorChar) {
-                                case '0': color = Colors.palette[0]; break;
-                                case '1': color = Colors.palette[1]; break;
-                                case '2': color = Colors.palette[2]; break;
-                                case '3': color = Colors.palette[3]; break;
-                                case '4': color = Colors.palette[4]; break;
-                                case '5': color = Colors.palette[5]; break;
-                                case '6': color = Colors.palette[6]; break;
-                                case '7': color = Colors.palette[7]; break;
-                                case '8': color = Colors.palette[8]; break;
-                                case '9': color = Colors.palette[9]; break;
-                                case 'A': color = Colors.palette[10]; break;
-                                case 'B': color = Colors.palette[11]; break;
-                                case 'C': color = Colors.palette[12]; break;
-                                case 'D': color = Colors.palette[13]; break;
-                                case 'E': color = Colors.palette[14]; break;
-                                case 'F': color = Colors.palette[15]; break;
-                            }
-                            i += 2;
-                            charOffset -= 3;
-                            break;
-                        case 'r':
-                            rainbow = true;
-                            i += 1;
-                            charOffset -= 2;
-                            break;
-                        case 'b':
-                            bold = true;
-                            i += 1;
-                            charOffset -= 2;
-                            break;
-                        case 'w':
-                            wave = true;
-                            i += 1;
-                            charOffset -= 2;
-                            break;
-                        case 's':
-                            shadow = true;
-                            i += 1;
-                            charOffset -= 2;
-                            break;
-                        case 'n':
-                            bold = false;
-                            wave = false;
-                            shadow = false;
-                            rainbow = false;
-                            i += 1;
-                            charOffset -= 2;
-                            break;
-                    }
-                } else
-                {
-                    int yPos = y;
-                    if (wave)
-                    {
-                        yPos += (int) (Math.Sin((-i + charOffset) + DisasterAPI.Engine.GetTime() * 6f) * 2f); 
-                    }
-                    if (shadow)
-                    {
-                        Character(x + ((i+charOffset) * fontWidth), yPos+1, text[i], Colors.black);
-                        if (bold)
-                        {
-                            Character(1 + x + ((i + charOffset) * fontWidth), yPos+1, text[i], Colors.black);
-                        }
-                    }
-
-                    var tcol = color;
-                    if (rainbow)
-                    {
-                        
-                        double colorIndex = Math.Floor(i + DisasterAPI.Engine.GetTime() * 8f);
-                        colorIndex = ((colorIndex % rainbowColors.Length) + rainbowColors.Length) % rainbowColors.Length;
-                        //Console.WriteLine(colorIndex);
-                        color = rainbowColors[(int) colorIndex];
-                    }
-
-                    Character(x + ((i + charOffset) * fontWidth), yPos, text[i], color);
-                    if (bold)
-                    {
-                        Character(1 + x + ((i + charOffset) * fontWidth), yPos, text[i], color);
-                    }
-
-                    color = tcol;
-                }
-
-            }
-        }
-
-        public static void Text(int x, int y, Color32 color, string text)
-        {
-            for (int i = 0; i < text.Length; i++)
-            {
-                Character(x + (i * fontWidth), y, text[i], color);
-            }
-        }
-
-        static void Character(int x, int y, int character, Color32 color)
-        {
-            int charX = (character % 16) * fontWidth;
-            int charY = (int)(MathF.Floor(character / 16));
-            charY = 8 - charY - 1;
-            charY *= fontHeight;
-            for (int i = 0; i < fontWidth; i++)
-            {
-                for (int j = 0; j < fontHeight; j++)
-                {
-                    if (fontBuffer[charX + i, (charY + fontHeight) - j - 1])
-                    {
-                        var px = x + i + offset.x;
-                        var py = y + j + offset.y;
-
-                        void RenderAction()
-                        {
-                            Raylib.DrawPixel(px, py, color);
-                        }
-                        
-                        if (BufferRenderer.inBuffer)
-                            BufferRenderer.Enqueue(RenderAction);
-                        else
-                            ShapeRenderer.EnqueueRender(RenderAction);
-                    }
-                }
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

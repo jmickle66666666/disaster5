@@ -85,8 +85,8 @@ namespace Disaster
             if (frameHistory == null) return;
             for (int i = 0; i < names.Count; i++)
             {
-                SoftwareCanvas.FillRect(0, SoftwareCanvas.fontHeight * i, SoftwareCanvas.fontWidth * names[i].Length, SoftwareCanvas.fontHeight, new Color32(0, 0, 0));
-                SoftwareCanvas.Text(0, SoftwareCanvas.fontHeight * i, colors[i % colors.Length], names[i]);
+                SoftwareCanvas.FillRect(0, TextController.fontHeight * i, TextController.fontWidth * names[i].Length, TextController.fontHeight, new Color32(0, 0, 0));
+                TextController.Text(0, TextController.fontHeight * i, colors[i % colors.Length], names[i]);
             }
 
             for (int i = 0; i < frameHistory.Count; i++)
