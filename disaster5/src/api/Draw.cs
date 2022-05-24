@@ -180,15 +180,23 @@ namespace DisasterAPI
         [ArgumentDescription("start", "start position", "{x, y, z}")]
         [ArgumentDescription("end", "end position", "{x, y, z}")]
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
-        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
+        [ArgumentDescription("colorEnd", "(optional) line end color. If specified, will blend between the two colors along the line.", "{r, g, b, a}")]
+        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color, ObjectInstance colorEnd = null)
         {
+            var col = Disaster.TypeInterface.Color32(color);
+            var col2 = colorEnd == null ? col : Disaster.TypeInterface.Color32(colorEnd);
+            var startPos = Disaster.TypeInterface.Vector3(start);
+            var endPos = Disaster.TypeInterface.Vector3(end);
+            
             EnqueueRenderAction(() => {
                 Raylib.BeginMode3D(Disaster.ScreenController.camera);
-                Raylib.DrawLine3D(
-                    Disaster.TypeInterface.Vector3(start),
-                    Disaster.TypeInterface.Vector3(end),
-                    Disaster.TypeInterface.Color32(color)
-                );
+                Rlgl.rlCheckRenderBatchLimit(8);
+                Rlgl.rlBegin(Rlgl.RL_LINES);
+                Rlgl.rlColor4ub(col.r, col.g, col.b, col.a);
+                Rlgl.rlVertex3f(startPos.X, startPos.Y, startPos.Z);
+                Rlgl.rlColor4ub(col2.r, col2.g, col2.b, col2.a);
+                Rlgl.rlVertex3f(endPos.X, endPos.Y, endPos.Z);
+                Rlgl.rlEnd();
                 Raylib.EndMode3D();
             });
         }
