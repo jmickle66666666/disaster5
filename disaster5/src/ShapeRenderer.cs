@@ -1,26 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using Raylib_cs;
 
 namespace Disaster
 {
-    class ShapeRenderer
+    public static class ShapeRenderer
     {
+        public static BlendMode blendMode { get; set; }
         private static List<Action> drawQueue;
 
         public static void EnqueueRender(Action renderAction)
         {
-            if (drawQueue == null) drawQueue = new List<Action>();
+            drawQueue ??= new List<Action>();
             drawQueue.Add(renderAction);
         }
 
         public static void RenderQueue()
         {
-            if (drawQueue == null) drawQueue = new List<Action>();
-            for (var i = 0; i < drawQueue.Count; i++)
-            {
-                drawQueue[i].Invoke();
-            }
+            Raylib.BeginBlendMode(blendMode);
+            drawQueue ??= new List<Action>();
+            foreach (var action in drawQueue)
+                action.Invoke();
             drawQueue.Clear();
+            Raylib.EndBlendMode();
         }
     }
 }

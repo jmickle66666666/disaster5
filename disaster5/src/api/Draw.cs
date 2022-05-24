@@ -490,10 +490,38 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name ="setBlendMode")]
-        [FunctionDescription("Set the blending mode for future draw operations. normal, noise, add")]
+        [FunctionDescription("Set the blending mode for future draw operations. normal, add, multiply")]
         public static void SetBlendMode(string blendMode)
         {
-            // TODO: Re-add blendmode support
+            BlendMode mode;
+            switch (blendMode)
+            {
+                case "normal":
+                    mode = BlendMode.BLEND_ALPHA;
+                    break;
+                case "add":
+                    mode = BlendMode.BLEND_ADDITIVE;
+                    break;
+                case "multiply":
+                    mode = BlendMode.BLEND_MULTIPLIED;
+                    break;
+                // Raylibs subtractive mode is bad
+                // case "subtract":
+                //     mode = BlendMode.BLEND_SUBTRACT_COLORS;
+                //     break;
+                default:
+                    Console.WriteLine($"Unknown blendmode: {blendMode}");
+                    return;
+            }
+            
+            EnqueueRenderAction(() =>
+            {
+                Raylib.EndBlendMode();
+                Disaster.BufferRenderer.blendMode = mode;
+                Disaster.ShapeRenderer.blendMode = mode;
+                Raylib.BeginBlendMode(mode);
+            });
+            
         }
 
         private static void EnqueueRenderAction(Action renderAction)

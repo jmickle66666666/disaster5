@@ -6,6 +6,7 @@ namespace Disaster
 {
     public static class BufferRenderer
     {
+        public static BlendMode blendMode { get; set; }
         public static bool inBuffer { get; private set; }
         private static string assetId;
         private static RenderTexture2D renderTexture;
@@ -19,7 +20,11 @@ namespace Disaster
             assetId = "";
             Raylib.UnloadRenderTexture(renderTexture);
             renderTexture = Util.LoadRenderTexture(width, height);
-            Enqueue(() => { Raylib.ClearBackground(Color.BLANK); });
+            Enqueue(() =>
+            {
+                Raylib.ClearBackground(Color.BLANK);
+                Raylib.BeginBlendMode(blendMode);
+            });
             return true;
         }
 
@@ -38,6 +43,7 @@ namespace Disaster
             {
                 Raylib.ClearBackground(Color.BLANK);
                 Raylib.DrawTexture(pixelBuffer.texture, 0, 0, Color.WHITE);
+                Raylib.BeginBlendMode(blendMode);
             });
             return true;
         }
@@ -61,6 +67,7 @@ namespace Disaster
             foreach (var action in drawQueue)
                 action.Invoke();
             drawQueue.Clear();
+            Raylib.EndBlendMode();
             Raylib.EndTextureMode();
             Raylib.EndDrawing();
 
