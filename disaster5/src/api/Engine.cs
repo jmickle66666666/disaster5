@@ -74,20 +74,20 @@ namespace DisasterAPI
             Disaster.Assets.Preload(path);
         }
 
-        [JSFunction(Name ="slowDrawFrame")]
-        [FunctionDescription("Draw the next frame pixel by pixel")]
-        [ArgumentDescription("frameSkip", "How many pixels to draw per frame of slow draw")]
-        public static void SlowDrawFrame(int frameSkip)
-        {
-            // TODO: Re-add slowdraw support
-        }
+        // [JSFunction(Name ="slowDrawFrame")]
+        // [FunctionDescription("Draw the next frame pixel by pixel")]
+        // [ArgumentDescription("frameSkip", "How many pixels to draw per frame of slow draw")]
+        // public static void SlowDrawFrame(int frameSkip)
+        // {
+        //     // TODO: Re-add slowdraw support
+        // }
 
-        [JSFunction(Name = "toggleOverdraw")]
-        [FunctionDescription("Toggle overdraw debug visualisation. Brighter pixels are being drawn more times")]
-        public static void ToggleOverdraw()
-        {
-            // TODO: Re-add overdraw support
-        }
+        // [JSFunction(Name = "toggleOverdraw")]
+        // [FunctionDescription("Toggle overdraw debug visualisation. Brighter pixels are being drawn more times")]
+        // public static void ToggleOverdraw()
+        // {
+        //     // TODO: Re-add overdraw support
+        // }
 
         [JSFunction(Name = "setMouseVisible")]
         [FunctionDescription("Show or hide the mouse cursor")]
