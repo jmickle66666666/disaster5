@@ -157,13 +157,22 @@ namespace DisasterAPI
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color, ObjectInstance colorEnd = null)
         {
             var col = Disaster.TypeInterface.Color32(color);
-            
-            // TODO: Find a way to do gradient lines with raylib
+            var col2 = colorEnd == null ? col : Disaster.TypeInterface.Color32(colorEnd);
+
+            // Use Rlgl directly here so we can do gradient lines
             x1 += Disaster.ScreenController.offset.x;
             y1 += Disaster.ScreenController.offset.y;
             x2 += Disaster.ScreenController.offset.x;
             y2 += Disaster.ScreenController.offset.y;
-            EnqueueRenderAction(() => { Raylib.DrawLine(x1, y1, x2, y2, col); });
+            EnqueueRenderAction(() =>
+            {
+                Rlgl.rlBegin(Rlgl.RL_LINES);
+                Rlgl.rlColor4ub(col.r, col.g, col.b, col.a);
+                Rlgl.rlVertex2i(x1, y1);
+                Rlgl.rlColor4ub(col2.r, col2.g, col2.b, col2.a);
+                Rlgl.rlVertex2i(x2, y2);
+                Rlgl.rlEnd();
+            });
         }
 
         [JSFunction(Name = "line3d")]
