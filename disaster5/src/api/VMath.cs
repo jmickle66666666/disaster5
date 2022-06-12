@@ -13,12 +13,18 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "forwardToEuler")]
+        [FunctionDescription("")]
+        [ArgumentDescription("forward", "forward", "{x, y, z}")]
         public static ObjectInstance ForwardToEuler(ObjectInstance forward)
         {
             return Disaster.TypeInterface.Object(Disaster.Util.ForwardToEuler(Disaster.TypeInterface.Vector3(forward)));
         }
 
         [JSFunction(Name = "closestPointOnLine")]
+        [FunctionDescription("")]
+        [ArgumentDescription("position", "position", "{x, y, z}")]
+        [ArgumentDescription("direction", "direction", "{x, y, z}")]
+        [ArgumentDescription("point", "point", "{x, y, z}")]
         public static ObjectInstance ClosestPointOnLine(ObjectInstance position, ObjectInstance direction, ObjectInstance point)
         {
             var pos = Disaster.TypeInterface.Vector3(position);

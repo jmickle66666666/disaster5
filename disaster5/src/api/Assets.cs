@@ -49,7 +49,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "list")]
-        [FunctionDescription("Returns a list of the paths to all assets")]
+        [FunctionDescription("Returns a list of the paths to all assets", "String[]")]
         public ObjectInstance List()
         {
             return Disaster.TypeInterface.Object(Disaster.Assets.GetAllPaths());
@@ -81,7 +81,7 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name = "getTextureSize")]
-        [FunctionDescription("Returns the size of a specified texture.", "{int w, int h}")]
+        [FunctionDescription("Returns the size of a specified texture.", "{w, h}")]
         [ArgumentDescription("path", "Path of the texture")]
         public ObjectInstance GetTextureSize(string path)
         {
@@ -129,7 +129,7 @@ namespace DisasterAPI
 
         [JSFunction(Name = "createMesh")]
         [FunctionDescription("Creates a new mesh object and returns a reference for it.")]
-        [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices [, indices, uvs, uv2s, normals, tangents, colors, texture]}")]
+        [ArgumentDescription("meshData", "Data to create the mesh with, all parameters other than vertices are optional.", "{vertices, indices?, uvs?, uv2s?, normals?, tangents?, colors?, texture?}")]
         public string CreateMesh(ObjectInstance meshData)
         {
             Raylib_cs.Model model = Disaster.TypeInterface.Model(meshData);

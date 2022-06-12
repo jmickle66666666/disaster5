@@ -16,7 +16,7 @@ namespace ScriptingDocGenerator
         static List<ClassDefinition> Classes = new List<ClassDefinition>();
         static void Main(string[] args)
         {
-            Assembly asm = Assembly.LoadFrom("disaster5");
+            Assembly asm = Assembly.LoadFrom("disaster5.dll");
 
             foreach (var type in asm.GetTypes())
             {
@@ -71,9 +71,9 @@ namespace ScriptingDocGenerator
             });
 
             HTMLOutput.OutputHTML(Functions, Properties, Classes);
+            TypeScriptDeclOutput.Output(Functions, Properties, Classes);
             MarkdownOutput.OutputHTML(Functions);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
-                
 
             Console.WriteLine("Finished processing");
         }

@@ -66,7 +66,7 @@ namespace ScriptingDocGenerator
             }
             output.Add("</body></html>");
 
-            File.WriteAllLines("docs.html", output);
+            File.WriteAllLines(Path.Combine("docs", "docs.html"), output);
         }
 
         static string WriteProperty(PropertyDefinition prop)
