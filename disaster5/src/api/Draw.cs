@@ -43,7 +43,7 @@ namespace DisasterAPI
             // TODO: This also clears the 3D canvas
             EnqueueRenderAction(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
             if (!Disaster.BufferRenderer.inBuffer) 
-                Disaster.NativeResRenderer.EnqueueRender(() => { Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0)); });
+                Disaster.NativeResRenderer.Enqueue(() => { Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0)); });
         }
 
         [JSProperty(Name = "fontHeight")] 
@@ -237,7 +237,7 @@ namespace DisasterAPI
             var font = Disaster.Assets.Font(Disaster.Assets.currentFont).font;
             var fontSize = Disaster.TextController.fontHeight * scale;
             var position = new Vector2(x + Disaster.ScreenController.offset.x, y + Disaster.ScreenController.offset.y);
-            Disaster.NativeResRenderer.EnqueueRender(
+            Disaster.NativeResRenderer.Enqueue(
                 () => {
                     Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
                 }
