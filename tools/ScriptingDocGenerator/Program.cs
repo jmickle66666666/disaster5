@@ -70,9 +70,13 @@ namespace ScriptingDocGenerator
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            HTMLOutput.OutputHTML(Functions, Properties, Classes);
-            TypeScriptDeclOutput.Output(Functions, Properties, Classes);
-            MarkdownOutput.OutputHTML(Functions);
+            // Setup output directory
+            string baseDir = "docs";
+            if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
+            
+            HTMLOutput.OutputHTML(Functions, Properties, Classes, baseDir);
+            TypeScriptDeclOutput.Output(Functions, Properties, Classes, baseDir);
+            MarkdownOutput.OutputHTML(Functions, baseDir);
             File.WriteAllText("ScriptDoc.json", ScriptDocJSON);
 
             Console.WriteLine("Finished processing");

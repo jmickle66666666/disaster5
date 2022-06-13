@@ -7,7 +7,7 @@ namespace ScriptingDocGenerator
     public static class TypeScriptDeclOutput
     {
         public static void Output(
-            List<FunctionDefinition> functions, List<PropertyDefinition> properties, List<ClassDefinition> classes)
+            List<FunctionDefinition> functions, List<PropertyDefinition> properties, List<ClassDefinition> classes, string baseDir)
         {
             var classLists = new Dictionary<string, ClassList>();
             
@@ -50,7 +50,7 @@ namespace ScriptingDocGenerator
                 output.Add("}\n");
             }
 
-            File.WriteAllLines(Path.Combine("docs", "disaster5.d.ts"), output);
+            File.WriteAllLines(Path.Combine(baseDir, "disaster5.d.ts"), output);
         }
 
         static string WriteProperty(PropertyDefinition prop)

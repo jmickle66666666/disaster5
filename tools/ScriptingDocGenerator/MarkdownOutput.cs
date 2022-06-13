@@ -9,7 +9,7 @@ namespace ScriptingDocGenerator
 {
     class MarkdownOutput
     {
-        public static void OutputHTML(List<FunctionDefinition> scriptdoc)
+        public static void OutputHTML(List<FunctionDefinition> scriptdoc, string baseDir)
         {
             // Get list of all classes and the methods they use
             Dictionary<string, List<FunctionDefinition>> functions = new Dictionary<string, List<FunctionDefinition>>();
@@ -79,11 +79,6 @@ namespace ScriptingDocGenerator
             }
 
             //Save to files
-            string baseDir = "docs";
-            if (!Directory.Exists(baseDir))
-            {
-                Directory.CreateDirectory(baseDir);
-            }
             File.WriteAllText(Path.Combine(baseDir, "index.md"), page_classes.ToString());
             foreach (var page in pages)
             {
