@@ -97,7 +97,6 @@ namespace Disaster
             Raylib.ClearBackground(Color.BLACK);
             
             Raylib.BeginTextureMode(renderTexture);
-            ModelRenderer.RenderQueue();
             // TODO: Screen hader makes non texture/buffer draws white (because the frag shader assumes a texture)
             // Raylib.BeginShaderMode(screenShader);
             ShapeRenderer.RenderQueue();

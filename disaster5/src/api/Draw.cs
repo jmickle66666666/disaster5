@@ -296,42 +296,69 @@ namespace DisasterAPI
         [ArgumentDescription("parameters", "(optional) Object of key/value pairs to send to the shader")]
         public static void Model(string modelPath, ObjectInstance position, ObjectInstance rotation, string shaderPath = "", ObjectInstance parameters = null)
         {
+            var modelResult = Disaster.Assets.Model(modelPath);
+            if (!modelResult.succeeded) return;
+            
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            var model = Disaster.Assets.Model(modelPath);
-
-            if (!model.succeeded)
-            {
-                return;
-            }
-
+            var model = modelResult.model;
+            var shaderParams = parameters == null ? Array.Empty<Disaster.ShaderParameter>() : Disaster.TypeInterface.ShaderParameters(parameters);
             Shader shader;
-
             if (shaderPath == "")
             {
                 shader = Disaster.Assets.defaultShader;
             } else
             {
-                var loadedShader = Disaster.Assets.Shader(shaderPath);
-                if (loadedShader.succeeded)
-                {
-                    shader = loadedShader.shader;
-                } else
-                {
-                    shader = Disaster.Assets.defaultShader;
-                }
+                var shaderResult = Disaster.Assets.Shader(shaderPath);
+                shader = shaderResult.succeeded ? shaderResult.shader : Disaster.Assets.defaultShader;
             }
 
-            if (parameters == null)
+            EnqueueRenderAction(() =>
             {
-                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform);
-            } 
-            else
-            {
-                var parms = Disaster.TypeInterface.ShaderParameters(parameters);
-                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform, parms);
-            }
+                // Set the dt uniform
+                var t = (float) Raylib.GetTime();
+                Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "time"), ref t, ShaderUniformDataType.SHADER_UNIFORM_FLOAT);
+
+                // Set the shader values
+                foreach (var param in shaderParams)
+                {
+                    switch (param.dataType)
+                    {
+                        case ShaderUniformDataType.SHADER_UNIFORM_FLOAT:
+                            var valueF = (float) param.uniformValue;
+                            Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, param.uniformName), ref valueF, param.dataType);
+                            break;
+                        case ShaderUniformDataType.SHADER_UNIFORM_SAMPLER2D:
+                            var valueT = (Texture2D) param.uniformValue;
+                            Raylib.SetShaderValueTexture(shader, Raylib.GetShaderLocation(shader, param.uniformName), valueT);
+                            break;
+                        // TODO:
+                        // case ShaderUniformDataType.SHADER_UNIFORM_VEC4:
+                        //     var valueV = (IntPtr)param.uniformValue;
+                        //     Raylib.SetShaderValueV(shader, Raylib.GetShaderLocation(shader, param.uniformName), valueV, param.dataType, 4);
+                        //     break;
+                    }
+                }
+                
+                // Set the shader on the model
+                unsafe
+                {
+                    var materials = (Material*) model.materials.ToPointer();
+                    materials[0].shader = shader;
+                }
+
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Raylib.DrawModelEx(
+                    model,
+                    transform.position,
+                    transform.rotationAxis,
+                    transform.rotationAngle,
+                    transform.scale,
+                    new Raylib_cs.Color(255, 255, 255, 255)
+                );
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "colorBuffer")]
