@@ -18,7 +18,7 @@ namespace ScriptingDocGenerator
     }
     class HTMLOutput
     {
-        public static void OutputHTML(List<FunctionDefinition> functions, List<PropertyDefinition> properties, List<ClassDefinition> classes)
+        public static void OutputHTML(List<FunctionDefinition> functions, List<PropertyDefinition> properties, List<ClassDefinition> classes, string baseDir)
         {
             var classLists = new Dictionary<string, ClassList>();
 
@@ -66,7 +66,7 @@ namespace ScriptingDocGenerator
             }
             output.Add("</body></html>");
 
-            File.WriteAllLines("docs.html", output);
+            File.WriteAllLines(Path.Combine(baseDir, "docs.html"), output);
         }
 
         static string WriteProperty(PropertyDefinition prop)
