@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Raylib_cs;
 
 namespace Disaster
 {
@@ -85,26 +86,24 @@ namespace Disaster
             if (frameHistory == null) return;
             for (int i = 0; i < names.Count; i++)
             {
-                SoftwareCanvas.FillRect(0, SoftwareCanvas.fontHeight * i, SoftwareCanvas.fontWidth * names[i].Length, SoftwareCanvas.fontHeight, new Color32(0, 0, 0));
-                SoftwareCanvas.Text(0, SoftwareCanvas.fontHeight * i, colors[i % colors.Length], names[i]);
+                var posY = TextController.fontHeight * i;
+                var width = TextController.fontWidth * names[i].Length;
+                ShapeRenderer.EnqueueRender(() => { Raylib.DrawRectangle(0, posY, width, TextController.fontHeight, Color.BLACK); });
+                TextController.Text(0, posY, colors[i % colors.Length], names[i]);
             }
 
+            const int y = 240;
             for (int i = 0; i < frameHistory.Count; i++)
             {
-                int y = 240;
                 for (int j = 0; j < frameHistory[i].Length; j++)
                 {
-                    int last;
-                    if (j == 0) {
-                        last = 0;
-                    } else
-                    {
-                        last = frameHistory[i][j - 1];
-                    }
-
+                    var last = j == 0 ? 0 : frameHistory[i][j - 1];
                     if (Math.Abs(last - frameHistory[i][j]) < 2) continue;
 
-                    SoftwareCanvas.Line(new System.Numerics.Vector2(i, y - last), new System.Numerics.Vector2(i, y - frameHistory[i][j]), colors[j % colors.Length]);
+                    var v1 = new System.Numerics.Vector2(i, y - last);
+                    var v2 = new System.Numerics.Vector2(i, y - frameHistory[i][j]);
+                    var col = colors[j % colors.Length];
+                    ShapeRenderer.EnqueueRender(() => { Raylib.DrawLineV(v1, v2, col); });
                 }
             }
         }

@@ -103,8 +103,10 @@ namespace Disaster
         public static Dictionary<string, Music> music;
         public static Dictionary<string, Shader> shaders;
         public static Dictionary<string, string> texts;
+        public static Dictionary<string, Font> fonts; // This is specifically Raylib fonts!
 
         public static bool assignedDefaultShader = false;
+        public static string currentFont = "default";
         static Shader _defaultShader;
         public static Shader defaultShader
         {
@@ -129,6 +131,7 @@ namespace Disaster
             music = new Dictionary<string, Music>();
             shaders = new Dictionary<string, Shader>();
             texts = new Dictionary<string, string>();
+            fonts = new Dictionary<string, Font>();
             currentlyLoadingScripts = new List<string>();
         }
 
@@ -142,6 +145,7 @@ namespace Disaster
             count += music.Count;
             count += shaders.Count;
             count += texts.Count;
+            count += fonts.Count;
             return count;
         }
 
@@ -186,6 +190,7 @@ namespace Disaster
             if (audio.ContainsKey(path)) return true;
             if (music.ContainsKey(path)) return true;
             if (texts.ContainsKey(path)) return true;
+            if (fonts.ContainsKey(path)) return true;
             return false;
         }
 
@@ -205,6 +210,8 @@ namespace Disaster
             music.Clear();
             texts.Clear();
             models.Clear();
+            fonts.Clear();
+            currentFont = "default";
 
             //foreach (var s in shaders)
             //{
@@ -225,6 +232,7 @@ namespace Disaster
             if (audio.ContainsKey(path)) { audio.Remove(path); }
             if (music.ContainsKey(path)) { music.Remove(path); }
             if (texts.ContainsKey(path)) { texts.Remove(path); }
+            if (fonts.ContainsKey(path)) { Raylib.UnloadFont(fonts[path]); texts.Remove(path); }
             if (shaders.ContainsKey(path)) { Raylib.UnloadShader(shaders[path]); shaders.Remove(path); }
             if (models.ContainsKey(path)) { Raylib.UnloadModel(models[path]); models.Remove(path); }
         }
@@ -236,6 +244,9 @@ namespace Disaster
             {
                 case ".txt":
                     Text(path);
+                    break;
+                case ".ttf":
+                    Font(path);
                     break;
                 case ".png":
                     PixelBuffer(path);
@@ -310,6 +321,29 @@ namespace Disaster
                 texts.Add(path, output);
             }
             return (true, texts[path]);
+        }
+
+        public static (bool succeeded, Font font) Font(string path)
+        {
+            path = Reslash(path);
+            if (!fonts.ContainsKey(path))
+            {
+                if (path == "default")
+                {
+                    fonts.Add(path, Raylib.GetFontDefault());
+                    return (true, fonts[path]);
+                }
+
+                if (!LoadPath(path, out string fontPath))
+                {
+                    Program.LoadingMessage($"No font, bud. {fontPath}");
+                    return (false, Raylib.GetFontDefault());
+                }
+
+                var font = Raylib.LoadFont(fontPath);
+                fonts.Add(path, font);
+            }
+            return (true, fonts[path]);
         }
 
         public static (bool succeeded, PixelBuffer pixelBuffer) PixelBuffer(string path)

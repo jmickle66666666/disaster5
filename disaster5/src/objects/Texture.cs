@@ -1,4 +1,5 @@
-﻿using Jurassic;
+﻿using System;
+using Jurassic;
 using Jurassic.Library;
 
 namespace DisasterAPI
@@ -23,10 +24,21 @@ namespace DisasterAPI
         [PropertyDescription("the asset path for the texture object. use this to draw it")]
         public string ignored { get { return this._assetID; } set { this._assetID = value; } }
 
+        [JSFunction(Name="getPixel")]
+        [FunctionDescription("Get a single pixel", "{r, g, b, a}")]
+        [ArgumentDescription("x", "x coordinate of the pixel")]
+        [ArgumentDescription("y", "y coordinate of the pixel")]
+        public ObjectInstance GetPixel(int x, int y)
+        {
+            // TODO: Check that (x,y) is within the pixelbuffer
+            return Disaster.TypeInterface.Object(pixelBuffer.pixels[y * pixelBuffer.width + x]);
+        }
+
         [JSFunction(Name="getPixels")]
         [FunctionDescription("Get an array of pixels for the image", "{r, g, b, a}[]")]
         public ObjectInstance GetPixels()
         {
+            // TODO: Add option to define the rect of pixels you want
             return Disaster.TypeInterface.Object(pixelBuffer.pixels);
         }
 
@@ -43,16 +55,17 @@ namespace DisasterAPI
         [FunctionDescription("Start drawing to this texture instead of the screen. If you don't call endBuffer() afterwards things will break")]
         public void StartBuffer()
         {
-            Disaster.SoftwareCanvas.StartBuffer(pixelBuffer);
+            if (!Disaster.BufferRenderer.StartBuffer(_assetID))
+                Console.WriteLine("In Buffer!!");
         }
 
         [JSFunction(Name = "endBuffer")]
         [FunctionDescription("Stop drawing to the texture and update it")]
         public void EndBuffer()
         {
-            pixelBuffer.SetPixels(Disaster.SoftwareCanvas.colorBuffer);
-            Disaster.SoftwareCanvas.EndBuffer();
-            Disaster.Assets.pixelBuffers[_assetID] = pixelBuffer;
+            // AssetID *shouldn't* ever change but just in case
+            _assetID = Disaster.BufferRenderer.EndBuffer();
+            pixelBuffer = Disaster.Assets.PixelBuffer(_assetID).pixelBuffer;
         }
 
         [JSFunction(Name = "save")]

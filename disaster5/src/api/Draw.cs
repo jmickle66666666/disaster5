@@ -1,8 +1,9 @@
-//using OpenGL;
 using Jurassic;
 using Jurassic.Library;
+using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Raylib_cs;
 
 namespace DisasterAPI
 {
@@ -10,7 +11,7 @@ namespace DisasterAPI
     public class Draw : ObjectInstance {
 
         public Draw(ScriptEngine engine) : base(engine) {
-            this.PopulateFunctions();
+            PopulateFunctions();
         }
 
         [JSFunction(Name = "loadFont")]
@@ -21,21 +22,36 @@ namespace DisasterAPI
             {
                 return;
             }
-            Disaster.SoftwareCanvas.LoadFont(fontAssetPath);
+            Disaster.TextController.LoadFont(fontAssetPath);
+        }
+
+        [JSFunction(Name = "loadFontTTF")]
+        [FunctionDescription("Load a TTF font. All future Draw.textTTF calls will use the specified font.")]
+        [ArgumentDescription("fontPath", "Path to the font file.")]
+        public static void LoadFontTTF(string fontPath) {
+            if (!Disaster.Assets.LoadPath(fontPath, out string fontAssetPath))
+            {
+                return;
+            }
+            Disaster.Assets.Font(fontPath); // Loads the font if it isn't already loaded
+            Disaster.Assets.currentFont = fontPath;
         }
 
         [JSFunction(Name = "clear")]
         [FunctionDescription("Clear the 2D canvas.")]
         public static void Clear() {
-            Disaster.SoftwareCanvas.Clear();
+            // TODO: This also clears the 3D canvas
+            EnqueueRenderAction(() => { Raylib.ClearBackground(Raylib_cs.Color.BLACK); });
+            if (!Disaster.BufferRenderer.inBuffer) 
+                Disaster.NativeResRenderer.Enqueue(() => { Raylib.ClearBackground(new Disaster.Color32(0, 0, 0, 0)); });
         }
 
         [JSProperty(Name = "fontHeight")] 
         [PropertyDescription("Height, in pixels, of the currently loaded font.")]
-        public static int fontHeight { get { return Disaster.SoftwareCanvas.fontHeight; } }
+        public static int fontHeight { get { return Disaster.TextController.fontHeight; } }
         [JSProperty(Name = "fontWidth")]
         [PropertyDescription("Width, in pixels, of the currently loaded font.")]
-        public static int fontWidth { get { return Disaster.SoftwareCanvas.fontWidth; } }
+        public static int fontWidth { get { return Disaster.TextController.fontWidth; } }
         [JSProperty(Name = "screenWidth")]
         [PropertyDescription("Width, in pixels, of the screen resolution.")] 
         public static int screenWidth { get { return Disaster.ScreenController.screenWidth; } }
@@ -49,8 +65,8 @@ namespace DisasterAPI
         [ArgumentDescription("y", "Pixels in the y axis to offset by")]
         public static void Offset(int x, int y)
         {
-            Disaster.SoftwareCanvas.offset.x = x;
-            Disaster.SoftwareCanvas.offset.y = y;
+            Disaster.ScreenController.offset.x = x;
+            Disaster.ScreenController.offset.y = y;
         }
 
 
@@ -64,13 +80,14 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Draw a filled rect (true) or an outline (false, default)")]
         public static void Rect(int x, int y, int width, int height, ObjectInstance color, bool filled = false)
         {
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
+            var col = Disaster.TypeInterface.Color32(color);
+
             if (filled)
-            {
-                Disaster.SoftwareCanvas.FillRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-            } else
-            {
-                Disaster.SoftwareCanvas.DrawRect(x, y, width, height, Disaster.TypeInterface.Color32(color));
-            }
+                EnqueueRenderAction(() => { Raylib.DrawRectangle(x, y, width, height, col); });
+            else
+                EnqueueRenderAction(() => { Raylib.DrawRectangleLines(x, y, width, height, col); });
         }
 
         [JSFunction(Name = "triangle")]
@@ -86,15 +103,27 @@ namespace DisasterAPI
         public static void Triangle(int x1, int y1, int x2, int y2, int x3, int y3, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
+            
+            x1 += Disaster.ScreenController.offset.x;
+            y1 += Disaster.ScreenController.offset.y;
+            x2 += Disaster.ScreenController.offset.x;
+            y2 += Disaster.ScreenController.offset.y;
+            x3 += Disaster.ScreenController.offset.x;
+            y3 += Disaster.ScreenController.offset.y;
+            
+            // Put these points in counter-clockwise order for raylib
+            var a = new Vector2(x1, y1);
+            var b = new Vector2(x2, y2);
+            var c = new Vector2(x3, y3);
+            var ab = b - a;
+            var ac = c - a;
+            var crossz = ab.X * ac.Y - ab.Y * ac.X;
+            Vector2[] points = crossz < 0 ? new[]{a, b, c} : new[]{a, c, b};
+            
             if (filled)
-            {
-                Disaster.SoftwareCanvas.Triangle(x1, y1, x2, y2, x3, y3, col);
-            } else
-            {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, col);
-                Disaster.SoftwareCanvas.Line(x3, y3, x2, y2, col);
-                Disaster.SoftwareCanvas.Line(x1, y1, x3, y3, col);
-            }
+                EnqueueRenderAction(() => { Raylib.DrawTriangle(points[0], points[1], points[2], col); });
+            else
+                EnqueueRenderAction(() => { Raylib.DrawTriangleLines(points[0], points[1], points[2], col); });
         }
 
         [JSFunction(Name = "circle")]
@@ -107,14 +136,14 @@ namespace DisasterAPI
         public static void Circle(int x, int y, double radius, ObjectInstance color, bool filled = false)
         {
             var col = Disaster.TypeInterface.Color32(color);
+            var radiusF = (float)radius;
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
+            
             if (filled)
-            {
-                Disaster.SoftwareCanvas.CircleFilled(x, y, (float)radius, col);
-            }
+                EnqueueRenderAction(() => { Raylib.DrawCircle(x, y, radiusF, col); });
             else
-            {
-                Disaster.SoftwareCanvas.Circle(x, y, (float)radius, col);
-            }
+                EnqueueRenderAction(() => { Raylib.DrawCircleLines(x, y, radiusF, col); });
         }
 
         [JSFunction(Name = "line")]
@@ -127,13 +156,23 @@ namespace DisasterAPI
         [ArgumentDescription("colorEnd", "(optional) line end color. if specified, will blend between the two colors along the line.", "{r, g, b, a}")]
         public static void Line(int x1, int y1, int x2, int y2, ObjectInstance color, ObjectInstance colorEnd = null)
         {
-            if (colorEnd == null)
+            var col = Disaster.TypeInterface.Color32(color);
+            var col2 = colorEnd == null ? col : Disaster.TypeInterface.Color32(colorEnd);
+
+            // Use Rlgl directly here so we can do gradient lines
+            x1 += Disaster.ScreenController.offset.x;
+            y1 += Disaster.ScreenController.offset.y;
+            x2 += Disaster.ScreenController.offset.x;
+            y2 += Disaster.ScreenController.offset.y;
+            EnqueueRenderAction(() =>
             {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color));
-            } else
-            {
-                Disaster.SoftwareCanvas.Line(x1, y1, x2, y2, Disaster.TypeInterface.Color32(color), Disaster.TypeInterface.Color32(colorEnd));
-            }
+                Rlgl.rlBegin(Rlgl.RL_LINES);
+                Rlgl.rlColor4ub(col.r, col.g, col.b, col.a);
+                Rlgl.rlVertex2i(x1, y1);
+                Rlgl.rlColor4ub(col2.r, col2.g, col2.b, col2.a);
+                Rlgl.rlVertex2i(x2, y2);
+                Rlgl.rlEnd();
+            });
         }
 
         [JSFunction(Name = "line3d")]
@@ -141,24 +180,25 @@ namespace DisasterAPI
         [ArgumentDescription("start", "start position", "{x, y, z}")]
         [ArgumentDescription("end", "end position", "{x, y, z}")]
         [ArgumentDescription("color", "line color", "{r, g, b, a}")]
-        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color)
+        [ArgumentDescription("colorEnd", "(optional) line end color. If specified, will blend between the two colors along the line.", "{r, g, b, a}")]
+        public static void Line3d(ObjectInstance start, ObjectInstance end, ObjectInstance color, ObjectInstance colorEnd = null)
         {
-            //if (colorEnd == null) colorEnd = color;
-            Disaster.ShapeRenderer.EnqueueRender(
-                () => {
-                    Raylib_cs.Raylib.DrawLine3D(
-                        Disaster.TypeInterface.Vector3(start),
-                        Disaster.TypeInterface.Vector3(end),
-                        Disaster.TypeInterface.Color32(color)
-                    );
-                }
-            );
-            //Disaster.SoftwareCanvas.Line(
-            //    Disaster.TypeInterface.Vector3(start),
-            //    Disaster.TypeInterface.Vector3(end),
-            //    Disaster.TypeInterface.Color32(color),
-            //    Disaster.TypeInterface.Color32(colorEnd)
-            //);
+            var col = Disaster.TypeInterface.Color32(color);
+            var col2 = colorEnd == null ? col : Disaster.TypeInterface.Color32(colorEnd);
+            var startPos = Disaster.TypeInterface.Vector3(start);
+            var endPos = Disaster.TypeInterface.Vector3(end);
+            
+            EnqueueRenderAction(() => {
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Rlgl.rlCheckRenderBatchLimit(8);
+                Rlgl.rlBegin(Rlgl.RL_LINES);
+                Rlgl.rlColor4ub(col.r, col.g, col.b, col.a);
+                Rlgl.rlVertex3f(startPos.X, startPos.Y, startPos.Z);
+                Rlgl.rlColor4ub(col2.r, col2.g, col2.b, col2.a);
+                Rlgl.rlVertex3f(endPos.X, endPos.Y, endPos.Z);
+                Rlgl.rlEnd();
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "worldToScreenPoint")]
@@ -168,7 +208,7 @@ namespace DisasterAPI
         {
             float ratioW = (float)Disaster.ScreenController.screenWidth / (float)Disaster.ScreenController.windowWidth;
             float ratioH = (float)Disaster.ScreenController.screenHeight / (float)Disaster.ScreenController.windowHeight;
-            var p = Raylib_cs.Raylib.GetWorldToScreen(Disaster.TypeInterface.Vector3(position), Disaster.ScreenController.camera);
+            var p = Raylib.GetWorldToScreen(Disaster.TypeInterface.Vector3(position), Disaster.ScreenController.camera);
             p.X *= ratioW;
             p.Y *= ratioH;
             return Disaster.TypeInterface.Object(p);
@@ -182,7 +222,26 @@ namespace DisasterAPI
         [ArgumentDescription("color", "text color", "{r, g, b, a}")]
         public static void Text(string text, int x, int y, ObjectInstance color)
         {
-            Disaster.SoftwareCanvas.Text(x, y, Disaster.TypeInterface.Color32(color), text);
+            Disaster.TextController.Text(x, y, Disaster.TypeInterface.Color32(color), text);
+        }
+
+        [JSFunction(Name = "textTTF")]
+        [FunctionDescription("Draw a line of text using a TTF font. TTF text is drawn on top of all other draw elements.")]
+        [ArgumentDescription("text", "the text content to draw")]
+        [ArgumentDescription("x", "x position of the text")]
+        [ArgumentDescription("y", "x position of the text")]
+        [ArgumentDescription("color", "text color", "{r, g, b, a}")]
+        public static void TextTTF(string text, int x, int y, ObjectInstance color)
+        {
+            int scale = Disaster.ScreenController.windowHeight / Disaster.ScreenController.screenHeight;
+            var font = Disaster.Assets.Font(Disaster.Assets.currentFont).font;
+            var fontSize = Disaster.TextController.fontHeight * scale;
+            var position = new Vector2(x + Disaster.ScreenController.offset.x, y + Disaster.ScreenController.offset.y);
+            Disaster.NativeResRenderer.Enqueue(
+                () => {
+                    Raylib.DrawTextEx(font, text, position * scale, fontSize, 4, Disaster.TypeInterface.Color32(color));
+                }
+            );
         }
 
         [JSFunction(Name = "textStyled")]
@@ -192,7 +251,7 @@ namespace DisasterAPI
         [ArgumentDescription("y", "x position of the text")]
         public static void TextStyled(string text, int x, int y)
         {
-            Disaster.SoftwareCanvas.TextStyled(x, y, text);
+            Disaster.TextController.TextStyled(x, y, text);
         }
 
         [JSFunction(Name = "wireframe")]
@@ -206,20 +265,26 @@ namespace DisasterAPI
         [ArgumentDescription("filled", "(optional) Whether to draw the triangles filled (default: false)")]
         public static void Wireframe(string modelPath, ObjectInstance position, ObjectInstance rotation, ObjectInstance color, bool backfaceCulling = false, bool drawDepth = false, bool filled = false)
         {
+            // TODO: Support the optional arguments
+            var model = Disaster.Assets.Model(modelPath);
+            if (!model.succeeded) return;
+            
+            var col = Disaster.TypeInterface.Color32(color);
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            var col = Disaster.TypeInterface.Color32(color);
 
-            var model = Disaster.Assets.Model(modelPath);
-            if (model.succeeded)
-            {
-                unsafe
-                {
-                    var mesh = ((Raylib_cs.Mesh*)model.model.meshes.ToPointer())[0];
-                    Disaster.SoftwareCanvas.Wireframe(mesh, transform.ToMatrix(), col, backfaceCulling, drawDepth, filled);
-                }
-            }
+            EnqueueRenderAction(() => { 
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Raylib.DrawModelWiresEx(
+                    model.model,
+                    transform.position,
+                    transform.rotationAxis,
+                    transform.rotationAngle,
+                    transform.scale,
+                    col);
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "model")]
@@ -231,42 +296,69 @@ namespace DisasterAPI
         [ArgumentDescription("parameters", "(optional) Object of key/value pairs to send to the shader")]
         public static void Model(string modelPath, ObjectInstance position, ObjectInstance rotation, string shaderPath = "", ObjectInstance parameters = null)
         {
+            var modelResult = Disaster.Assets.Model(modelPath);
+            if (!modelResult.succeeded) return;
+            
             var rot = Disaster.TypeInterface.Vector3(rotation);
             var pos = Disaster.TypeInterface.Vector3(position);
             var transform = new Disaster.Transformation(pos, rot, Vector3.One);
-            var model = Disaster.Assets.Model(modelPath);
-
-            if (!model.succeeded)
-            {
-                return;
-            }
-
-            Raylib_cs.Shader shader;
-
+            var model = modelResult.model;
+            var shaderParams = parameters == null ? Array.Empty<Disaster.ShaderParameter>() : Disaster.TypeInterface.ShaderParameters(parameters);
+            Shader shader;
             if (shaderPath == "")
             {
                 shader = Disaster.Assets.defaultShader;
             } else
             {
-                var loadedShader = Disaster.Assets.Shader(shaderPath);
-                if (loadedShader.succeeded)
-                {
-                    shader = loadedShader.shader;
-                } else
-                {
-                    shader = Disaster.Assets.defaultShader;
-                }
+                var shaderResult = Disaster.Assets.Shader(shaderPath);
+                shader = shaderResult.succeeded ? shaderResult.shader : Disaster.Assets.defaultShader;
             }
 
-            if (parameters == null)
+            EnqueueRenderAction(() =>
             {
-                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform);
-            } 
-            else
-            {
-                var parms = Disaster.TypeInterface.ShaderParameters(parameters);
-                Disaster.ModelRenderer.EnqueueRender(model.model, shader, transform, parms);
-            }
+                // Set the dt uniform
+                var t = (float) Raylib.GetTime();
+                Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, "time"), ref t, ShaderUniformDataType.SHADER_UNIFORM_FLOAT);
+
+                // Set the shader values
+                foreach (var param in shaderParams)
+                {
+                    switch (param.dataType)
+                    {
+                        case ShaderUniformDataType.SHADER_UNIFORM_FLOAT:
+                            var valueF = (float) param.uniformValue;
+                            Raylib.SetShaderValue(shader, Raylib.GetShaderLocation(shader, param.uniformName), ref valueF, param.dataType);
+                            break;
+                        case ShaderUniformDataType.SHADER_UNIFORM_SAMPLER2D:
+                            var valueT = (Texture2D) param.uniformValue;
+                            Raylib.SetShaderValueTexture(shader, Raylib.GetShaderLocation(shader, param.uniformName), valueT);
+                            break;
+                        // TODO:
+                        // case ShaderUniformDataType.SHADER_UNIFORM_VEC4:
+                        //     var valueV = (IntPtr)param.uniformValue;
+                        //     Raylib.SetShaderValueV(shader, Raylib.GetShaderLocation(shader, param.uniformName), valueV, param.dataType, 4);
+                        //     break;
+                    }
+                }
+                
+                // Set the shader on the model
+                unsafe
+                {
+                    var materials = (Material*) model.materials.ToPointer();
+                    materials[0].shader = shader;
+                }
+
+                Raylib.BeginMode3D(Disaster.ScreenController.camera);
+                Raylib.DrawModelEx(
+                    model,
+                    transform.position,
+                    transform.rotationAxis,
+                    transform.rotationAngle,
+                    transform.scale,
+                    new Raylib_cs.Color(255, 255, 255, 255)
+                );
+                Raylib.EndMode3D();
+            });
         }
 
         [JSFunction(Name = "colorBuffer")]
@@ -277,8 +369,8 @@ namespace DisasterAPI
         [ArgumentDescription("width", "width of the image")]
         public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
-            var pixelBuffer = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width);
-            Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer, x, y, Disaster.Transform2D.identity);
+            var texture = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width).texture;
+            EnqueueRenderAction(() => { Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE); });
         }
 
         [JSFunction(Name = "startBuffer")]
@@ -287,16 +379,15 @@ namespace DisasterAPI
         [ArgumentDescription("height", "Height of the new buffer to draw to")]
         public static void StartBuffer(int width, int height)
         {
-            Disaster.SoftwareCanvas.StartBuffer(width, height);
+            if (!Disaster.BufferRenderer.StartBuffer(width, height))
+                Console.WriteLine("In Buffer!!");
         }
 
         [JSFunction(Name = "endBuffer")]
         [FunctionDescription("Finish drawing to a pixel buffer and return a reference to the new texture.")]
         public static string EndBuffer()
         {
-            string output = Disaster.SoftwareCanvas.CreateAssetFromBuffer();
-            Disaster.SoftwareCanvas.EndBuffer();
-            return output;
+            return Disaster.BufferRenderer.EndBuffer();
         }
 
         [JSFunction(Name = "texture")]
@@ -311,39 +402,29 @@ namespace DisasterAPI
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
             if (pixelBuffer.succeeded)
             {
-                if (rectangle == null && transformation == null)
+                x += Disaster.ScreenController.offset.x;
+                y += Disaster.ScreenController.offset.y;
+                var texture = pixelBuffer.pixelBuffer.texture;
+                var rect = rectangle != null ? Disaster.TypeInterface.Rect(rectangle) : new Disaster.Rect(0, 0, texture.width, texture.height);
+                var trans = transformation != null ? Disaster.TypeInterface.Transform2d(transformation) : new Disaster.Transform2D(new Vector2(0, 0), new Vector2(1, 1), 0f, 1f);
+
+                if (trans.scale.X < 0) rect.width *= -1;
+                if (trans.scale.Y < 0) rect.height *= -1;
+                            
+                var sourceRect = new Rectangle(rect.x, rect.y, rect.width, rect.height);
+                var destRect = new Rectangle(x, y, rect.width * trans.scale.X, rect.height * trans.scale.Y);
+
+                trans.scale.X = Math.Abs(trans.scale.X);
+                trans.scale.Y = Math.Abs(trans.scale.Y);
+
+                EnqueueRenderAction(() =>
                 {
-                    Disaster.SoftwareCanvas.PixelBuffer(pixelBuffer.pixelBuffer, x, y);
-                } else
-                {
-                    if (transformation == null)
-                    {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer, 
-                            x, y, 
-                            Disaster.TypeInterface.Rect(rectangle)
-                        );
-                    } else if (rectangle == null)
-                    {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer, 
-                            x, y, 
-                            new Disaster.Rect(0, 0, pixelBuffer.pixelBuffer.width, pixelBuffer.pixelBuffer.height), 
-                            Disaster.TypeInterface.Transform2d(transformation)
-                        );
-                    } else
-                    {
-                        Disaster.SoftwareCanvas.PixelBuffer(
-                            pixelBuffer.pixelBuffer,
-                            x, y,
-                            Disaster.TypeInterface.Rect(rectangle),
-                            Disaster.TypeInterface.Transform2d(transformation)
-                        );
-                    }
-                }
-            } else
+                    Raylib.DrawTexturePro(texture, sourceRect, destRect, new Vector2(trans.origin.X * trans.scale.X, trans.origin.Y * trans.scale.Y), trans.rotation, Raylib_cs.Color.WHITE);
+                });
+            }
+            else
             {
-                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+                Console.WriteLine($"Failed to draw texture: {texturePath}");
             }
         }
 
@@ -357,16 +438,65 @@ namespace DisasterAPI
         [ArgumentDescription("height", "height of the area to draw to")]
         public static void NineSlice(string texturePath, ObjectInstance nineSliceArea, int x, int y, int width, int height)
         {
+            if (width <= 0 || height <= 0)
+                return;
+            
             var pixelBuffer = Disaster.Assets.PixelBuffer(texturePath);
-            if (pixelBuffer.succeeded)
+            if (!pixelBuffer.succeeded)
             {
-                var rect = Disaster.TypeInterface.Rect(nineSliceArea);
-                Disaster.SoftwareCanvas.NineSlice(pixelBuffer.pixelBuffer, rect, new Disaster.Rect(x, y, width, height));
+                Console.WriteLine($"Failed to draw texture: {texturePath}");
+                return;
             }
-            else
+
+            x += Disaster.ScreenController.offset.x;
+            y += Disaster.ScreenController.offset.y;
+            var texture = pixelBuffer.pixelBuffer.texture;
+            var rect = Disaster.TypeInterface.Rect(nineSliceArea);
+
+            // We don't use raylibs built in NPatch because it stretches rather than tiles
+            var xs = new[] {0, (int) rect.x, (int) (rect.x + rect.width), texture.width};
+            var ys = new[] {0, (int) rect.y, (int) (rect.y + rect.height), texture.height};
+
+            var srcRects = new Rectangle[3, 3];
+            for (int i = 0; i < 3; i++)
             {
-                System.Console.WriteLine($"Failed to draw texture: {texturePath}");
+                for (int j = 0; j < 3; j++)
+                {
+                    srcRects[i, j] = new Rectangle(xs[j], ys[i], xs[j + 1] - xs[j], ys[i + 1] - ys[i]);
+                }
             }
+
+            var w1 = Math.Min(xs[1] - xs[0], width);
+            var w3 = Math.Min(xs[3] - xs[2], width - w1);
+            var w2 = width - w1 - w3;
+            var ws = new[] {w1, w2, w3};
+
+            var h1 = Math.Min(ys[1] - ys[0], height);
+            var h3 = Math.Min(ys[3] - ys[2], height - h1);
+            var h2 = height - h1 - h3;
+            var hs = new[] {h1, h2, h3};
+            
+            EnqueueRenderAction(() =>
+            {
+                int ry = y;
+                for (int i = 0; i < 3; i++)
+                {
+                    if (hs[i] <= 0) break;
+
+                    int rx = x;
+                    for (int j = 0; j < 3; j++)
+                    {
+                        if (ws[j] <= 0) break;
+
+                        var dstRect = new Rectangle(rx, ry, ws[j], hs[i]);
+                        Raylib.DrawTextureTiled(texture, srcRects[i, j], dstRect, Vector2.Zero, 0, 1,
+                            Raylib_cs.Color.WHITE);
+                        rx += ws[j];
+                    }
+
+                    ry += hs[i];
+                }
+            });
         }
 
         [JSFunction(Name = "setCamera")]
@@ -404,31 +534,46 @@ namespace DisasterAPI
         }
 
         [JSFunction(Name ="setBlendMode")]
-        [FunctionDescription("Set the blending mode for future draw operations. normal, noise, add")]
+        [FunctionDescription("Set the blending mode for future draw operations. normal, add, multiply")]
         public static void SetBlendMode(string blendMode)
         {
+            BlendMode mode;
             switch (blendMode)
             {
                 case "normal":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Normal;
-                    break;
-                case "noise":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Noise;
+                    mode = BlendMode.BLEND_ALPHA;
                     break;
                 case "add":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Add;
+                    mode = BlendMode.BLEND_ADDITIVE;
                     break;
-                case "dither":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Dither;
+                case "multiply":
+                    mode = BlendMode.BLEND_MULTIPLIED;
                     break;
-                case "subtract":
-                    Disaster.SoftwareCanvas.blendMode = Disaster.SoftwareCanvas.BlendMode.Subtract;
-                    break;
+                // Raylibs subtractive mode is bad
+                // case "subtract":
+                //     mode = BlendMode.BLEND_SUBTRACT_COLORS;
+                //     break;
                 default:
-                    System.Console.WriteLine($"Unknown blendmode: {blendMode}");
-                    break;
+                    Console.WriteLine($"Unknown blendmode: {blendMode}");
+                    return;
             }
+            
+            EnqueueRenderAction(() =>
+            {
+                Raylib.EndBlendMode();
+                Disaster.BufferRenderer.blendMode = mode;
+                Disaster.ShapeRenderer.blendMode = mode;
+                Raylib.BeginBlendMode(mode);
+            });
+            
         }
 
+        private static void EnqueueRenderAction(Action renderAction)
+        {
+            if (Disaster.BufferRenderer.inBuffer)
+                Disaster.BufferRenderer.Enqueue(renderAction);
+            else
+                Disaster.ShapeRenderer.EnqueueRender(renderAction);
+        }
     }
 }
