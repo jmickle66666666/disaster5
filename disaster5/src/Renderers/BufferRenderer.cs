@@ -19,7 +19,7 @@ namespace Disaster
             inBuffer = true;
             assetId = "";
             Raylib.UnloadRenderTexture(renderTexture);
-            renderTexture = Util.LoadRenderTexture(width, height);
+            renderTexture = Raylib.LoadRenderTexture(width, height);
             Enqueue(() =>
             {
                 Raylib.ClearBackground(Color.BLANK);
@@ -38,7 +38,7 @@ namespace Disaster
             inBuffer = true;
             assetId = assetID;
             Raylib.UnloadRenderTexture(renderTexture);
-            renderTexture = Util.LoadRenderTexture(pixelBuffer.width, pixelBuffer.height);
+            renderTexture = Raylib.LoadRenderTexture(pixelBuffer.width, pixelBuffer.height);
             Enqueue(() =>
             {
                 Raylib.ClearBackground(Color.BLANK);

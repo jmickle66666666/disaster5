@@ -41,8 +41,8 @@ namespace Disaster
 
             instance = this;
             Raylib.InitWindow(windowWidth, windowHeight, "disaster engine 5.0");
-            renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
-            renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
+            renderTexture = Raylib.LoadRenderTexture(screenWidth, screenHeight);
+            renderTextureTTF = Raylib.LoadRenderTexture(windowWidth, windowHeight);
             camera = new Camera3D(
                 new Vector3(0, 0f, 0f),
                 new Vector3(0, 0, -1),
@@ -93,10 +93,10 @@ namespace Disaster
             Raylib.SetWindowSize(windowWidth, windowHeight);
 
             Raylib.UnloadRenderTexture(renderTexture);
-            renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
+            renderTexture = Raylib.LoadRenderTexture(screenWidth, screenHeight);
 
             Raylib.UnloadRenderTexture(renderTextureTTF);
-            renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
+            renderTextureTTF = Raylib.LoadRenderTexture(windowWidth, windowHeight);
 
             ReloadShader();
         }
