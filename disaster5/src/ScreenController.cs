@@ -198,6 +198,7 @@ namespace Disaster
         {
             Raylib.CloseWindow();
             Raylib.UnloadRenderTexture(renderTexture);
+            Raylib.UnloadRenderTexture(renderTextureTTF);
         }
     }
 }

@@ -195,8 +195,15 @@ namespace Disaster
         {
             Dispose();
             scripts.Clear();
+
+            // Unload pixelbuffers
+            foreach (var (_, buffer) in pixelBuffers)
+            {
+                Raylib.UnloadTexture(buffer.texture);
+            }
             pixelBuffers.Clear();
             
+            // TODO: This might crash if you unloadall while something is playing?
             AudioController.StopAllSound();
             foreach (var a in audio)
             {
