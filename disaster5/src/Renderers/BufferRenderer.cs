@@ -100,6 +100,7 @@ namespace Disaster
                 Assets.pixelBuffers[assetId] = pixelBuffer;
             }
 
+            Raylib.UnloadImage(image);
             return assetId;
         }
     }

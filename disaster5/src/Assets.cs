@@ -26,6 +26,7 @@ namespace Disaster
             this.width = width;
             this.pixels = pixels;
             this.texture = Raylib.LoadTextureFromImage(image);
+            Raylib.UnloadImage(image);
         }
 
         public PixelBuffer(Color32[] pixels, int width, Texture2D texture)
@@ -50,6 +51,7 @@ namespace Disaster
             }
             this.pixels = pixels;
             this.texture = Raylib.LoadTextureFromImage(image);
+            Raylib.UnloadImage(image);
         }
 
         private static PixelBuffer _missing;
@@ -70,11 +72,7 @@ namespace Disaster
                             pixels[i + j * mw] = (i + j) % 8 < 4 ? new Color32(255, 160, 0) : new Color32(0, 0, 0);
                         }
                     }
-                    var image = Raylib.GenImageColor(mw, mh, Color.MAGENTA);
-                    unsafe
-                    {
-                        pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, mw * mh * 4));
-                    }
+
                     _missing = new PixelBuffer(pixels, mw);
                     _missingDefined = true;
                 }
@@ -370,13 +368,13 @@ namespace Disaster
                 }
 
                 var texture = Raylib.LoadTextureFromImage(image);
-
                 var pixelBuffer = new PixelBuffer(
                     pixels,
                     image.width,
                     texture
                 );
                 pixelBuffers.Add(path, pixelBuffer);
+                Raylib.UnloadImage(image);
             }
             return (true, pixelBuffers[path]);
         }
