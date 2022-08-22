@@ -213,6 +213,11 @@ namespace Disaster
             audio.Clear();
             music.Clear();
             texts.Clear();
+
+            foreach (var (id, model) in models)
+            {
+                Raylib.UnloadModel(model);
+            }
             models.Clear();
             fonts.Clear();
             currentFont = "default";
