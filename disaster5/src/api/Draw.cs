@@ -370,7 +370,10 @@ namespace DisasterAPI
         public static void ColorBuffer(ObjectInstance colors, int x, int y, int width)
         {
             var texture = new Disaster.PixelBuffer(Disaster.TypeInterface.Color32Array(colors), width).texture;
-            EnqueueRenderAction(() => { Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE); });
+            EnqueueRenderAction(() => { 
+                Raylib.DrawTexture(texture, x, y, Raylib_cs.Color.WHITE);
+                Raylib.UnloadTexture(texture);
+            });
         }
 
         [JSFunction(Name = "startBuffer")]
