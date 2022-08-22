@@ -44,14 +44,13 @@ namespace Disaster
                 Console.WriteLine($"Incorrect amount of pixels set on pixelbuffer: Expected {width * height} Got {pixels.Length}");
                 return;
             }
-            var image = Raylib.GenImageColor(width, height, Color.MAGENTA);
-            unsafe
-            {
-                pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, width * height * 4));
-            }
+
             this.pixels = pixels;
-            this.texture = Raylib.LoadTextureFromImage(image);
-            Raylib.UnloadImage(image);
+            unsafe {
+                fixed (void* pixelsPtr = this.pixels) {
+                    Raylib.UpdateTexture(this.texture, (IntPtr)pixelsPtr);
+                }
+            }
         }
 
         private static PixelBuffer _missing;
@@ -225,7 +224,7 @@ namespace Disaster
         {
             path = Reslash(path);
 
-            if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
+            if (pixelBuffers.ContainsKey(path)) { Raylib.UnloadTexture(pixelBuffers[path].texture); pixelBuffers.Remove(path); }
             if (scripts.ContainsKey(path)) { scripts.Remove(path); }
             if (audio.ContainsKey(path)) { audio.Remove(path); }
             if (music.ContainsKey(path)) { music.Remove(path); }
