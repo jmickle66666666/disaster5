@@ -1,10 +1,7 @@
-
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
+using System.Threading;
 using Raylib_cs;
-using System.Runtime.InteropServices;
 
 namespace Disaster
 {
@@ -26,6 +23,14 @@ namespace Disaster
         private static RenderTexture2D renderTextureTTF;
         private static int scale = 2;
 
+        // Framerate control
+        private static double previousTime;
+        private static double currentTime;
+        private static double updateDrawTime;
+        private static double waitTime;
+        public static float deltaTime = 0.0f;
+        public static int targetFPS = 60;
+
         public ScreenController(int width, int height, int scale)
         {
             screenWidth = width;
@@ -38,7 +43,6 @@ namespace Disaster
             Raylib.InitWindow(windowWidth, windowHeight, "disaster engine 5.0");
             renderTexture = Util.LoadRenderTexture(screenWidth, screenHeight);
             renderTextureTTF = Util.LoadRenderTexture(windowWidth, windowHeight);
-            Raylib.SetTargetFPS(60);
             camera = new Camera3D(
                 new Vector3(0, 0f, 0f),
                 new Vector3(0, 0, -1),
@@ -48,6 +52,12 @@ namespace Disaster
             );
 
             ReloadShader();
+
+            previousTime = Raylib.GetTime();
+            currentTime = 0.0;
+            updateDrawTime = 0.0;
+            waitTime = 0.0;
+            deltaTime = 0.0f;
         }
 
         public void ReloadShader()
@@ -92,6 +102,41 @@ namespace Disaster
         }
 
         public void Update()
+        {
+            Draw();
+            ControlFramerate();
+        }
+
+        private void ControlFramerate()
+        {
+            currentTime = Raylib.GetTime();
+            updateDrawTime = currentTime - previousTime;
+            waitTime = (1.0f / targetFPS) - updateDrawTime;
+            
+            if (waitTime > 0)
+            {
+                // Perform an initial wait. This waits for the number of milliseconds rounded down.
+                Thread.Sleep((int) (waitTime * 1000));
+                currentTime = Raylib.GetTime();
+
+                // There's typically a decent amount of a millisecond left over to wait
+                // but C# only supports millisecond wait times. So we instead just chuck
+                // it over to the OS to do a bunch of little sub-millisecond waits to get
+                // a more accurate and consistent framerate.
+                while (currentTime < previousTime + (1.0f / targetFPS))
+                {
+                    Thread.Sleep(0);
+                    currentTime = Raylib.GetTime();
+                }
+            }            
+
+            deltaTime = (float)(currentTime - previousTime);
+            previousTime = currentTime;
+
+            Debug.Label("wait time");
+        }
+
+        private void Draw()
         {
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.BLACK);
