@@ -26,6 +26,7 @@ namespace Disaster
             this.width = width;
             this.pixels = pixels;
             this.texture = Raylib.LoadTextureFromImage(image);
+            Raylib.UnloadImage(image);
         }
 
         public PixelBuffer(Color32[] pixels, int width, Texture2D texture)
@@ -43,13 +44,13 @@ namespace Disaster
                 Console.WriteLine($"Incorrect amount of pixels set on pixelbuffer: Expected {width * height} Got {pixels.Length}");
                 return;
             }
-            var image = Raylib.GenImageColor(width, height, Color.MAGENTA);
-            unsafe
-            {
-                pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, width * height * 4));
-            }
+
             this.pixels = pixels;
-            this.texture = Raylib.LoadTextureFromImage(image);
+            unsafe {
+                fixed (void* pixelsPtr = this.pixels) {
+                    Raylib.UpdateTexture(this.texture, (IntPtr)pixelsPtr);
+                }
+            }
         }
 
         private static PixelBuffer _missing;
@@ -70,11 +71,7 @@ namespace Disaster
                             pixels[i + j * mw] = (i + j) % 8 < 4 ? new Color32(255, 160, 0) : new Color32(0, 0, 0);
                         }
                     }
-                    var image = Raylib.GenImageColor(mw, mh, Color.MAGENTA);
-                    unsafe
-                    {
-                        pixels.AsSpan().CopyTo(new Span<Color32>((void*)image.data, mw * mh * 4));
-                    }
+
                     _missing = new PixelBuffer(pixels, mw);
                     _missingDefined = true;
                 }
@@ -198,8 +195,15 @@ namespace Disaster
         {
             Dispose();
             scripts.Clear();
+
+            // Unload pixelbuffers
+            foreach (var (_, buffer) in pixelBuffers)
+            {
+                Raylib.UnloadTexture(buffer.texture);
+            }
             pixelBuffers.Clear();
             
+            // TODO: This might crash if you unloadall while something is playing?
             AudioController.StopAllSound();
             foreach (var a in audio)
             {
@@ -209,6 +213,11 @@ namespace Disaster
             audio.Clear();
             music.Clear();
             texts.Clear();
+
+            foreach (var (id, model) in models)
+            {
+                Raylib.UnloadModel(model);
+            }
             models.Clear();
             fonts.Clear();
             currentFont = "default";
@@ -227,7 +236,7 @@ namespace Disaster
         {
             path = Reslash(path);
 
-            if (pixelBuffers.ContainsKey(path)) { pixelBuffers.Remove(path); }
+            if (pixelBuffers.ContainsKey(path)) { Raylib.UnloadTexture(pixelBuffers[path].texture); pixelBuffers.Remove(path); }
             if (scripts.ContainsKey(path)) { scripts.Remove(path); }
             if (audio.ContainsKey(path)) { audio.Remove(path); }
             if (music.ContainsKey(path)) { music.Remove(path); }
@@ -370,13 +379,13 @@ namespace Disaster
                 }
 
                 var texture = Raylib.LoadTextureFromImage(image);
-
                 var pixelBuffer = new PixelBuffer(
                     pixels,
                     image.width,
                     texture
                 );
                 pixelBuffers.Add(path, pixelBuffer);
+                Raylib.UnloadImage(image);
             }
             return (true, pixelBuffers[path]);
         }

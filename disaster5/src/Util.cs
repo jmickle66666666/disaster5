@@ -131,45 +131,6 @@ namespace Disaster
             return false;
 
         }
-
-        public static RenderTexture2D LoadRenderTexture(int width, int height)
-        {
-            RenderTexture2D target = new RenderTexture2D();
-
-            target.id = Rlgl.rlLoadFramebuffer(width, height);   // Load an empty framebuffer
-
-            if (target.id > 0)
-            {
-                Rlgl.rlEnableFramebuffer(target.id);
-
-                // Create color texture (default to RGBA)
-                target.texture.id = Rlgl.rlLoadTexture(IntPtr.Zero, width, height, PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1);
-                target.texture.width = width;
-                target.texture.height = height;
-                target.texture.format = PixelFormat.PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
-                target.texture.mipmaps = 1;
-
-                // Create depth renderbuffer/texture
-                target.depth.id = Rlgl.rlLoadTextureDepth(width, height, false);
-                target.depth.width = width;
-                target.depth.height = height;
-                target.depth.format = (PixelFormat)19;       //DEPTH_COMPONENT_24BIT?
-                target.depth.mipmaps = 1;
-
-                // Attach color texture and depth renderbuffer/texture to FBO
-                
-                Rlgl.rlFramebufferAttach(target.id, target.texture.id, FramebufferAttachType.RL_ATTACHMENT_COLOR_CHANNEL0, FramebufferAttachTextureType.RL_ATTACHMENT_TEXTURE2D, 0);
-                Rlgl.rlFramebufferAttach(target.id, target.depth.id, FramebufferAttachType.RL_ATTACHMENT_DEPTH, FramebufferAttachTextureType.RL_ATTACHMENT_TEXTURE2D, 0);
-
-                // Check if fbo is complete with attachments (valid)
-                //if (Rlgl.rlFramebufferComplete(target.id)) TRACELOG(LOG_INFO, "FBO: [ID %i] Framebuffer object created successfully", target.id);
-
-                Rlgl.rlDisableFramebuffer();
-            }
-            //else TRACELOG(LOG_WARNING, "FBO: Framebuffer object can not be created");
-
-            return target;
-        }
     }
 
     public struct Color32

@@ -123,10 +123,10 @@ namespace Disaster
             Raylib.SetExitKey(KeyboardKey.KEY_HOME);
             while (!Raylib.WindowShouldClose() && running)
             {
-                AudioController.Update();
                 Debug.FrameStart();
+                AudioController.Update();
                 var jsTimeStart = DateTime.UtcNow.Ticks;
-                js.Update(Raylib.GetFrameTime());
+                js.Update(ScreenController.deltaTime);
                 scriptTime = (double) (DateTime.UtcNow.Ticks - jsTimeStart) / TimeSpan.TicksPerSecond;
                 Debug.Label("js update");
                 Debug.DrawGraph();

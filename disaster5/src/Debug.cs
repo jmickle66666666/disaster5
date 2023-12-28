@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Raylib_cs;
 
 namespace Disaster
@@ -92,8 +91,9 @@ namespace Disaster
                 TextController.Text(0, posY, colors[i % colors.Length], names[i]);
             }
 
-            const int y = 240;
-            for (int i = 0; i < frameHistory.Count; i++)
+            int y = ScreenController.screenHeight;
+            int maxLines = Math.Min(frameHistory.Count, ScreenController.screenWidth);
+            for (int i = 0; i < maxLines; i++)
             {
                 for (int j = 0; j < frameHistory[i].Length; j++)
                 {

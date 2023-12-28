@@ -132,8 +132,7 @@ namespace DisasterAPI
         [FunctionDescription("Set target maximum FPS.")]
         public static void SetTargetFPS(int fps)
         {
-            Raylib.SetTargetFPS(fps);
+            Disaster.ScreenController.targetFPS = fps;
         }
     }
-
 }

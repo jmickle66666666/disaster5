@@ -80,6 +80,7 @@ namespace Disaster
                     }
                 }
             }
+            Raylib.UnloadImage(image);
 
             fontWidth /= 16;
             fontHeight /= 8;
